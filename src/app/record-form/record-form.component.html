@@ -1,0 +1,200 @@
+<!-- ===== Wizard header (Front / Back) ===== -->
+<div class="wizard-header">
+  <div class="steps">
+    <button type="button"
+            class="step"
+            [class.active]="step==='front'"
+            (click)="go('front')">
+      {{ ('FORM.STEP_FRONT' | translate) || 'Front' }}
+    </button>
+
+    <button type="button"
+            class="step"
+            [class.active]="step==='back'"
+            [disabled]="!frontDone"
+            (click)="go('back')">
+      {{ ('FORM.STEP_BACK' | translate) || 'Back' }}
+    </button>
+  </div>
+
+  <!-- Mode toggle (only when adding a new record) -->
+  <div class="mode-toggle" *ngIf="!isEdit">
+    <label>
+      <input type="radio" name="mode" value="manual" [(ngModel)]="mode" />
+      {{ ('FORM.MODE_MANUAL' | translate) || 'Type manually' }}
+    </label>
+    <label style="margin-left:12px">
+      <input type="radio" name="mode" value="upload" [(ngModel)]="mode" />
+      {{ ('FORM.MODE_UPLOAD' | translate) || 'Upload & OCR' }}
+    </label>
+  </div>
+</div>
+
+<!-- ==================== FRONT STEP ==================== -->
+<div class="form-grid" *ngIf="step==='front'">
+  <div class="left">
+    <label class="field">{{ 'FORM.NAME' | translate }}
+      <input type="text"
+             class="rtl-preserve"
+             dir="auto"
+             [attr.lang]="hasArabic(front.name) ? 'ar' : null"
+             [(ngModel)]="front.name" />
+    </label>
+
+    <label class="field">{{ 'FORM.ID' | translate }}
+      <input type="text"
+             class="rtl-preserve"
+             dir="auto"
+             [attr.lang]="hasArabic(front.nationalId) ? 'ar' : null"
+             [(ngModel)]="front.nationalId" />
+    </label>
+
+    <label class="field">{{ 'FORM.ADDRESS' | translate }}
+      <textarea rows="3"
+                class="rtl-preserve"
+                dir="auto"
+                [attr.lang]="hasArabic(front.address) ? 'ar' : null"
+                [(ngModel)]="front.address"></textarea>
+    </label>
+
+    <div class="row2">
+      <label class="field">{{ 'FORM.DOB' | translate }}
+        <input [type]="dobIsIso ? 'date' : 'text'"
+               [(ngModel)]="front.dob"
+               (change)="recalcAge()" />
+      </label>
+
+      <label class="field age-box">{{ 'FORM.AGE' | translate }}
+        <input type="number" [(ngModel)]="front.age" readonly />
+      </label>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" (click)="goNext()">
+        {{ 'FORM.NEXT' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Right: Upload + Extract (Front) — only when adding AND mode is 'upload' -->
+  <div class="right" *ngIf="!isEdit && mode === 'upload'">
+    <div class="upload-label">{{ 'FORM.UPLOAD_LABEL' | translate }}</div>
+    <label class="upload-box" for="frontFile">
+      <ng-container *ngIf="!frontPreview; else frontImgTpl">
+        <svg width="40" height="40" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 15v4H5v-4H3v4a2 2 0 002 2h14a2 2 0 002-2v-4h-2zM12 3l-5 5h3v6h4V8h3l-5-5z"/>
+        </svg>
+        <span>{{ 'FORM.UPLOAD_HINT' | translate }}</span>
+      </ng-container>
+      <ng-template #frontImgTpl>
+        <img [src]="frontPreview" alt="Front preview" />
+        <button type="button" class="remove-btn" (click)="clearFront($event)">✕</button>
+      </ng-template>
+    </label>
+    <input id="frontFile" type="file" accept="image/*" (change)="onFrontSelected($event)" hidden />
+
+    <div class="upload-actions">
+  <label class="inline">
+    <input type="checkbox" [(ngModel)]="applyFillEmptyOnly" />
+    {{ ('FORM.APPLY_FILL_EMPTY' | translate) || 'Only fill empty fields' }}
+  </label>
+
+  <button type="button" class="primary"
+          (click)="extractFront()"
+          [disabled]="!frontFile || loadingFront">
+    <span *ngIf="!loadingFront">{{ ('FORM.EXTRACT' | translate) || 'Extract' }}</span>
+    <span *ngIf="loadingFront">{{ ('FORM.EXTRACTING' | translate) || 'Extracting…' }}</span>
+  </button>
+</div>
+  </div>
+</div>
+
+<!-- ==================== BACK STEP ==================== -->
+<div class="form-grid" *ngIf="step==='back'">
+  <div class="left">
+    <div class="row2">
+      <label class="field">{{ 'FORM.OCCUPATION' | translate }}
+        <input type="text" [(ngModel)]="back.occupation" />
+      </label>
+      <label class="field">{{ 'FORM.GENDER' | translate }}
+        <input type="text" [(ngModel)]="back.gender" />
+      </label>
+    </div>
+
+    <div class="row2">
+      <label class="field">{{ 'FORM.RELIGION' | translate }}
+        <input type="text" [(ngModel)]="back.religion" />
+      </label>
+      <label class="field">{{ 'FORM.MARITAL' | translate }}
+        <input type="text" [(ngModel)]="back.maritalStatus" />
+      </label>
+    </div>
+
+    <label class="field">{{ 'FORM.HUSBANDNAME' | translate }}
+      <input type="text" [(ngModel)]="back.husbandName" />
+    </label>
+
+    <label class="field">{{ 'FORM.EXPIRY' | translate }}
+      <input type="date" [(ngModel)]="back.expiryDate" />
+    </label>
+
+    <div class="actions">
+      <button type="button" class="primary" (click)="confirmSave()">
+        {{ 'FORM.SAVE' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Right: Upload + Extract (Back) — only when adding AND mode is 'upload' -->
+  <div class="right" *ngIf="!isEdit && mode === 'upload'">
+    <div class="upload-label">{{ 'FORM.UPLOAD_LABEL' | translate }}</div>
+    <label class="upload-box" for="backFile">
+      <ng-container *ngIf="!backPreview; else backImgTpl">
+        <svg width="40" height="40" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 15v4H5v-4H3v4a2 2 0 002 2h14a2 2 0 002-2v-4h-2zM12 3l-5 5h3v6h4V8h3l-5-5z"/>
+        </svg>
+        <span>{{ 'FORM.UPLOAD_HINT' | translate }}</span>
+      </ng-container>
+      <ng-template #backImgTpl>
+        <img [src]="backPreview" alt="Back preview" />
+        <button type="button" class="remove-btn" (click)="clearBack($event)">✕</button>
+      </ng-template>
+    </label>
+    <input id="backFile" type="file" accept="image/*" (change)="onBackSelected($event)" hidden />
+
+   <div class="upload-actions">
+  <label class="inline">
+    <input type="checkbox" [(ngModel)]="applyFillEmptyOnly" />
+    {{ ('FORM.APPLY_FILL_EMPTY' | translate) || 'Only fill empty fields' }}
+  </label>
+
+  <button type="button" class="primary"
+          (click)="extractBack()"
+          [disabled]="!backFile || loadingBack">
+    <span *ngIf="!loadingBack">{{ ('FORM.EXTRACT' | translate) || 'Extract' }}</span>
+    <span *ngIf="loadingBack">{{ ('FORM.EXTRACTING' | translate) || 'Extracting…' }}</span>
+  </button>
+</div>
+  </div>
+</div>
+
+<!-- ========== error popup ========== -->
+<div class="mini-modal" *ngIf="showError">
+  <div class="mini-card">
+    <h4>{{ 'ERROR.TITLE' | translate }}</h4>
+    <p>{{ errorText }}</p>
+    <button class="primary" (click)="closeError()">{{ 'ERROR.OK' | translate }}</button>
+  </div>
+</div>
+
+<!-- ========== confirm popup ========== -->
+<div class="mini-modal" *ngIf="showConfirm">
+  <div class="mini-card">
+    <h4>{{ 'CONFIRM.TITLE' | translate }}</h4>
+    <p>{{ 'CONFIRM.MESSAGE' | translate }}</p>
+    <div class="confirm-actions">
+      <button class="primary" (click)="confirmSave()">{{ 'CONFIRM.YES' | translate }}</button>
+      <button class="ghost" (click)="cancelSave()">{{ 'CONFIRM.NO' | translate }}</button>
+    </div>
+  </div>
+</div>

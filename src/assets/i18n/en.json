@@ -1,0 +1,86 @@
+{
+  "TITLE": "OCR Records",
+  "SEARCH": "Search",
+  "SEARCH_NAME": "Search by name",
+  "SEARCH_ID": "Search by ID",
+  "CLEAR": "Clear",
+   "ADD":"ADD",
+  "TABLE": {
+    "INDEX": "#",
+    "NAME": "Name",
+    "NID": "ID Number",
+    "ADDRESS": "Address",
+    "DOB": "Date of Birth",
+    "AGE": "Age",
+    "EMPTY": "No records found",
+    "ACTIONS":"Actions",
+    "OCCUPATION":"Occupation",
+    "MARITAL":"Marital Status",
+    "HUSBANDNAME":"Husband Name",
+    "GENDER":"Gender",
+    "RELIGION":"Religion"
+
+  },
+  "DIALOG": {
+    "TITLE": "New Record"
+  },
+  "FORM": {
+    "NAME": "Name",
+    "ID": "ID Number",
+    "ADDRESS": "Address",
+    "DOB": "Date of Birth",
+    "AGE": "Age",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "UPLOAD_LABEL": "Extract data from image",
+    "UPLOAD_HINT": "Click to upload",
+    "STEP_FRONT": "Front Side",
+    "STEP_BACK": "Back Side",
+    "UPLOAD_LABEL_FRONT": "Upload Front Side",
+    "UPLOAD_LABEL_BACK": "Upload Back Side",
+    "UPLOAD_HINT_FRONT": "Click to upload front ID image",
+    "UPLOAD_HINT_BACK": "Click to upload back ID image",
+    "NEXT": "Next",
+    "BACK": "Back",
+    "SAVE_BOTH": "Save Record",
+    "SAVE_FRONT_ONLY": "Save (Front only)",
+    "OCCUPATION": "Occupation",
+    "GENDER": "Gender",
+    "RELIGION": "Religion",
+    "MARITAL": "Marital Status",
+    "EXPIRY_DATE": "Expiry Date",
+    "EXTRACT": "Extract",
+    "PLACEHOLDERS": {
+      "OCCUPATION": "Enter occupation",
+      "GENDER": "Enter gender",
+      "RELIGION": "Enter religion",
+      "MARITAL_STATUS": "Enter marital status",
+      "EXPIRY_DATE": "Select expiry date",
+      "NAME": "Full name",
+      "ID": "14-digit NID",
+      "ADDRESS": "Address"
+    }
+  },
+  "CONFIRM": {
+    "SAVE_FRONT_ONLY": "Save only front data?",
+    "SAVE_BOTH": "Save both sides?",
+    "TITLE": "Confirm Save",
+    "MESSAGE": "Save this record?",
+    "YES": "Yes, Save",
+    "NO": "Cancel"
+  },
+
+  "ERROR": {
+    "TITLE": "Error",
+    "OK": "OK"
+  },
+  
+  "DELETE_CONFIRM": {
+    "TITLE": "Confirm Delete",
+    "MESSAGE": "Are you sure you want to delete this record?",
+    "YES": "Yes, Delete",
+    "CANCEL": "Cancel"
+  }
+
+
+}

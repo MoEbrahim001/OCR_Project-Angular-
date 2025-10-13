@@ -1,0 +1,155 @@
+<div class="everything-container"> 
+
+  <div class="content-container">
+    <section class="header">
+      <div class="header-row">
+        <h2>{{ 'TITLE' | translate }}</h2>
+
+        <button type="button"
+                class="lang-btn"
+                [class.active]="currentLang === 'en'"
+                (click)="switchLang()">
+          {{ currentLang === 'en' ? 'En' : 'ع' }}
+        </button>
+      </div>
+
+      <div class="tools">
+        <div class="search-group">
+          <input type="text"
+                 [(ngModel)]="nameTerm"
+                 [placeholder]="'SEARCH_NAME' | translate" />
+          <input type="text"
+                 [(ngModel)]="idTerm"
+                 [placeholder]="'SEARCH_ID' | translate" />
+          <button class="primary" (click)="onSearchClick()">
+            {{ 'SEARCH' | translate }}
+          </button>
+          <button class="secondary" (click)="clearSearch()">
+            {{ 'CLEAR' | translate }}
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="table-container">
+      <div class="table-card">
+        <table class="records-table">
+          <thead>
+            <tr>
+              <th>{{ 'TABLE.INDEX' | translate }}</th>
+              <th>{{ 'TABLE.NAME' | translate }}</th>
+              <th>{{ 'TABLE.NID' | translate }}</th>
+              <th>{{ 'TABLE.ADDRESS' | translate }}</th>
+              <th>{{ 'TABLE.DOB' | translate }}</th>
+              <th>{{ 'TABLE.AGE' | translate }}</th>
+              <th>{{ 'TABLE.RELIGION' | translate }}</th>
+              <th>{{ 'TABLE.GENDER' | translate }}</th>
+              <th>{{ 'TABLE.OCCUPATION' | translate }}</th>
+              <th>{{ 'TABLE.MARITAL' | translate }}</th>
+              <th>{{ 'TABLE.HUSBANDNAME' | translate }}</th>
+              <th class="actions-col">{{ 'TABLE.ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+          
+          <tbody>
+            <tr *ngFor="let r of filteredRecords; let i = index">
+  <td>{{ (pageNumber - 1) * pageSize + i + 1 }}</td>
+              <td>{{ r.name }}</td>
+             <td>{{ r.idNumber }}</td>
+              <td>{{ r.address }}</td>
+              <td>{{ r.dateOfBirth | date:'yyyy-MM-dd' }}</td>
+
+              <td>{{ r.age }}</td>
+              <td>{{ r.religion }}</td>
+              <td>{{ r.gender }}</td>
+              <td>{{ r.occupation }}</td>
+              <td>{{ r.maritalStatus  }}</td>
+              <td>{{ r.husbandName }}</td>
+
+              <td class="actions-col">
+                <button class="icon-btn edit" (click)="startEdit(i)">
+                  <img src="assets/images/edit.png" alt="edit" />
+                </button>
+                <button class="icon-btn danger" (click)="askDelete(i)">
+                  <img src="assets/images/delete.png" alt="delete" />
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="!filteredRecords.length">
+              <td colspan="12" class="empty">{{ 'TABLE.EMPTY' | translate }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination controls -->
+      <div class="pager" *ngIf="totalCount">
+        <button (click)="goFirst()" [disabled]="pageNumber === 1 || loading">«</button>
+        <button (click)="goPrev()"  [disabled]="pageNumber === 1 || loading">‹</button>
+
+        <span>
+          {{ 'PAGE' | translate }} {{ pageNumber }}
+          <ng-container *ngIf="totalPages">/ {{ totalPages }}</ng-container>
+        </span>
+
+        <button (click)="goNext()" [disabled]="(totalPages && pageNumber >= totalPages) || loading">›</button>
+        <button (click)="goLast()" [disabled]="(totalPages && pageNumber >= totalPages) || loading">»</button>
+
+        <span class="count">· {{ totalCount }} {{ 'ITEMS' | translate }}</span>
+
+        <select [(ngModel)]="pageSize" (change)="loadPage(1)" [disabled]="loading" style="margin-left:8px">
+          <option [ngValue]="5">5</option>
+          <option [ngValue]="10">10</option>
+          <option [ngValue]="20">20</option>
+          <option [ngValue]="50">50</option>
+        </select>
+      </div>
+    </section>
+  </div> 
+  
+  <!-- Modals + FAB stay outside so they cover the whole screen -->
+  <div class="modal" *ngIf="showForm">
+    <div class="dialog">
+      <div class="dialog-header">
+        <h3>{{ 'DIALOG.TITLE' | translate }}</h3>
+        <button class="x" (click)="onCancel()">✕</button>
+      </div>
+     <app-record-form
+  [value]="draft"
+  [isEdit]="!!editingKey"
+  (save)="onSave($event)"
+  (cancel)="onCancel()">
+</app-record-form>
+>
+    </div>
+  </div>
+
+  <div class="mini-modal" *ngIf="showDeleteConfirm">
+    <div class="mini-card">
+      <h4>{{ 'DELETE_CONFIRM.TITLE' | translate }}</h4>
+      <p>{{ 'DELETE_CONFIRM.MESSAGE' | translate }}</p>
+      <div class="confirm-actions">
+        <button class="primary" (click)="confirmDelete()" [disabled]="deleting">
+  {{ 'DELETE_CONFIRM.YES' | translate }}
+</button>
+<button class="ghost" (click)="cancelDelete()" [disabled]="deleting">
+  {{ 'DELETE_CONFIRM.CANCEL' | translate }}
+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast error" *ngIf="showError">
+    {{ errorText }}
+    <button class="x" (click)="closeError()">✕</button>
+  </div>
+
+  <div class="toast success" *ngIf="showSuccess">
+    {{ successText }}
+  </div>
+
+  <button class="fab" (click)="openForm()">
+    {{ 'ADD' | translate }}
+  </button>
+
+</div>
