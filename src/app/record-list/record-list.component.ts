@@ -201,49 +201,56 @@ onSave(rec: any) {
   };
 
   if (this.editingKey) {
-    // ------- EDIT (PUT JSON) -------
-    const row = this.records.find(r => r.idNumber === this.editingKey);
-    if (!row || row.id == null) {
-      this.showError = true; this.errorText = 'Missing record id for update.'; return;
+    // ✅ Prefer the id from the draft you opened
+    const recordId =
+      (this.draft as any)?.id ??
+      this.records.find(r => r.idNumber === this.editingKey)?.id;
+
+    if (!recordId) {
+      this.showError = true;
+      this.errorText = 'Missing record ID for update.';
+      return;
     }
-    this.ocr.updateRecord(row.id, dto).subscribe({
+
+    this.ocr.updateRecord(recordId, dto).subscribe({
       next: done,
       error: err => { this.showError = true; this.errorText = 'Update failed'; console.error(err); }
     });
     return;
   }
 
+
   // ------- ADD -------
-  const hasFiles = !!(rec.frontFile || rec.backFile);
+  // ------- ADD -------
+// By default, save exactly what the user edited (JSON).
+// Only if you explicitly want to re-run OCR at save-time, flip this flag.
+const reRunOcrOnSave = false;
 
-  if (hasFiles) {
-    // ADD via OCR import (multipart)
-    const fd = new FormData();
-    // append files first
-    if (rec.frontFile) fd.append('FrontImage', rec.frontFile);
-    if (rec.backFile)  fd.append('BackImage',  rec.backFile);
-    // send text too (some servers may read it)
-    fd.append('Name', dto.name);
-    fd.append('IdNumber', dto.idNumber);
-    fd.append('DateOfBirth', dto.dateOfBirth ?? '');
-    fd.append('Address', dto.address ?? '');
-    fd.append('Gender', dto.gender ?? '');
-    fd.append('Profession', dto.profession ?? '');
-    fd.append('MaritalStatus', dto.maritalStatus ?? '');
-    fd.append('Religion', dto.religion ?? '');
-    fd.append('EndDate', dto.endDate ?? '');
+if (reRunOcrOnSave && (rec.frontFile || rec.backFile)) {
+  const fd = new FormData();
+  if (rec.frontFile) fd.append('FrontImage', rec.frontFile);
+  if (rec.backFile)  fd.append('BackImage',  rec.backFile);
+  fd.append('Name', dto.name);
+  fd.append('IdNumber', dto.idNumber);
+  fd.append('DateOfBirth', dto.dateOfBirth ?? '');
+  fd.append('Address', dto.address ?? '');
+  fd.append('Gender', dto.gender ?? '');
+  fd.append('Profession', dto.profession ?? '');
+  fd.append('MaritalStatus', dto.maritalStatus ?? '');
+  fd.append('Religion', dto.religion ?? '');
+  fd.append('EndDate', dto.endDate ?? '');
 
-    this.ocr.postFormDataToImport(fd).subscribe({
-      next: done,
-      error: err => { this.showError = true; this.errorText = 'Create (OCR) failed'; console.error(err); }
-    });
-  } else {
-    // ADD manual (JSON)
-    this.ocr.createRecord(dto).subscribe({
-      next: done,
-      error: err => { this.showError = true; this.errorText = 'Create (manual) failed'; console.error(err); }
-    });
-  }
+  this.ocr.postFormDataToImport(fd).subscribe({
+    next: done,
+    error: err => { this.showError = true; this.errorText = 'Create (OCR) failed'; console.error(err); }
+  });
+} else {
+  // ✅ Create via JSON so the edited fields are persisted exactly as typed
+  this.ocr.createRecord(dto).subscribe({
+    next: done,
+    error: err => { this.showError = true; this.errorText = 'Create (manual) failed'; console.error(err); }
+  });
+}
 }
 
 
@@ -341,8 +348,8 @@ startEdit(index: number) {
   const rec = this.filteredRecords[index];
   if (!rec) return;
 
-  this.editingKey = rec.idNumber; // or whatever unique key you use
-  this.draft = { ...rec };        // preload form with row values
+  this.editingKey = rec.idNumber;
+  this.draft = { ...rec, id: rec.id }; // 🔸 ensure id is on the draft
   this.showForm = true;
 }
 

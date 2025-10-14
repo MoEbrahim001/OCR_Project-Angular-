@@ -272,24 +272,33 @@ extractBack() {
 confirmSave() {
   this.showConfirm = false;
 
+  // keep digits only, then validate
+  this.front.nationalId = (this.front.nationalId ?? '').replace(/\D/g, '');
   if (!this.validateIdNumber()) {
-    this.openError('The ID number must be exactly 14 digits.');
+    this.openError('ID number must be 14 digits');
     return;
   }
 
   const payload: any = {
     name: this.front.name ?? '',
-    idNumber: this.front.nationalId ?? '',
+    idNumber: this.front.nationalId ?? '',   // existing
+    nationalId: this.front.nationalId ?? '', // <-- add this for compatibility
     address: this.front.address ?? '',
     dateOfBirth: this.front.dob ?? '',
     age: this.front.age ?? 0,
     ...this.back,
     frontFile: this.isEdit ? null : (this.frontFile ?? null),
-    backFile: this.isEdit ? null : (this.backFile ?? null),
+    backFile:  this.isEdit ? null : (this.backFile  ?? null),
   };
+
+  // Optional: debug to verify you're emitting what you expect
+  console.log('EMIT payload:', payload);
 
   this.save.emit(payload);
 }
+
+
+
 
 // Parse DOB from Egyptian national ID (14 digits)
 private parseDobFromEgyptId(id: string): string | null {

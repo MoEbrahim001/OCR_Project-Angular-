@@ -33,6 +33,8 @@
 <!-- ==================== FRONT STEP ==================== -->
 <div class="form-grid" *ngIf="step==='front'">
   <div class="left">
+
+    <!-- Name -->
     <label class="field">{{ 'FORM.NAME' | translate }}
       <input type="text"
              class="rtl-preserve"
@@ -40,23 +42,25 @@
              [attr.lang]="hasArabic(front.name) ? 'ar' : null"
              [(ngModel)]="front.name" />
     </label>
-<label class="field">{{ 'FORM.ID' | translate }}
-  <input type="text"
-         class="rtl-preserve"
-         dir="auto"
-         inputmode="numeric"
-         maxlength="14"
-         [attr.lang]="hasArabic(front.nationalId) ? 'ar' : null"
-         [(ngModel)]="front.nationalId"
-         (ngModelChange)="onIdChanged()" />
 
-  <span *ngIf="front.nationalId && !validateIdNumber()" style="color:red;font-size:12px;">
-    ID number must be exactly 14 digits.
-  </span>
-</label>
+    <!-- ID number with live validation -->
+    <label class="field">{{ 'FORM.ID' | translate }}
+      <input type="text"
+             class="rtl-preserve"
+             dir="auto"
+             inputmode="numeric"
+             maxlength="14"
+             [attr.lang]="hasArabic(front.nationalId) ? 'ar' : null"
+             [(ngModel)]="front.nationalId"
+             (ngModelChange)="onIdChanged()" />
 
+      <!-- Inline validation message -->
+      <span *ngIf="front.nationalId && !validateIdNumber()" style="color:red;font-size:12px;">
+        ID number must be exactly 14 digits.
+      </span>
+    </label>
 
-
+    <!-- Address -->
     <label class="field">{{ 'FORM.ADDRESS' | translate }}
       <textarea rows="3"
                 class="rtl-preserve"
@@ -65,6 +69,7 @@
                 [(ngModel)]="front.address"></textarea>
     </label>
 
+    <!-- Date of Birth & Age -->
     <div class="row2">
       <label class="field">{{ 'FORM.DOB' | translate }}
         <input [type]="dobIsIso ? 'date' : 'text'"
@@ -77,6 +82,7 @@
       </label>
     </div>
 
+    <!-- Next button -->
     <div class="actions">
       <button type="button" class="primary" (click)="goNext()">
         {{ 'FORM.NEXT' | translate }}
@@ -84,7 +90,7 @@
     </div>
   </div>
 
-  <!-- Right: Upload + Extract (Front) — only when adding AND mode is 'upload' -->
+  <!-- Right: Upload + Extract (Front) -->
   <div class="right" *ngIf="!isEdit && mode === 'upload'">
     <div class="upload-label">{{ 'FORM.UPLOAD_LABEL' | translate }}</div>
     <label class="upload-box" for="frontFile">
@@ -102,18 +108,18 @@
     <input id="frontFile" type="file" accept="image/*" (change)="onFrontSelected($event)" hidden />
 
     <div class="upload-actions">
-  <label class="inline">
-    <input type="checkbox" [(ngModel)]="applyFillEmptyOnly" />
-    {{ ('FORM.APPLY_FILL_EMPTY' | translate) || 'Only fill empty fields' }}
-  </label>
+      <label class="inline">
+        <input type="checkbox" [(ngModel)]="applyFillEmptyOnly" />
+        {{ ('FORM.APPLY_FILL_EMPTY' | translate) || 'Only fill empty fields' }}
+      </label>
 
-  <button type="button" class="primary"
-          (click)="extractFront()"
-          [disabled]="!frontFile || loadingFront">
-    <span *ngIf="!loadingFront">{{ ('FORM.EXTRACT' | translate) || 'Extract' }}</span>
-    <span *ngIf="loadingFront">{{ ('FORM.EXTRACTING' | translate) || 'Extracting…' }}</span>
-  </button>
-</div>
+      <button type="button" class="primary"
+              (click)="extractFront()"
+              [disabled]="!frontFile || loadingFront">
+        <span *ngIf="!loadingFront">{{ ('FORM.EXTRACT' | translate) || 'Extract' }}</span>
+        <span *ngIf="loadingFront">{{ ('FORM.EXTRACTING' | translate) || 'Extracting…' }}</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -146,6 +152,7 @@
       <input type="date" [(ngModel)]="back.expiryDate" />
     </label>
 
+    <!-- Save button -->
     <div class="actions">
       <button type="button" class="primary" (click)="confirmSave()">
         {{ 'FORM.SAVE' | translate }}
@@ -153,7 +160,7 @@
     </div>
   </div>
 
-  <!-- Right: Upload + Extract (Back) — only when adding AND mode is 'upload' -->
+  <!-- Right: Upload + Extract (Back) -->
   <div class="right" *ngIf="!isEdit && mode === 'upload'">
     <div class="upload-label">{{ 'FORM.UPLOAD_LABEL' | translate }}</div>
     <label class="upload-box" for="backFile">
@@ -170,19 +177,19 @@
     </label>
     <input id="backFile" type="file" accept="image/*" (change)="onBackSelected($event)" hidden />
 
-   <div class="upload-actions">
-  <label class="inline">
-    <input type="checkbox" [(ngModel)]="applyFillEmptyOnly" />
-    {{ ('FORM.APPLY_FILL_EMPTY' | translate) || 'Only fill empty fields' }}
-  </label>
+    <div class="upload-actions">
+      <label class="inline">
+        <input type="checkbox" [(ngModel)]="applyFillEmptyOnly" />
+        {{ ('FORM.APPLY_FILL_EMPTY' | translate) || 'Only fill empty fields' }}
+      </label>
 
-  <button type="button" class="primary"
-          (click)="extractBack()"
-          [disabled]="!backFile || loadingBack">
-    <span *ngIf="!loadingBack">{{ ('FORM.EXTRACT' | translate) || 'Extract' }}</span>
-    <span *ngIf="loadingBack">{{ ('FORM.EXTRACTING' | translate) || 'Extracting…' }}</span>
-  </button>
-</div>
+      <button type="button" class="primary"
+              (click)="extractBack()"
+              [disabled]="!backFile || loadingBack">
+        <span *ngIf="!loadingBack">{{ ('FORM.EXTRACT' | translate) || 'Extract' }}</span>
+        <span *ngIf="loadingBack">{{ ('FORM.EXTRACTING' | translate) || 'Extracting…' }}</span>
+      </button>
+    </div>
   </div>
 </div>
 
