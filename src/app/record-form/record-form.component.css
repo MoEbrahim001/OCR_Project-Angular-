@@ -9,7 +9,7 @@
 .step{
   border:1px solid #d7e1df;
   background:#fff;
-  color:#6BA292;
+  color:#6b84c0;
   padding:6px 12px;
   border-radius:999px;
   font-weight:700;
@@ -17,23 +17,34 @@
   transition: background .15s, border-color .15s, color .15s;
 }
 .step:hover{ background:#E8F0F2; }
-.step.active{ background:#6BA292; color:#fff; border-color:#6BA292; }
+.step.active{ background:#6b84c0; color:#fff; border-color:#6b84c0; }
 .step:disabled{ opacity:.5; cursor:not-allowed; }
 .header-actions .small{ padding:8px 12px; border-radius:8px; }
 
 /* ============ Grid inside popup ============ */
 .form-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 400px; 
-  gap: 24px;
-  padding-block: 16px 20px;
-  padding-inline: 20px;
+  grid-template-columns: minmax(0, 1fr) 360px; 
+  gap: 20px;
+  padding: 16px 24px 20px;
+  align-items: start; 
+}
 
+.upload-box {
   width: 100%;
-  max-width: 100%;
-  min-width: 0;               
+  height: 200px; 
+  padding: 12px;
+  border: 2px dashed #6b84c0;
+  border-radius: 10px;
+  background: #FBF8EF;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
   box-sizing: border-box;
 }
+
 .left {
   display: flex;
   flex-direction: column;
@@ -54,7 +65,7 @@
   margin-bottom: 12px;
   font-size: 14px;
   font-weight: 700;              
-  color: #2b3a37;               
+  color: #1f2a28;               
 }
 .field > input,
 .field > textarea {
@@ -90,10 +101,10 @@ textarea {
   min-height: 72px;              
 }
 input::placeholder,
-textarea::placeholder { color: #768684; }
+textarea::placeholder { color:#6b84c0; }
 input:focus,
 textarea:focus {
-  border-color: #6BA292;         
+  border-color: #6b84c0;         
   box-shadow: 0 0 0 3px rgba(107,162,146,.22); 
 }
 
@@ -109,7 +120,7 @@ textarea:focus {
 
 .actions .primary,
 .mini-card .primary {             
-  background: #6BA292;
+  background:#6b84c0;
   color: #fff;
   border: 0;
   padding: 10px 16px;
@@ -121,7 +132,7 @@ textarea:focus {
 }
 .actions .primary:hover,
 .mini-card .primary:hover {
-  background: #128162;
+  background: #3261ed;
   transform: translateY(-1px);
 }
 .actions .primary:active,
@@ -158,7 +169,7 @@ textarea:focus {
   width: 100%;
   height: 240px;
   padding: 16px;                             
-  border: 2px dashed rgba(107,162,146,.55);  
+  border: 2px dashed rgba(162, 129, 107, 0.55);  
   border-radius: 12px;
   background: #FBF8EF;                        
   display: flex;
@@ -172,14 +183,14 @@ textarea:focus {
   transition: border-color .15s, background-color .15s, color .15s;
 }
 .upload-box:hover {
-  border-color: #6BA292;
+  border-color: #6b84c0;
   background: #E8F0F2;                        
-  color: #128162;
+  color:#3261ed;
 }
 
-.upload-box svg path { fill: #6BA292; }
+.upload-box svg path { fill:#6b84c0; }
 .upload-box span {
-  color: #6BA292;
+  color:#3261ed;
   font-size: 14px;
   font-weight: 600;
 }
@@ -233,12 +244,9 @@ textarea:focus {
   }
   .right { padding-inline-end: 0; }
 }
-/* record-form.component.css */
-/* was: unicode-bidi: isolate-override; (this causes visual-order issues) */
 .rtl-preserve {
-  unicode-bidi: isolate;   /* or 'plaintext' if all target browsers support it */
+  unicode-bidi: isolate;   
   white-space: pre-wrap;
-  /* direction will come from the element’s dir="auto" */
 }
 
 
