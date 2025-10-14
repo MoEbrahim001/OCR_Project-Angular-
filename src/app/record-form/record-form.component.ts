@@ -208,7 +208,16 @@ extractFront() {
         // Apply with current strategy
         this.applyOcrFrontToForm(this.ocrFrontLast, !this.applyFillEmptyOnly);
         // If DOB filled, recalc age if OCR didn't set it
-        if (!this.front.age) this.recalcAge();
+if (!this.front.age) this.recalcAge();
+
+// ✅ Add this block here
+if (!this.front.dob && this.front.nationalId) {
+  const derived = this.parseDobFromEgyptId(this.front.nationalId);
+  if (derived) {
+    this.front.dob = derived;
+    this.recalcAge();
+  }
+}
       },
       error: _ => this.openError('Front OCR failed.')
     });
@@ -263,6 +272,11 @@ extractBack() {
 confirmSave() {
   this.showConfirm = false;
 
+  if (!this.validateIdNumber()) {
+    this.openError('The ID number must be exactly 14 digits.');
+    return;
+  }
+
   const payload: any = {
     name: this.front.name ?? '',
     idNumber: this.front.nationalId ?? '',
@@ -270,12 +284,45 @@ confirmSave() {
     dateOfBirth: this.front.dob ?? '',
     age: this.front.age ?? 0,
     ...this.back,
-    // only pass files if they exist (and never in edit)
     frontFile: this.isEdit ? null : (this.frontFile ?? null),
-    backFile:  this.isEdit ? null : (this.backFile  ?? null),
+    backFile: this.isEdit ? null : (this.backFile ?? null),
   };
 
   this.save.emit(payload);
+}
+
+// Parse DOB from Egyptian national ID (14 digits)
+private parseDobFromEgyptId(id: string): string | null {
+  const m = id.match(/^([23])(\d{2})(\d{2})(\d{2})/);
+  if (!m) return null;
+
+  const century = m[1] === '2' ? 1900 : m[1] === '3' ? 2000 : null;
+  if (century == null) return null;
+
+  const yy = parseInt(m[2], 10);
+  const mm = parseInt(m[3], 10);
+  const dd = parseInt(m[4], 10);
+
+  // basic range checks
+  if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return null;
+
+  const iso = `${century + yy}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
+  return iso;
+}
+
+// Called whenever nationalId changes (manual or programmatic)
+onIdChanged() {
+  // keep digits-only in the model (optional but nice)
+  this.front.nationalId = (this.front.nationalId ?? '').replace(/\D/g, '');
+
+  // only derive when it's a valid 14-digit number
+  if (!this.validateIdNumber()) return;
+
+  const dob = this.parseDobFromEgyptId(this.front.nationalId!);
+  if (dob) {
+    this.front.dob = dob;
+    this.recalcAge();
+  }
 }
 
 
@@ -300,5 +347,10 @@ get dobIsIso(): boolean {
 hasArabic(s?: string) {
   return /[\u0590-\u08FF]/.test(s ?? '');
 }
+validateIdNumber(): boolean {
+  const id = this.front.nationalId?.trim() ?? '';
+  return /^[0-9]{14}$/.test(id);
+}
+
 
 }

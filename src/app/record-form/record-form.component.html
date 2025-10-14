@@ -40,14 +40,22 @@
              [attr.lang]="hasArabic(front.name) ? 'ar' : null"
              [(ngModel)]="front.name" />
     </label>
+<label class="field">{{ 'FORM.ID' | translate }}
+  <input type="text"
+         class="rtl-preserve"
+         dir="auto"
+         inputmode="numeric"
+         maxlength="14"
+         [attr.lang]="hasArabic(front.nationalId) ? 'ar' : null"
+         [(ngModel)]="front.nationalId"
+         (ngModelChange)="onIdChanged()" />
 
-    <label class="field">{{ 'FORM.ID' | translate }}
-      <input type="text"
-             class="rtl-preserve"
-             dir="auto"
-             [attr.lang]="hasArabic(front.nationalId) ? 'ar' : null"
-             [(ngModel)]="front.nationalId" />
-    </label>
+  <span *ngIf="front.nationalId && !validateIdNumber()" style="color:red;font-size:12px;">
+    ID number must be exactly 14 digits.
+  </span>
+</label>
+
+
 
     <label class="field">{{ 'FORM.ADDRESS' | translate }}
       <textarea rows="3"
