@@ -19,10 +19,10 @@
 
   <!-- Mode toggle (only when adding a new record) -->
   <div class="mode-toggle" *ngIf="!isEdit">
-    <label>
+    <!-- <label>
       <input type="radio" name="mode" value="manual" [(ngModel)]="mode" />
       {{ ('FORM.MODE_MANUAL' | translate) || 'Type manually' }}
-    </label>
+    </label> -->
     <label style="margin-left:12px">
       <input type="radio" name="mode" value="upload" [(ngModel)]="mode" />
       {{ ('FORM.MODE_UPLOAD' | translate) || 'Upload & OCR' }}
@@ -105,15 +105,15 @@
         <button type="button" class="remove-btn" (click)="clearFront($event)">✕</button>
       </ng-template>
     </label>
-    <input id="frontFile" type="file" accept="image/*" (change)="onFrontSelected($event)" hidden />
-
+    <input id="frontFile" type="file" accept="image/*"
+       (change)="onFrontSelected($event)" hidden />
     <div class="upload-actions">
       <label class="inline">
         <input type="checkbox" [(ngModel)]="applyFillEmptyOnly" />
         {{ ('FORM.APPLY_FILL_EMPTY' | translate) || 'Only fill empty fields' }}
       </label>
 
-      <button type="button" class="primary"
+      <button type="button" class="primary extract-btn"
               (click)="extractFront()"
               [disabled]="!frontFile || loadingFront">
         <span *ngIf="!loadingFront">{{ ('FORM.EXTRACT' | translate) || 'Extract' }}</span>
@@ -175,15 +175,15 @@
         <button type="button" class="remove-btn" (click)="clearBack($event)">✕</button>
       </ng-template>
     </label>
-    <input id="backFile" type="file" accept="image/*" (change)="onBackSelected($event)" hidden />
-
+    <input id="backFile" type="file" accept="image/*"
+          (change)="onBackSelected($event)" hidden />
     <div class="upload-actions">
       <label class="inline">
         <input type="checkbox" [(ngModel)]="applyFillEmptyOnly" />
         {{ ('FORM.APPLY_FILL_EMPTY' | translate) || 'Only fill empty fields' }}
       </label>
 
-      <button type="button" class="primary"
+      <button type="button" class="primary extract-btn"
               (click)="extractBack()"
               [disabled]="!backFile || loadingBack">
         <span *ngIf="!loadingBack">{{ ('FORM.EXTRACT' | translate) || 'Extract' }}</span>

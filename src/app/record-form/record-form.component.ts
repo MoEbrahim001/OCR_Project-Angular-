@@ -5,6 +5,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { RecordModel } from '../models/record.model';
 import { OcrService } from '../services/ocr.service';
 import { finalize } from 'rxjs';
+import { ChangeDetectorRef, NgZone } from '@angular/core';
+
+// ⬆️ inject in constructor
+
 
 /** Extra fields for the "Back" side */
 interface BackData {
@@ -35,8 +39,17 @@ export class RecordFormComponent {
   mode: 'manual' | 'upload' = 'manual';
 
   @Output() cancel = new EventEmitter<void>();
-    constructor(private ocr: OcrService) {} // ⟵ inject service
+constructor(private ocr: OcrService, private cdr: ChangeDetectorRef, private zone: NgZone) {}
 
+private applyAndRefresh(mutator: () => void) {
+  // In case callback happens outside Angular zone
+  this.zone.run(() => {
+    mutator();
+    // Force a pass for stubborn templates
+    this.cdr.detectChanges();
+  });
+  
+}
   loadingFront = false;
   loadingBack = false;
   step: 'front' | 'back' = 'front';
@@ -150,28 +163,30 @@ private applyOcrBackToForm(src: BackData, overwrite = false) {
 }
   /* -------- uploads -------- */
   onFrontSelected(ev: Event) {
-    const input = ev.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) return this.openError('Please select an image file.');
-    if (this.frontObjUrl) URL.revokeObjectURL(this.frontObjUrl);
-    this.frontObjUrl = URL.createObjectURL(file);
-    this.frontFile = file;
-    this.frontPreview = this.frontObjUrl;
-      this.extractFront();  // <— add this
+  const input = ev.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) return this.openError('Please select an image file.');
+  if (this.frontObjUrl) URL.revokeObjectURL(this.frontObjUrl);
+  this.frontObjUrl = URL.createObjectURL(file);
+  this.frontFile = file;
+  this.frontPreview = this.frontObjUrl;
 
-  }
-  onBackSelected(ev: Event) {
-    const input = ev.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) return this.openError('Please select an image file.');
-    if (this.backObjUrl) URL.revokeObjectURL(this.backObjUrl);
-    this.backObjUrl = URL.createObjectURL(file);
-    this.backFile = file;
-    this.backPreview = this.backObjUrl;
-    this.extractBack();
-  }
+  // run extract and reflect immediately on the same step
+  this.extractFront();
+}
+ onBackSelected(ev: Event) {
+  const input = ev.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) return this.openError('Please select an image file.');
+  if (this.backObjUrl) URL.revokeObjectURL(this.backObjUrl);
+  this.backObjUrl = URL.createObjectURL(file);
+  this.backFile = file;
+  this.backPreview = this.backObjUrl;
+
+  this.extractBack();
+}
   clearFront(e: Event) {
     e.preventDefault();
     if (this.frontObjUrl) URL.revokeObjectURL(this.frontObjUrl);
@@ -188,50 +203,57 @@ private applyOcrBackToForm(src: BackData, overwrite = false) {
   }
 
   /* -------- mock extractors (wire OCR later) -------- */
-// record-form.component.ts (where you call extract)
+/* ================== FRONT ================== */
 extractFront() {
-  if (this.isEdit || this.mode === 'manual') return; // safety
+  if (this.isEdit || this.mode === 'manual') return;
   if (!this.frontFile) { this.openError('Please upload the front image first.'); return; }
   this.loadingFront = true;
+
   this.ocr.extractFront(this.frontFile, 120)
-    .pipe(finalize(() => this.loadingFront = false))
+    .pipe(finalize(() => {
+      this.loadingFront = false;
+      // One more nudge after spinner flips
+      this.cdr.detectChanges();
+    }))
     .subscribe({
       next: res => {
-        console.log('OCR front raw:', res);
-        this.ocrFrontLast = {
-          name: res?.name ?? '',
-          nationalId: res?.nationalId ?? '',
-          address: res?.address ?? '',
-          dob: res?.dob ?? '',
-          age: (typeof res?.age === 'number') ? res.age : undefined
-        };
-        // Apply with current strategy
-        this.applyOcrFrontToForm(this.ocrFrontLast, !this.applyFillEmptyOnly);
-        // If DOB filled, recalc age if OCR didn't set it
-if (!this.front.age) this.recalcAge();
+        this.applyAndRefresh(() => {
+          // map and apply
+          this.ocrFrontLast = {
+            name: res?.name ?? '',
+            nationalId: res?.nationalId ?? '',
+            address: res?.address ?? '',
+            dob: res?.dob ?? '',
+            age: (typeof res?.age === 'number') ? res.age : undefined
+          };
+          this.applyOcrFrontToForm(this.ocrFrontLast, !this.applyFillEmptyOnly);
+          if (!this.front.age) this.recalcAge();
 
-// ✅ Add this block here
-if (!this.front.dob && this.front.nationalId) {
-  const derived = this.parseDobFromEgyptId(this.front.nationalId);
-  if (derived) {
-    this.front.dob = derived;
-    this.recalcAge();
-  }
-}
+          // (optional) keep focus on current step; do NOT auto-switch
+          // this.step = 'front';
+        });
       },
       error: _ => this.openError('Front OCR failed.')
     });
 }
 
+
+/* ================== BACK ================== */
 extractBack() {
-  if (this.isEdit || this.mode === 'manual') return; // safety
+  if (this.isEdit || this.mode === 'manual') return;
   if (!this.backFile) { this.openError('Please upload the back image first.'); return; }
   this.loadingBack = true;
+
   this.ocr.extractBack(this.backFile)
-    .pipe(finalize(() => this.loadingBack = false))
+    .pipe(finalize(() => {
+      this.loadingBack = false;
+      this.cdr.detectChanges();
+    }))
     .subscribe({
       next: (res: any) => {
         const r = (res && res.data) ? res.data : res;
+
+        // normalize occupation variants & cleanup pipes
         let occ =
           r?.occupation ?? r?.Occupation ??
           r?.profession ?? r?.Profession ??
@@ -241,17 +263,20 @@ extractBack() {
           occ = occ.replace(/\|/g, ' ').replace(/\s+/g, ' ').trim();
         }
 
-        this.ocrBackLast = {
-          occupation: occ,
-          gender: r?.gender,
-          religion: r?.religion,
-          maritalStatus: r?.maritalStatus,
-          husbandName: r?.husbandName,
-          expiryDate: r?.expiryDate
-        };
+        this.applyAndRefresh(() => {
+          this.ocrBackLast = {
+            occupation: occ,
+            gender: r?.gender,
+            religion: r?.religion,
+            maritalStatus: r?.maritalStatus,
+            husbandName: r?.husbandName,
+            expiryDate: r?.expiryDate
+          };
+          this.applyOcrBackToForm(this.ocrBackLast, !this.applyFillEmptyOnly);
 
-        // Apply with current strategy
-        this.applyOcrBackToForm(this.ocrBackLast, !this.applyFillEmptyOnly);
+          // (optional) keep step on 'back' without bouncing
+          // this.step = 'back';
+        });
       },
       error: _ => this.openError('Back OCR failed. Please try again.')
     });

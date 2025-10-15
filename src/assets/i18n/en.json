@@ -4,7 +4,11 @@
   "SEARCH_NAME": "Search by name",
   "SEARCH_ID": "Search by ID",
   "CLEAR": "Clear",
-   "ADD":"ADD",
+  "ADD":"ADD",
+  "PAGE": "Page", 
+  "ITEMS": "items" ,
+
+
   "TABLE": {
     "INDEX": "#",
     "NAME": "Name",
@@ -50,6 +54,13 @@
     "MARITAL": "Marital Status",
     "EXPIRY_DATE": "Expiry Date",
     "EXTRACT": "Extract",
+    "MODE_MANUAL": "Type manually",
+    "MODE_UPLOAD": "Upload & OCR",
+    "APPLY_FILL_EMPTY": "Only fill empty fields",
+    "EXTRACTING": "Extracting…",
+    "HUSBANDNAME": "Husband Name",
+    "EXPIRY": "Expiry Date",
+    "EXTRACT":"Extract",
     "PLACEHOLDERS": {
       "OCCUPATION": "Enter occupation",
       "GENDER": "Enter gender",

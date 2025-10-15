@@ -6,6 +6,8 @@
   "CLEAR": "مسح",
   "EXTRACT": "استخراج",
   "ADD": "إضافة",
+  "PAGE": "صفحة",
+  "ITEMS": "عنصر",
 
   "TABLE": {
     "INDEX": "#",
@@ -56,6 +58,11 @@
     "UPLOAD_HINT": "اضغط للرفع",
     "UPLOAD_HINT_FRONT": "اضغط لتحميل صورة الوجه الأمامي للبطاقة",
     "UPLOAD_HINT_BACK": "اضغط لتحميل صورة الوجه الخلفي للبطاقة",
+    "MODE_MANUAL": "إدخال يدوي",
+    "MODE_UPLOAD": "رفع الصورة و OCR",
+    "APPLY_FILL_EMPTY": "املأ الحقول الفارغة فقط",
+    "EXTRACTING": "جارٍ الاستخراج…",
+    "EXTRACT":"استخراج",
 
     "PLACEHOLDERS": {
       "NAME": "الاسم الكامل",
