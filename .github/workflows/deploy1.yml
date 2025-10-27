@@ -1,0 +1,40 @@
+name: 🚀 Deploy Python API to SmarterASP.NET
+
+on:
+  push:
+    branches:
+      - main   # or 'master' if your default branch is master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout the repo
+      - name: 📂 Checkout code
+        uses: actions/checkout@v4
+
+      # 2️⃣ Setup Python (optional — only if you need build/test before deploy)
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # 3️⃣ Install dependencies (optional — for FastAPI, Flask, etc.)
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # 4️⃣ Deploy via FTP to SmarterASP.NET
+      - name: 📤 Deploy to SmarterASP.NET via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./                # root of your repo (adjust if needed)
+          server-dir: ${{ secrets.FTP_TARGET_DIR }}
+          protocol: ftp
+          port: 21
+          log-level: verbose
