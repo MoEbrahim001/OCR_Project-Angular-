@@ -216,23 +216,24 @@ extractFront() {
       this.cdr.detectChanges();
     }))
     .subscribe({
-      next: res => {
-        this.applyAndRefresh(() => {
-          // map and apply
-          this.ocrFrontLast = {
-            name: res?.name ?? '',
-            nationalId: res?.nationalId ?? '',
-            address: res?.address ?? '',
-            dob: res?.dob ?? '',
-            age: (typeof res?.age === 'number') ? res.age : undefined
-          };
-          this.applyOcrFrontToForm(this.ocrFrontLast, !this.applyFillEmptyOnly);
-          if (!this.front.age) this.recalcAge();
+    next: res => {
+  this.applyAndRefresh(() => {
+    // Convert national ID to Arabic digits here
+    const arabicId = this.toArabicDigits(res?.nationalId ?? '');
 
-          // (optional) keep focus on current step; do NOT auto-switch
-          // this.step = 'front';
-        });
-      },
+    this.ocrFrontLast = {
+      name: res?.name ?? '',
+      nationalId: arabicId, // ✅ use Arabic digits here
+      address: res?.address ?? '',
+      dob: res?.dob ?? '',
+      age: (typeof res?.age === 'number') ? res.age : undefined
+    };
+
+    this.applyOcrFrontToForm(this.ocrFrontLast, !this.applyFillEmptyOnly);
+    if (!this.front.age) this.recalcAge();
+  });
+},
+
       error: _ => this.openError('Front OCR failed.')
     });
 }
@@ -282,6 +283,18 @@ extractBack() {
     });
 }
 
+// Map Arabic-Indic (٠-٩) & Persian (۰-۹) to ASCII
+private toEnglishDigits(s: string): string {
+  const map: Record<string, string> = {
+    '٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9',
+    '۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9'
+  };
+  return (s ?? '').replace(/[٠-٩۰-۹]/g, d => map[d] ?? d);
+}
+private toArabicDigits(s: string): string {
+  const a = '٠١٢٣٤٥٦٧٨٩';
+  return (s ?? '').replace(/\d/g, d => a[+d]);
+}
 
 
 
@@ -297,17 +310,13 @@ extractBack() {
 confirmSave() {
   this.showConfirm = false;
 
-  // keep digits only, then validate
-  this.front.nationalId = (this.front.nationalId ?? '').replace(/\D/g, '');
-  if (!this.validateIdNumber()) {
-    this.openError('ID number must be 14 digits');
-    return;
-  }
+  const idEn = this.toEnglishDigits(this.front.nationalId ?? '').replace(/\D/g, '');
+  if (idEn.length !== 14) { this.openError('ID number must be 14 digits'); return; }
 
   const payload: any = {
     name: this.front.name ?? '',
-    idNumber: this.front.nationalId ?? '',   // existing
-    nationalId: this.front.nationalId ?? '', // <-- add this for compatibility
+    idNumber: idEn,             // send ASCII digits
+    nationalId: idEn,           // (compat)
     address: this.front.address ?? '',
     dateOfBirth: this.front.dob ?? '',
     age: this.front.age ?? 0,
@@ -316,9 +325,7 @@ confirmSave() {
     backFile:  this.isEdit ? null : (this.backFile  ?? null),
   };
 
-  // Optional: debug to verify you're emitting what you expect
   console.log('EMIT payload:', payload);
-
   this.save.emit(payload);
 }
 
@@ -346,18 +353,16 @@ private parseDobFromEgyptId(id: string): string | null {
 
 // Called whenever nationalId changes (manual or programmatic)
 onIdChanged() {
-  // keep digits-only in the model (optional but nice)
-  this.front.nationalId = (this.front.nationalId ?? '').replace(/\D/g, '');
+  const en = this.toEnglishDigits(this.front.nationalId ?? '');
+  const digits = en.replace(/\D/g, '');
+  // Keep the UI in Arabic
+  this.front.nationalId = this.toArabicDigits(digits);
 
-  // only derive when it's a valid 14-digit number
-  if (!this.validateIdNumber()) return;
-
-  const dob = this.parseDobFromEgyptId(this.front.nationalId!);
-  if (dob) {
-    this.front.dob = dob;
-    this.recalcAge();
-  }
+  if (digits.length !== 14) return;
+  const dob = this.parseDobFromEgyptId(digits);
+  if (dob) { this.front.dob = dob; this.recalcAge(); }
 }
+
 
 
 
@@ -382,9 +387,10 @@ hasArabic(s?: string) {
   return /[\u0590-\u08FF]/.test(s ?? '');
 }
 validateIdNumber(): boolean {
-  const id = this.front.nationalId?.trim() ?? '';
-  return /^[0-9]{14}$/.test(id);
+  const idEn = this.toEnglishDigits(this.front.nationalId ?? '').replace(/\D/g, '');
+  return idEn.length === 14;
 }
+
 
 
 }

@@ -18,9 +18,13 @@
           <input type="text"
                  [(ngModel)]="nameTerm"
                  [placeholder]="'SEARCH_NAME' | translate" />
-          <input type="text"
-                 [(ngModel)]="idTerm"
-                 [placeholder]="'SEARCH_ID' | translate" />
+      <input type="text"
+       [(ngModel)]="idTerm"
+       (ngModelChange)="onIdTermChanged($event)"
+       inputmode="numeric"
+       dir="auto"
+       [placeholder]="'SEARCH_ID' | translate" />
+
           <button class="primary" (click)="onSearchClick()">
             {{ 'SEARCH' | translate }}
           </button>
@@ -53,13 +57,13 @@
           
           <tbody>
             <tr *ngFor="let r of filteredRecords; let i = index">
-  <td>{{ (pageNumber - 1) * pageSize + i + 1 }}</td>
+  <td>{{ ((pageNumber - 1) * pageSize + i + 1 )|arabicDigits}} </td>
               <td>{{ r.name }}</td>
-             <td>{{ r.idNumber }}</td>
+             <td>{{ r.idNumber |arabicDigits}}</td>
               <td>{{ r.address }}</td>
-              <td>{{ r.dateOfBirth | date:'yyyy-MM-dd' }}</td>
+              <td>{{ r.dateOfBirth | date:'yyyy-MM-dd' |arabicDigits}}</td>
 
-              <td>{{ r.age }}</td>
+              <td>{{ r.age|arabicDigits }}</td>
               <td>{{ r.religion }}</td>
               <td>{{ r.gender }}</td>
               <td>{{ r.occupation }}</td>
@@ -88,8 +92,8 @@
         <button (click)="goPrev()"  [disabled]="pageNumber === 1 || loading">‹</button>
 
         <span>
-          {{ 'PAGE' | translate }} {{ pageNumber }}
-          <ng-container *ngIf="totalPages">/ {{ totalPages }}</ng-container>
+          {{ 'PAGE' | translate }} {{ pageNumber| arabicDigits }}
+          <ng-container *ngIf="totalPages">/ {{ totalPages| arabicDigits }}</ng-container>
         </span>
 
         <button (click)="goNext()" [disabled]="(totalPages && pageNumber >= totalPages) || loading">›</button>

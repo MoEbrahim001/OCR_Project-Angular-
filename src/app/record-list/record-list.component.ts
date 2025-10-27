@@ -9,7 +9,7 @@ import { debounceTime, distinctUntilChanged, finalize, switchMap, tap } from 'rx
 import { RecordFormComponent } from '../record-form/record-form.component';
 import { RecordModel } from '../models/record.model';
 import { CreateUpdateRecordDto, OcrService } from '../services/ocr.service';
-
+import { ArabicDigitsPipe } from '../arabic-digits.pipe';
 type PageParams = {
   pageNumber: number;
   pageSize: number;
@@ -21,7 +21,7 @@ type PageParams = {
 @Component({
   selector: 'app-record-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, RecordFormComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, RecordFormComponent,ArabicDigitsPipe],
   templateUrl: './record-list.component.html',
   styleUrls: ['./record-list.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -233,79 +233,93 @@ export class RecordListComponent implements OnInit, OnDestroy {
     };
   }
 
-  onSave(rec: any) {
-    const dto = this.toDto(rec);
+ onSave(rec: any) {
+  const dto = this.toDto(rec);
 
-    const done = () => {
-      this.showForm = false;
-      // reload current page; stream will cancel old request if any
-      this.loadPage(this.pageNumber);
-      this.successText = 'Saved ✓';
-      this.showSuccess = true;
-      setTimeout(() => { this.showSuccess = false; this.cdr.markForCheck(); }, 1200);
+  if (this.editingKey) {
+    // ------- UPDATE -------
+    const recordId =
+      (this.draft as any)?.id ??
+      this.records.find(r => r.idNumber === this.editingKey)?.id;
+
+    if (!recordId) {
+      this.showError = true;
+      this.errorText = 'Missing record ID for update.';
       this.cdr.markForCheck();
-    };
-
-    if (this.editingKey) {
-      const recordId =
-        (this.draft as any)?.id ??
-        this.records.find(r => r.idNumber === this.editingKey)?.id;
-
-      if (!recordId) {
-        this.showError = true;
-        this.errorText = 'Missing record ID for update.';
-        this.cdr.markForCheck();
-        return;
-      }
-
-      this.ocr.updateRecord(recordId, dto).subscribe({
-        next: done,
-        error: err => { this.showError = true; this.errorText = 'Update failed'; console.error(err); this.cdr.markForCheck(); }
-      });
       return;
     }
 
-    // ------- ADD -------
-    const reRunOcrOnSave = false;
-    if (reRunOcrOnSave && (rec.frontFile || rec.backFile)) {
-      const fd = new FormData();
-      if (rec.frontFile) fd.append('FrontImage', rec.frontFile);
-      if (rec.backFile)  fd.append('BackImage',  rec.backFile);
-      fd.append('Name', dto.name);
-      fd.append('IdNumber', dto.idNumber);
-      fd.append('DateOfBirth', dto.dateOfBirth ?? '');
-      fd.append('Address', dto.address ?? '');
-      fd.append('Gender', dto.gender ?? '');
-      fd.append('Profession', dto.profession ?? '');
-      fd.append('MaritalStatus', dto.maritalStatus ?? '');
-      fd.append('Religion', dto.religion ?? '');
-      fd.append('EndDate', dto.endDate ?? '');
-
-      this.ocr.postFormDataToImport(fd).subscribe({
-        next: done,
-        error: err => { this.showError = true; this.errorText = 'Create (OCR) failed'; console.error(err); this.cdr.markForCheck(); }
-      });
-    } else {
-      this.ocr.createRecord(dto).subscribe({
-        next: done,
-        error: err => { this.showError = true; this.errorText = 'Create (manual) failed'; console.error(err); this.cdr.markForCheck(); }
-      });
-    }
+    this.ocr.updateRecord(recordId, dto).subscribe({
+      next: (res: any) => {
+        // Build a RecordModel from API (prefer API fields if present)
+        const updated = this.mapItem({ id: recordId, ...(res || {}), ...dto });
+        this.replaceInArrays(updated);
+        this.finishSave('Updated ✓');
+      },
+      error: err => {
+        this.showError = true;
+        this.errorText = 'Update failed';
+        console.error(err);
+        this.cdr.markForCheck();
+      }
+    });
+    return;
   }
+
+  // ------- CREATE -------
+  this.ocr.createRecord(dto).subscribe({
+    next: (res: any) => {
+      // Map created row and prepend to the table
+      const created = this.mapItem(res || dto);
+      this.records = [created, ...this.records];
+      this.filteredRecords = [created, ...this.filteredRecords];
+      this.finishSave('Saved ✓');
+    },
+    error: err => {
+      this.showError = true;
+      this.errorText = 'Create (manual) failed';
+      console.error(err);
+      this.cdr.markForCheck();
+    }
+  });
+}
+
 
   closeError() { this.showError = false; this.cdr.markForCheck(); }
 
   // ===== search (uses the same request stream to cancel/merge) =====
-  onSearchClick() {
-    this.pageParams$.next({
-      pageNumber: 1,
-      pageSize: this.pageSize,
-      name: this.nameTerm,
-      idNumber: this.idTerm,
-      isSearch: true
-    });
-  }
+// 2) Use it in onSearchClick()
+onSearchClick() {
+  const nameNorm = this.normalizeArabic(this.nameTerm);
+  const idAscii  = this.toEnglishDigits(this.idTerm).replace(/\D/g, '');
 
+  this.pageParams$.next({
+    pageNumber: 1,
+    pageSize: this.pageSize,
+    name: nameNorm,         // ← send normalized name
+    idNumber: idAscii,
+    isSearch: true
+  });
+}
+
+private toEnglishDigits(s: string): string {
+  const map: Record<string, string> = {
+    '٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9',
+    '۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9'
+  };
+  return (s ?? '').replace(/[٠-٩۰-۹]/g, d => map[d] ?? d);
+}
+private toArabicDigits(s: string): string {
+  const a = '٠١٢٣٤٥٦٧٨٩';
+  return (s ?? '').replace(/\d/g, d => a[+d]);
+}
+onIdTermChanged(value: string) {
+  // 1) normalize any Arabic/Persian → ASCII, keep only digits
+  const ascii = this.toEnglishDigits(value).replace(/\D/g, '');
+  // 2) show Arabic digits back in the input
+  this.idTerm = this.toArabicDigits(ascii);
+  this.cdr.markForCheck();
+}
   clearSearch() {
     this.nameTerm = '';
     this.idTerm = '';
@@ -351,13 +365,29 @@ export class RecordListComponent implements OnInit, OnDestroy {
     }
     this.deleting = true;
     this.ocr.deleteRecord(this.deleteId).subscribe({
-      next: () => {
-        this.showDeleteConfirm = false;
-        this.recordToDelete = null;
-        this.deleteId = null;
-        this.loadPage(this.pageNumber);
-        this.cdr.markForCheck();
-      },
+   next: () => {
+  // Remove the deleted record locally instead of reloading
+  if (this.recordToDelete) {
+    this.records = this.records.filter(r => r.id !== this.deleteId);
+    this.filteredRecords = this.filteredRecords.filter(r => r.id !== this.deleteId);
+    this.totalCount--;
+  }
+
+  this.showDeleteConfirm = false;
+  this.recordToDelete = null;
+  this.deleteId = null;
+
+  // Show success toast
+  this.successText = 'Deleted successfully ✓';
+  this.showSuccess = true;
+  setTimeout(() => {
+    this.showSuccess = false;
+    this.cdr.markForCheck();
+  }, 1200);
+
+  this.cdr.markForCheck();
+},
+
       error: err => {
         this.showDeleteConfirm = false;
         this.recordToDelete = null;
@@ -376,7 +406,52 @@ export class RecordListComponent implements OnInit, OnDestroy {
     this.deleteId = null;
     this.cdr.markForCheck();
   }
+private replaceInArrays(updated: RecordModel) {
+  const i = this.records.findIndex(r => r.id === updated.id);
+  if (i > -1) this.records[i] = { ...updated };
+
+  const j = this.filteredRecords.findIndex(r => r.id === updated.id);
+  if (j > -1) this.filteredRecords[j] = { ...updated };
+
+  this.cdr.markForCheck();
+}
+
+private finishSave(msg = 'Saved ✓') {
+  this.showForm = false;
+  this.successText = msg;
+  this.showSuccess = true;
+  setTimeout(() => { this.showSuccess = false; this.cdr.markForCheck(); }, 1200);
+  this.cdr.markForCheck();
+}
 
   // ===== table perf helper (use it in template) =====
   trackById = (_: number, r: RecordModel) => r.id;
+  // 1) Add this helper inside the component
+private normalizeArabic(input: string): string {
+  if (!input) return '';
+  let s = input;
+
+  // strip diacritics (harakat) + superscript alif + Quranic marks
+  s = s.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g, '');
+
+  // strip tatweel and RTL/LTR marks and zero-width joins
+  s = s.replace(/[\u0640\u200E\u200F\u202A-\u202E\u2066-\u2069\u200B-\u200D]/g, '');
+
+  // unify common letter variants
+  s = s
+    .replace(/[أإآٱ]/g, 'ا')   // Alif forms → ا
+    .replace(/ى|ی/g, 'ي')      // Alif maqsura & Farsi ya → ي
+    .replace(/ة/g, 'ه')        // Ta marbuta → ه (broad match)
+    .replace(/ؤ/g, 'و')        // Waw with hamza → و
+    .replace(/ئ/g, 'ي')        // Yeh with hamza → ي
+    .replace(/گ/g, 'ك')        // Persian kaf → ك
+    .replace(/پ/g, 'ب');       // Persian peh → ب (optional)
+
+  // collapse spaces & trim
+  s = s.replace(/\s+/g, ' ').trim();
+
+  // lower-case (locale-aware)
+  return s.toLocaleLowerCase('ar');
+}
+
 }
