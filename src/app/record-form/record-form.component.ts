@@ -52,6 +52,8 @@ private applyAndRefresh(mutator: () => void) {
 }
   loadingFront = false;
   loadingBack = false;
+    frontExtracted = false;
+  backExtracted = false;
   step: 'front' | 'back' = 'front';
   get frontDone() {
     return !!(this.front.name || this.front.nationalId || this.front.address || this.front.dob);
@@ -162,7 +164,7 @@ private applyOcrBackToForm(src: BackData, overwrite = false) {
   set('expiryDate', src.expiryDate);
 }
   /* -------- uploads -------- */
-  onFrontSelected(ev: Event) {
+onFrontSelected(ev: Event) {
   const input = ev.target as HTMLInputElement;
   const file = input.files?.[0];
   if (!file) return;
@@ -172,10 +174,14 @@ private applyOcrBackToForm(src: BackData, overwrite = false) {
   this.frontFile = file;
   this.frontPreview = this.frontObjUrl;
 
+  // ✅ new: mark as not yet extracted for this file
+  this.frontExtracted = false;
+
   // run extract and reflect immediately on the same step
   this.extractFront();
 }
- onBackSelected(ev: Event) {
+
+onBackSelected(ev: Event) {
   const input = ev.target as HTMLInputElement;
   const file = input.files?.[0];
   if (!file) return;
@@ -185,22 +191,33 @@ private applyOcrBackToForm(src: BackData, overwrite = false) {
   this.backFile = file;
   this.backPreview = this.backObjUrl;
 
+  // ✅ new: mark as not yet extracted for this file
+  this.backExtracted = false;
+
   this.extractBack();
 }
-  clearFront(e: Event) {
-    e.preventDefault();
-    if (this.frontObjUrl) URL.revokeObjectURL(this.frontObjUrl);
-    this.frontObjUrl = undefined;
-    this.frontFile = undefined;
-    this.frontPreview = null;
-  }
-  clearBack(e: Event) {
-    e.preventDefault();
-    if (this.backObjUrl) URL.revokeObjectURL(this.backObjUrl);
-    this.backObjUrl = undefined;
-    this.backFile = undefined;
-    this.backPreview = null;
-  }
+
+ clearFront(e: Event) {
+  e.preventDefault();
+  if (this.frontObjUrl) URL.revokeObjectURL(this.frontObjUrl);
+  this.frontObjUrl = undefined;
+  this.frontFile = undefined;
+  this.frontPreview = null;
+
+  // ✅ new
+  this.frontExtracted = false;
+}
+
+clearBack(e: Event) {
+  e.preventDefault();
+  if (this.backObjUrl) URL.revokeObjectURL(this.backObjUrl);
+  this.backObjUrl = undefined;
+  this.backFile = undefined;
+  this.backPreview = null;
+
+  // ✅ new
+  this.backExtracted = false;
+}
 
   /* -------- mock extractors (wire OCR later) -------- */
 /* ================== FRONT ================== */
@@ -218,12 +235,11 @@ extractFront() {
     .subscribe({
     next: res => {
   this.applyAndRefresh(() => {
-    // Convert national ID to Arabic digits here
     const arabicId = this.toArabicDigits(res?.nationalId ?? '');
 
     this.ocrFrontLast = {
       name: res?.name ?? '',
-      nationalId: arabicId, // ✅ use Arabic digits here
+      nationalId: arabicId,
       address: res?.address ?? '',
       dob: res?.dob ?? '',
       age: (typeof res?.age === 'number') ? res.age : undefined
@@ -231,11 +247,17 @@ extractFront() {
 
     this.applyOcrFrontToForm(this.ocrFrontLast, !this.applyFillEmptyOnly);
     if (!this.front.age) this.recalcAge();
+
+    // ✅ mark front as successfully extracted
+    this.frontExtracted = true;
   });
 },
-
-      error: _ => this.openError('Front OCR failed.')
-    });
+error: _ => {
+  // ✅ make sure it's not considered extracted on error
+  this.frontExtracted = false;
+  this.openError('Front OCR failed.');
+}
+  });
 }
 
 
@@ -251,8 +273,8 @@ extractBack() {
       this.cdr.detectChanges();
     }))
     .subscribe({
-      next: (res: any) => {
-        const r = (res && res.data) ? res.data : res;
+     next: (res: any) => {
+  const r = (res && res.data) ? res.data : res;
 
         // normalize occupation variants & cleanup pipes
         let occ =
@@ -265,22 +287,26 @@ extractBack() {
         }
 
         this.applyAndRefresh(() => {
-          this.ocrBackLast = {
-            occupation: occ,
-            gender: r?.gender,
-            religion: r?.religion,
-            maritalStatus: r?.maritalStatus,
-            husbandName: r?.husbandName,
-            expiryDate: r?.expiryDate
-          };
-          this.applyOcrBackToForm(this.ocrBackLast, !this.applyFillEmptyOnly);
+    this.ocrBackLast = {
+      occupation: occ,
+      gender: r?.gender,
+      religion: r?.religion,
+      maritalStatus: r?.maritalStatus,
+      husbandName: r?.husbandName,
+      expiryDate: r?.expiryDate
+    };
+    this.applyOcrBackToForm(this.ocrBackLast, !this.applyFillEmptyOnly);
+      this.backExtracted = true;
 
           // (optional) keep step on 'back' without bouncing
           // this.step = 'back';
         });
       },
-      error: _ => this.openError('Back OCR failed. Please try again.')
-    });
+error: _ => {
+  // ✅ not extracted if error
+  this.backExtracted = false;
+  this.openError('Back OCR failed. Please try again.');
+}    });
 }
 
 // Map Arabic-Indic (٠-٩) & Persian (۰-۹) to ASCII
@@ -310,13 +336,25 @@ private toArabicDigits(s: string): string {
 confirmSave() {
   this.showConfirm = false;
 
+  // ✅ Only enforce this in "add + upload" mode
+  if (!this.isEdit && this.mode === 'upload') {
+    if (!this.frontFile || !this.frontExtracted) {
+      this.openError('Please upload and extract the FRONT image before saving.');
+      return;
+    }
+    if (!this.backFile || !this.backExtracted) {
+      this.openError('Please upload and extract the BACK image before saving.');
+      return;
+    }
+  }
+
   const idEn = this.toEnglishDigits(this.front.nationalId ?? '').replace(/\D/g, '');
   if (idEn.length !== 14) { this.openError('ID number must be 14 digits'); return; }
 
   const payload: any = {
     name: this.front.name ?? '',
-    idNumber: idEn,             // send ASCII digits
-    nationalId: idEn,           // (compat)
+    idNumber: idEn,
+    nationalId: idEn,
     address: this.front.address ?? '',
     dateOfBirth: this.front.dob ?? '',
     age: this.front.age ?? 0,

@@ -91,10 +91,19 @@
         <button (click)="goFirst()" [disabled]="pageNumber === 1 || loading">«</button>
         <button (click)="goPrev()"  [disabled]="pageNumber === 1 || loading">‹</button>
 
-        <span>
-          {{ 'PAGE' | translate }} {{ pageNumber| arabicDigits }}
-          <ng-container *ngIf="totalPages">/ {{ totalPages| arabicDigits }}</ng-container>
-        </span>
+     <span>
+  {{ 'PAGE' | translate }}
+  <ng-container *ngIf="currentLang === 'ar'; else enPage">
+    {{ pageNumber | arabicDigits }}
+    <ng-container *ngIf="totalPages">/ {{ totalPages | arabicDigits }}</ng-container>
+  </ng-container>
+
+  <ng-template #enPage>
+    {{ pageNumber }}
+    <ng-container *ngIf="totalPages">/ {{ totalPages }}</ng-container>
+  </ng-template>
+</span>
+
 
         <button (click)="goNext()" [disabled]="(totalPages && pageNumber >= totalPages) || loading">›</button>
         <button (click)="goLast()" [disabled]="(totalPages && pageNumber >= totalPages) || loading">»</button>
