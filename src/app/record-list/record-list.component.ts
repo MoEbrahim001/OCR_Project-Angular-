@@ -94,23 +94,31 @@ export class RecordListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Centralize loading logic: debounce quick clicks and cancel in-flight calls.
-    this.sub = this.pageParams$
-      .pipe(
-        debounceTime(50),
-        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-        tap(() => { this.loading = true; this.cdr.markForCheck(); }),
-        switchMap(p => {
-          const call$ = p.isSearch
-            ? this.ocr.listRecordsSearch({ name: this.nameTerm, idNumber: this.idTerm, pageNumber: p.pageNumber, pageSize: p.pageSize })
-            : this.ocr.listRecords({ pageNumber: p.pageNumber, pageSize: p.pageSize });
+   this.sub = this.pageParams$
+  .pipe(
+    debounceTime(50),
+    // distinctUntilChanged(...)  <-- remove this line
+    tap(() => { this.loading = true; this.cdr.markForCheck(); }),
+    switchMap(p => {
+      const call$ = p.isSearch
+        ? this.ocr.listRecordsSearch({
+            name: p.name ?? '',
+            idNumber: p.idNumber ?? '',
+            pageNumber: p.pageNumber,
+            pageSize: p.pageSize
+          })
+        : this.ocr.listRecords({
+            pageNumber: p.pageNumber,
+            pageSize: p.pageSize
+          });
 
-          return call$.pipe(finalize(() => {
-            this.loading = false;
-            this.cdr.markForCheck();
-          }));
-        })
-      )
-      .subscribe({
+      return call$.pipe(finalize(() => {
+        this.loading = false;
+        this.cdr.markForCheck();
+      }));
+    })
+  )
+  .subscribe({
         next: (res: any) => {
           // Map items efficiently
           this.records = (res.items ?? []).map(this.mapItem);
