@@ -461,5 +461,10 @@ private normalizeArabic(input: string): string {
   // lower-case (locale-aware)
   return s.toLocaleLowerCase('ar');
 }
+get existingIds(): string[] {
+  return this.records
+    .map(r => r.idNumber ?? '')
+    .filter(id => !!id);
+}
 
 }

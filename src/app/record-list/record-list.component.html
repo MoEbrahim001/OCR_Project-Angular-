@@ -130,9 +130,11 @@
      <app-record-form
   [value]="draft"
   [isEdit]="!!editingKey"
+  [existingIds]="existingIds"
   (save)="onSave($event)"
   (cancel)="onCancel()">
 </app-record-form>
+
 >
     </div>
   </div>

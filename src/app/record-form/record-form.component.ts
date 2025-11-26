@@ -7,10 +7,7 @@ import { OcrService } from '../services/ocr.service';
 import { finalize } from 'rxjs';
 import { ChangeDetectorRef, NgZone } from '@angular/core';
 
-// ⬆️ inject in constructor
 
-
-/** Extra fields for the "Back" side */
 interface BackData {
   occupation?: string;
   gender?: string;
@@ -36,16 +33,16 @@ export class RecordFormComponent {
   @Input() value: Partial<RecordValue> = {};
   @Output() save = new EventEmitter<RecordValue>();
   @Input() isEdit = false;
+  @Input() existingIds :string[]=[]; 
   mode: 'manual' | 'upload' = 'manual';
 
   @Output() cancel = new EventEmitter<void>();
 constructor(private ocr: OcrService, private cdr: ChangeDetectorRef, private zone: NgZone) {}
 
 private applyAndRefresh(mutator: () => void) {
-  // In case callback happens outside Angular zone
   this.zone.run(() => {
     mutator();
-    // Force a pass for stubborn templates
+    
     this.cdr.detectChanges();
   });
   
@@ -59,7 +56,6 @@ private applyAndRefresh(mutator: () => void) {
     return !!(this.front.name || this.front.nationalId || this.front.address || this.front.dob);
   }
 
-  /* -------- front / back buckets -------- */
   front: {
     name?: string;
     nationalId?: string;
@@ -71,17 +67,14 @@ private applyAndRefresh(mutator: () => void) {
 
   back: BackData = {};
 
-  /* -------- images & previews -------- */
   frontFile?: File;
   backFile?: File;
   frontPreview?: string | null;
   backPreview?: string | null;
 
-  /** revoke when replaced to avoid leaks */
   private frontObjUrl?: string;
   private backObjUrl?: string;
 
-  /* -------- mini-modals  -------- */
   showError = false;
   errorText = '';
   showConfirm = false;
@@ -89,7 +82,6 @@ private applyAndRefresh(mutator: () => void) {
   private ocrFrontLast?: { name?: string; nationalId?: string; address?: string; dob?: string; age?: number; };
 private ocrBackLast?: BackData;
 
-// UI option: only fill empty fields (don't overwrite user's manual edits)
 applyFillEmptyOnly = true; 
 
   ngOnInit() {
@@ -114,7 +106,6 @@ applyFillEmptyOnly = true;
     this.backPreview = this.value.backImageDataUrl ?? null;
   }
 
-  /* -------- navigation -------- */
   go(s: 'front' | 'back') {
     if (s === 'back' && !this.frontDone) return;
     this.step = s;
@@ -123,7 +114,6 @@ applyFillEmptyOnly = true;
     this.step = 'back';
   }
 
-  /* -------- computed -------- */
   recalcAge() {
     if (!this.front.dob) { this.front.age = undefined; return; }
     const birth = new Date(this.front.dob);
@@ -144,7 +134,6 @@ private applyOcrFrontToForm(src: any, overwrite = false) {
   set('address', src.address);
   set('dob', src.dob);
 
-  // age: respect number type and not overwrite unless told
   if (typeof src.age === 'number') {
     if (overwrite || this.front.age == null) this.front.age = src.age;
   }
@@ -163,7 +152,6 @@ private applyOcrBackToForm(src: BackData, overwrite = false) {
   set('husbandName', src.husbandName);
   set('expiryDate', src.expiryDate);
 }
-  /* -------- uploads -------- */
 onFrontSelected(ev: Event) {
   const input = ev.target as HTMLInputElement;
   const file = input.files?.[0];
@@ -177,7 +165,6 @@ onFrontSelected(ev: Event) {
   // ✅ new: mark as not yet extracted for this file
   this.frontExtracted = false;
 
-  // run extract and reflect immediately on the same step
   this.extractFront();
 }
 
@@ -204,7 +191,6 @@ onBackSelected(ev: Event) {
   this.frontFile = undefined;
   this.frontPreview = null;
 
-  // ✅ new
   this.frontExtracted = false;
 }
 
@@ -215,12 +201,9 @@ clearBack(e: Event) {
   this.backFile = undefined;
   this.backPreview = null;
 
-  // ✅ new
   this.backExtracted = false;
 }
 
-  /* -------- mock extractors (wire OCR later) -------- */
-/* ================== FRONT ================== */
 extractFront() {
   if (this.isEdit || this.mode === 'manual') return;
   if (!this.frontFile) { this.openError('Please upload the front image first.'); return; }
@@ -229,7 +212,6 @@ extractFront() {
   this.ocr.extractFront(this.frontFile, 120)
     .pipe(finalize(() => {
       this.loadingFront = false;
-      // One more nudge after spinner flips
       this.cdr.detectChanges();
     }))
     .subscribe({
@@ -248,12 +230,10 @@ extractFront() {
     this.applyOcrFrontToForm(this.ocrFrontLast, !this.applyFillEmptyOnly);
     if (!this.front.age) this.recalcAge();
 
-    // ✅ mark front as successfully extracted
     this.frontExtracted = true;
   });
 },
 error: _ => {
-  // ✅ make sure it's not considered extracted on error
   this.frontExtracted = false;
   this.openError('Front OCR failed.');
 }
@@ -261,7 +241,6 @@ error: _ => {
 }
 
 
-/* ================== BACK ================== */
 extractBack() {
   if (this.isEdit || this.mode === 'manual') return;
   if (!this.backFile) { this.openError('Please upload the back image first.'); return; }
@@ -276,7 +255,6 @@ extractBack() {
      next: (res: any) => {
   const r = (res && res.data) ? res.data : res;
 
-        // normalize occupation variants & cleanup pipes
         let occ =
           r?.occupation ?? r?.Occupation ??
           r?.profession ?? r?.Profession ??
@@ -298,12 +276,10 @@ extractBack() {
     this.applyOcrBackToForm(this.ocrBackLast, !this.applyFillEmptyOnly);
       this.backExtracted = true;
 
-          // (optional) keep step on 'back' without bouncing
-          // this.step = 'back';
+
         });
       },
 error: _ => {
-  // ✅ not extracted if error
   this.backExtracted = false;
   this.openError('Back OCR failed. Please try again.');
 }    });
@@ -324,7 +300,6 @@ private toArabicDigits(s: string): string {
 
 
 
-  /* -------- save flow -------- */
   saveNow(frontOnly: boolean) {
     if (!this.front.name?.trim() && !this.front.nationalId?.trim()) {
       this.openError('Please provide at least a Name or National ID on the front.');
@@ -336,25 +311,21 @@ private toArabicDigits(s: string): string {
 confirmSave() {
   this.showConfirm = false;
 
-  // ✅ Only enforce this in "add + upload" mode
-  if (!this.isEdit && this.mode === 'upload') {
-    if (!this.frontFile || !this.frontExtracted) {
-      this.openError('Please upload and extract the FRONT image before saving.');
-      return;
-    }
-    if (!this.backFile || !this.backExtracted) {
-      this.openError('Please upload and extract the BACK image before saving.');
-      return;
-    }
+  const idEn = this.toEnglishDigits(this.front.nationalId ?? '').replace(/\D/g, '');
+  if (idEn.length !== 14) {
+    this.openError('ID number must be 14 digits');
+    return;
   }
 
-  const idEn = this.toEnglishDigits(this.front.nationalId ?? '').replace(/\D/g, '');
-  if (idEn.length !== 14) { this.openError('ID number must be 14 digits'); return; }
+  if (!this.isEdit && this.existingIds?.includes(idEn)) {
+    this.openError('Record already exists');
+    return;
+  }
 
   const payload: any = {
     name: this.front.name ?? '',
-    idNumber: idEn,
-    nationalId: idEn,
+    idNumber: idEn,            
+    nationalId: idEn,          
     address: this.front.address ?? '',
     dateOfBirth: this.front.dob ?? '',
     age: this.front.age ?? 0,
@@ -370,7 +341,7 @@ confirmSave() {
 
 
 
-// Parse DOB from Egyptian national ID (14 digits)
+
 private parseDobFromEgyptId(id: string): string | null {
   const m = id.match(/^([23])(\d{2})(\d{2})(\d{2})/);
   if (!m) return null;
@@ -382,18 +353,15 @@ private parseDobFromEgyptId(id: string): string | null {
   const mm = parseInt(m[3], 10);
   const dd = parseInt(m[4], 10);
 
-  // basic range checks
   if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return null;
 
   const iso = `${century + yy}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
   return iso;
 }
 
-// Called whenever nationalId changes (manual or programmatic)
 onIdChanged() {
   const en = this.toEnglishDigits(this.front.nationalId ?? '');
   const digits = en.replace(/\D/g, '');
-  // Keep the UI in Arabic
   this.front.nationalId = this.toArabicDigits(digits);
 
   if (digits.length !== 14) return;
@@ -407,7 +375,6 @@ onIdChanged() {
 
   cancelSave() { this.showConfirm = false; }
 
-  /* -------- mini modal helpers -------- */
   openError(msg: string) { this.errorText = msg; this.showError = true; }
   closeError() { this.showError = false; }
 
@@ -417,7 +384,6 @@ onIdChanged() {
     if (this.frontObjUrl) URL.revokeObjectURL(this.frontObjUrl);
     if (this.backObjUrl) URL.revokeObjectURL(this.backObjUrl);
   }
-  // record-form.component.ts (inside class)
 get dobIsIso(): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(this.front.dob ?? '');
 }
