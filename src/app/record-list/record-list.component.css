@@ -654,7 +654,9 @@
   font-weight: 500;
   box-shadow: 0 6px 18px rgba(0,0,0,0.15);
   animation: fadeInUp 0.4s ease;
+  z-index: 2000 !important;   
 }
+
 
 .toast.success {
   background: var(--color-primary, #3261ed);

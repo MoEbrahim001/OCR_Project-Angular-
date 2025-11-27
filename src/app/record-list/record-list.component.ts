@@ -241,8 +241,30 @@ export class RecordListComponent implements OnInit, OnDestroy {
     };
   }
 
- onSave(rec: any) {
+onSave(rec: any) {
   const dto = this.toDto(rec);
+
+  // National ID as stored in UI (already ASCII from the form)
+  const idForCheck = (rec.idNumber ?? '').trim();
+
+  // ✅ Duplicate ID validation
+  if (!this.editingKey) {
+    // CREATE mode
+    if (this.isDuplicateId(idForCheck)) {
+      this.showError = true;
+      this.errorText = 'National ID already exists.';
+      this.cdr.markForCheck();
+      return;
+    }
+  } else {
+    // UPDATE mode – ignore the original ID (editingKey)
+    if (this.isDuplicateId(idForCheck, this.editingKey)) {
+      this.showError = true;
+      this.errorText = 'Another record already has this National ID.';
+      this.cdr.markForCheck();
+      return;
+    }
+  }
 
   if (this.editingKey) {
     // ------- UPDATE -------
@@ -259,7 +281,6 @@ export class RecordListComponent implements OnInit, OnDestroy {
 
     this.ocr.updateRecord(recordId, dto).subscribe({
       next: (res: any) => {
-        // Build a RecordModel from API (prefer API fields if present)
         const updated = this.mapItem({ id: recordId, ...(res || {}), ...dto });
         this.replaceInArrays(updated);
         this.finishSave('Updated ✓');
@@ -277,7 +298,6 @@ export class RecordListComponent implements OnInit, OnDestroy {
   // ------- CREATE -------
   this.ocr.createRecord(dto).subscribe({
     next: (res: any) => {
-      // Map created row and prepend to the table
       const created = this.mapItem(res || dto);
       this.records = [created, ...this.records];
       this.filteredRecords = [created, ...this.filteredRecords];
@@ -291,6 +311,7 @@ export class RecordListComponent implements OnInit, OnDestroy {
     }
   });
 }
+
 
 
   closeError() { this.showError = false; this.cdr.markForCheck(); }

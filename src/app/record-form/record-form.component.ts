@@ -215,30 +215,34 @@ extractFront() {
       this.cdr.detectChanges();
     }))
     .subscribe({
-    next: res => {
-  this.applyAndRefresh(() => {
-    const arabicId = this.toArabicDigits(res?.nationalId ?? '');
+      next: res => {
+        // ✅ 1) لو النتيجة شكلها BACK يبقى المستخدم حط صورة الظهر في مكان الوش
+        if (this.looksLikeBackOcr(res)) {
+          this.openError('This image appears to be the BACK side, not the FRONT.');
+          this.clearFront(new Event('clear') as any);
+          return;
+        }
 
-    this.ocrFrontLast = {
-      name: res?.name ?? '',
-      nationalId: arabicId,
-      address: res?.address ?? '',
-      dob: res?.dob ?? '',
-      age: (typeof res?.age === 'number') ? res.age : undefined
-    };
+        // ✅ 2) لو تمام، نكمل زي الأول
+        this.applyAndRefresh(() => {
+          const arabicId = this.toArabicDigits(res?.nationalId ?? '');
 
-    this.applyOcrFrontToForm(this.ocrFrontLast, !this.applyFillEmptyOnly);
-    if (!this.front.age) this.recalcAge();
+          this.ocrFrontLast = {
+            name: res?.name ?? '',
+            nationalId: arabicId,
+            address: res?.address ?? '',
+            dob: res?.dob ?? '',
+            age: (typeof res?.age === 'number') ? res.age : undefined
+          };
 
-    this.frontExtracted = true;
-  });
-},
-error: _ => {
-  this.frontExtracted = false;
-  this.openError('Front OCR failed.');
+          this.applyOcrFrontToForm(this.ocrFrontLast, !this.applyFillEmptyOnly);
+          if (!this.front.age) this.recalcAge();
+        });
+      },
+      error: _ => this.openError('Front OCR failed.')
+    });
 }
-  });
-}
+
 
 
 extractBack() {
@@ -252,37 +256,41 @@ extractBack() {
       this.cdr.detectChanges();
     }))
     .subscribe({
-     next: (res: any) => {
-  const r = (res && res.data) ? res.data : res;
+      next: (res: any) => {
+        const r = (res && res.data) ? res.data : res;
 
+        // ✅ 1) لو النتيجة شكلها FRONT يبقى دي صورة الوش
+        if (this.looksLikeFrontOcr(r)) {
+          this.openError('This image appears to be the FRONT side, not the BACK.');
+          this.clearBack(new Event('clear') as any);
+          return;
+        }
+
+        // ✅ 2) نفس الكود القديم
         let occ =
           r?.occupation ?? r?.Occupation ??
           r?.profession ?? r?.Profession ??
           r?.proffession ?? r?.Proffession ??
           r?.job ?? r?.Job ?? r?.jobTitle ?? r?.JobTitle;
+
         if (typeof occ === 'string' && /\|/.test(occ)) {
           occ = occ.replace(/\|/g, ' ').replace(/\s+/g, ' ').trim();
         }
 
         this.applyAndRefresh(() => {
-    this.ocrBackLast = {
-      occupation: occ,
-      gender: r?.gender,
-      religion: r?.religion,
-      maritalStatus: r?.maritalStatus,
-      husbandName: r?.husbandName,
-      expiryDate: r?.expiryDate
-    };
-    this.applyOcrBackToForm(this.ocrBackLast, !this.applyFillEmptyOnly);
-      this.backExtracted = true;
-
-
+          this.ocrBackLast = {
+            occupation: occ,
+            gender: r?.gender,
+            religion: r?.religion,
+            maritalStatus: r?.maritalStatus,
+            husbandName: r?.husbandName,
+            expiryDate: r?.expiryDate
+          };
+          this.applyOcrBackToForm(this.ocrBackLast, !this.applyFillEmptyOnly);
         });
       },
-error: _ => {
-  this.backExtracted = false;
-  this.openError('Back OCR failed. Please try again.');
-}    });
+      error: _ => this.openError('Back OCR failed. Please try again.')
+    });
 }
 
 // Map Arabic-Indic (٠-٩) & Persian (۰-۹) to ASCII
@@ -311,21 +319,19 @@ private toArabicDigits(s: string): string {
 confirmSave() {
   this.showConfirm = false;
 
-  const idEn = this.toEnglishDigits(this.front.nationalId ?? '').replace(/\D/g, '');
-  if (idEn.length !== 14) {
-    this.openError('ID number must be 14 digits');
+  // ✅ New validation: front image selected but no back image
+  if (!this.isEdit && this.frontFile && !this.backFile) {
+    this.openError('You must upload the back image before saving.');
     return;
   }
 
-  if (!this.isEdit && this.existingIds?.includes(idEn)) {
-    this.openError('Record already exists');
-    return;
-  }
+  const idEn = this.toEnglishDigits(this.front.nationalId ?? '').replace(/\D/g, '');
+  if (idEn.length !== 14) { this.openError('ID number must be 14 digits'); return; }
 
   const payload: any = {
     name: this.front.name ?? '',
-    idNumber: idEn,            
-    nationalId: idEn,          
+    idNumber: idEn,
+    nationalId: idEn,
     address: this.front.address ?? '',
     dateOfBirth: this.front.dob ?? '',
     age: this.front.age ?? 0,
@@ -339,6 +345,35 @@ confirmSave() {
 }
 
 
+// تحديد إذا كانت نتيجة OCR تشبه ظهر البطاقة
+private looksLikeBackOcr(res: any): boolean {
+  const r = (res && res.data) ? res.data : res;
+  return !!(
+    r?.occupation ||
+    r?.Occupation ||
+    r?.profession || r?.Profession ||
+    r?.proffession || r?.Proffession ||
+    r?.job || r?.Job || r?.jobTitle || r?.JobTitle ||
+    r?.gender ||
+    r?.religion ||
+    r?.maritalStatus ||
+    r?.husbandName ||
+    r?.expiryDate
+  );
+}
+
+// تحديد إذا كانت نتيجة OCR تشبه وش البطاقة
+private looksLikeFrontOcr(res: any): boolean {
+  const r = (res && res.data) ? res.data : res;
+  return !!(
+    r?.name ||
+    r?.Name ||
+    r?.nationalId ||
+    r?.idNumber ||
+    r?.address ||
+    r?.dob || r?.dateOfBirth
+  );
+}
 
 
 
