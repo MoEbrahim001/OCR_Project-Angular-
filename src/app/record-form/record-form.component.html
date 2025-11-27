@@ -1,4 +1,3 @@
-<!-- ===== Wizard header (Front / Back) ===== -->
 <div class="wizard-header">
   <div class="steps">
     <button type="button"
@@ -17,12 +16,8 @@
     </button>
   </div>
 
-  <!-- Mode toggle (only when adding a new record) -->
   <div class="mode-toggle" *ngIf="!isEdit">
-    <!-- <label>
-      <input type="radio" name="mode" value="manual" [(ngModel)]="mode" />
-      {{ ('FORM.MODE_MANUAL' | translate) || 'Type manually' }}
-    </label> -->
+  
     <label style="margin-left:12px">
       <input type="radio" name="mode" value="upload" [(ngModel)]="mode" />
       {{ ('FORM.MODE_UPLOAD' | translate) || 'Upload & OCR' }}
@@ -30,11 +25,10 @@
   </div>
 </div>
 
-<!-- ==================== FRONT STEP ==================== -->
 <div class="form-grid" *ngIf="step==='front'">
   <div class="left">
 
-    <!-- Name -->
+   
     <label class="field">{{ 'FORM.NAME' | translate }}
       <input type="text"
              class="rtl-preserve"
@@ -43,7 +37,6 @@
              [(ngModel)]="front.name" />
     </label>
 
-    <!-- ID number with live validation -->
     <label class="field">{{ 'FORM.ID' | translate }}
       <input type="text"
              class="rtl-preserve"
@@ -54,13 +47,11 @@
              [(ngModel)]="front.nationalId"
              (ngModelChange)="onIdChanged()" />
 
-      <!-- Inline validation message -->
       <span *ngIf="front.nationalId && !validateIdNumber()" style="color:red;font-size:12px;">
         ID number must be exactly 14 digits.
       </span>
     </label>
 
-    <!-- Address -->
     <label class="field">{{ 'FORM.ADDRESS' | translate }}
       <textarea rows="3"
                 class="rtl-preserve"
@@ -69,7 +60,6 @@
                 [(ngModel)]="front.address"></textarea>
     </label>
 
-    <!-- Date of Birth & Age -->
     <div class="row2">
       <label class="field">{{ 'FORM.DOB' | translate }}
         <input [type]="dobIsIso ? 'date' : 'text'"
@@ -82,7 +72,6 @@
       </label>
     </div>
 
-    <!-- Next button -->
     <div class="actions">
       <button type="button" class="primary" (click)="goNext()">
         {{ 'FORM.NEXT' | translate }}
@@ -90,7 +79,6 @@
     </div>
   </div>
 
-  <!-- Right: Upload + Extract (Front) -->
   <div class="right" *ngIf="!isEdit && mode === 'upload'">
     <div class="upload-label">{{ 'FORM.UPLOAD_LABEL' | translate }}</div>
     <label class="upload-box" for="frontFile">
@@ -123,7 +111,6 @@
   </div>
 </div>
 
-<!-- ==================== BACK STEP ==================== -->
 <div class="form-grid" *ngIf="step==='back'">
   <div class="left">
     <div class="row2">
@@ -152,7 +139,6 @@
       <input type="date" [(ngModel)]="back.expiryDate" />
     </label>
 
-    <!-- Save button -->
     <div class="actions">
       <button type="button" class="primary" (click)="confirmSave()">
         {{ 'FORM.SAVE' | translate }}
@@ -160,7 +146,6 @@
     </div>
   </div>
 
-  <!-- Right: Upload + Extract (Back) -->
   <div class="right" *ngIf="!isEdit && mode === 'upload'">
     <div class="upload-label">{{ 'FORM.UPLOAD_LABEL' | translate }}</div>
     <label class="upload-box" for="backFile">

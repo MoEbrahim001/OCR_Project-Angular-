@@ -1,4 +1,3 @@
-// record-list.component.ts
 import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -28,7 +27,6 @@ type PageParams = {
 })
 export class RecordListComponent implements OnInit, OnDestroy {
 
-  // --- search
   nameTerm = '';
   idTerm = '';
   addressTerm = '';
@@ -39,7 +37,6 @@ export class RecordListComponent implements OnInit, OnDestroy {
   deleting = false;
   private deleteId: number | null = null;
 
-  // --- server paging state
   pageNumber = 1;
   pageSize = 10;
   totalCount = 0;
@@ -51,7 +48,6 @@ export class RecordListComponent implements OnInit, OnDestroy {
   showSuccess = false;
   successText = '';
 
-  // data
   records: RecordModel[] = [];
   filteredRecords: RecordModel[] = [];
 
@@ -77,7 +73,6 @@ export class RecordListComponent implements OnInit, OnDestroy {
   showDeleteConfirm = false;
   private recordToDelete: RecordModel | null = null;
 
-  // ===== request stream to coalesce & cancel duplicate loads =====
   private pageParams$ = new Subject<PageParams>();
   private sub?: Subscription;
 
@@ -93,11 +88,9 @@ export class RecordListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Centralize loading logic: debounce quick clicks and cancel in-flight calls.
    this.sub = this.pageParams$
   .pipe(
     debounceTime(50),
-    // distinctUntilChanged(...)  <-- remove this line
     tap(() => { this.loading = true; this.cdr.markForCheck(); }),
     switchMap(p => {
       const call$ = p.isSearch
@@ -120,11 +113,9 @@ export class RecordListComponent implements OnInit, OnDestroy {
   )
   .subscribe({
         next: (res: any) => {
-          // Map items efficiently
           this.records = (res.items ?? []).map(this.mapItem);
           this.filteredRecords = this.records;
 
-          // Update paging state
           this.pageNumber = res.pageNumber ?? this.pageNumber;
           this.pageSize   = res.pageSize   ?? this.pageSize;
           this.totalCount = res.totalCount ?? this.records.length;
@@ -139,7 +130,6 @@ export class RecordListComponent implements OnInit, OnDestroy {
         }
       });
 
-    // initial load
     this.loadPage(1);
   }
 
@@ -147,7 +137,6 @@ export class RecordListComponent implements OnInit, OnDestroy {
     this.sub?.unsubscribe();
   }
 
-  // ===== mapping helper =====
   private mapItem = (r: any): RecordModel => {
     const dob = r.dateOfBirth ?? r.dob ?? '';
     return {
@@ -169,7 +158,6 @@ export class RecordListComponent implements OnInit, OnDestroy {
     } as RecordModel;
   };
 
-  // ===== data loading + pagination (push into stream) =====
   loadPage(page: number) {
     this.pageParams$.next({ pageNumber: page, pageSize: this.pageSize, isSearch: false });
   }
@@ -178,7 +166,6 @@ export class RecordListComponent implements OnInit, OnDestroy {
   goNext()  { if (!this.totalPages || this.pageNumber < this.totalPages) this.loadPage(this.pageNumber + 1); }
   goLast()  { if (this.totalPages && this.pageNumber !== this.totalPages) this.loadPage(this.totalPages); }
 
-  // ===== i18n / ui helpers =====
   switchLang() {
     this.currentLang = this.currentLang === 'en' ? 'ar' : 'en';
     this.translate.use(this.currentLang);
@@ -193,7 +180,6 @@ export class RecordListComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ===== form open/close =====
   openForm() {
     this.editingKey = null;
     this.draft = {
@@ -244,12 +230,9 @@ export class RecordListComponent implements OnInit, OnDestroy {
 onSave(rec: any) {
   const dto = this.toDto(rec);
 
-  // National ID as stored in UI (already ASCII from the form)
   const idForCheck = (rec.idNumber ?? '').trim();
 
-  // ✅ Duplicate ID validation
   if (!this.editingKey) {
-    // CREATE mode
     if (this.isDuplicateId(idForCheck)) {
       this.showError = true;
       this.errorText = 'National ID already exists.';
@@ -257,7 +240,6 @@ onSave(rec: any) {
       return;
     }
   } else {
-    // UPDATE mode – ignore the original ID (editingKey)
     if (this.isDuplicateId(idForCheck, this.editingKey)) {
       this.showError = true;
       this.errorText = 'Another record already has this National ID.';
@@ -267,7 +249,6 @@ onSave(rec: any) {
   }
 
   if (this.editingKey) {
-    // ------- UPDATE -------
     const recordId =
       (this.draft as any)?.id ??
       this.records.find(r => r.idNumber === this.editingKey)?.id;
@@ -295,7 +276,6 @@ onSave(rec: any) {
     return;
   }
 
-  // ------- CREATE -------
   this.ocr.createRecord(dto).subscribe({
     next: (res: any) => {
       const created = this.mapItem(res || dto);
@@ -316,8 +296,7 @@ onSave(rec: any) {
 
   closeError() { this.showError = false; this.cdr.markForCheck(); }
 
-  // ===== search (uses the same request stream to cancel/merge) =====
-// 2) Use it in onSearchClick()
+ 
 onSearchClick() {
   const nameNorm = this.normalizeArabic(this.nameTerm);
   const idAscii  = this.toEnglishDigits(this.idTerm).replace(/\D/g, '');
@@ -325,7 +304,7 @@ onSearchClick() {
   this.pageParams$.next({
     pageNumber: 1,
     pageSize: this.pageSize,
-    name: nameNorm,         // ← send normalized name
+    name: nameNorm,         
     idNumber: idAscii,
     isSearch: true
   });
@@ -343,9 +322,7 @@ private toArabicDigits(s: string): string {
   return (s ?? '').replace(/\d/g, d => a[+d]);
 }
 onIdTermChanged(value: string) {
-  // 1) normalize any Arabic/Persian → ASCII, keep only digits
   const ascii = this.toEnglishDigits(value).replace(/\D/g, '');
-  // 2) show Arabic digits back in the input
   this.idTerm = this.toArabicDigits(ascii);
   this.cdr.markForCheck();
 }
@@ -355,7 +332,6 @@ onIdTermChanged(value: string) {
     this.loadPage(1);
   }
 
-  // ===== calc =====
   private calcAge(dobStr?: string): number {
     if (!dobStr) return 0;
     const d = new Date(dobStr);
@@ -367,7 +343,6 @@ onIdTermChanged(value: string) {
     return age;
   }
 
-  // ===== edit/delete =====
   startEdit(index: number) {
     const rec = this.filteredRecords[index];
     if (!rec) return;
@@ -395,7 +370,6 @@ onIdTermChanged(value: string) {
     this.deleting = true;
     this.ocr.deleteRecord(this.deleteId).subscribe({
    next: () => {
-  // Remove the deleted record locally instead of reloading
   if (this.recordToDelete) {
     this.records = this.records.filter(r => r.id !== this.deleteId);
     this.filteredRecords = this.filteredRecords.filter(r => r.id !== this.deleteId);
@@ -406,7 +380,6 @@ onIdTermChanged(value: string) {
   this.recordToDelete = null;
   this.deleteId = null;
 
-  // Show success toast
   this.successText = 'Deleted successfully ✓';
   this.showSuccess = true;
   setTimeout(() => {
@@ -453,33 +426,26 @@ private finishSave(msg = 'Saved ✓') {
   this.cdr.markForCheck();
 }
 
-  // ===== table perf helper (use it in template) =====
   trackById = (_: number, r: RecordModel) => r.id;
-  // 1) Add this helper inside the component
 private normalizeArabic(input: string): string {
   if (!input) return '';
   let s = input;
 
-  // strip diacritics (harakat) + superscript alif + Quranic marks
   s = s.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED]/g, '');
 
-  // strip tatweel and RTL/LTR marks and zero-width joins
   s = s.replace(/[\u0640\u200E\u200F\u202A-\u202E\u2066-\u2069\u200B-\u200D]/g, '');
 
-  // unify common letter variants
   s = s
-    .replace(/[أإآٱ]/g, 'ا')   // Alif forms → ا
-    .replace(/ى|ی/g, 'ي')      // Alif maqsura & Farsi ya → ي
-    .replace(/ة/g, 'ه')        // Ta marbuta → ه (broad match)
-    .replace(/ؤ/g, 'و')        // Waw with hamza → و
-    .replace(/ئ/g, 'ي')        // Yeh with hamza → ي
-    .replace(/گ/g, 'ك')        // Persian kaf → ك
-    .replace(/پ/g, 'ب');       // Persian peh → ب (optional)
+    .replace(/[أإآٱ]/g, 'ا')   
+    .replace(/ى|ی/g, 'ي')       
+    .replace(/ة/g, 'ه')              
+    .replace(/ؤ/g, 'و')             
+    .replace(/ئ/g, 'ي')             
+    .replace(/گ/g, 'ك')            
+    .replace(/پ/g, 'ب');        
 
-  // collapse spaces & trim
   s = s.replace(/\s+/g, ' ').trim();
 
-  // lower-case (locale-aware)
   return s.toLocaleLowerCase('ar');
 }
 get existingIds(): string[] {
@@ -487,5 +453,42 @@ get existingIds(): string[] {
     .map(r => r.idNumber ?? '')
     .filter(id => !!id);
 }
+onNameKeyDown(event: KeyboardEvent) {
+  const key = event.key;
+
+  const controlKeys = [
+    'Backspace', 'Delete',
+    'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+    'Tab', 'Home', 'End'
+  ];
+  if (controlKeys.includes(key)) return;
+
+  if (key === ' ') return;
+
+  const arabicLetterRegex = /^[\u0621-\u064A]$/;
+  if (!arabicLetterRegex.test(key)) {
+    event.preventDefault();  
+  }
+}
+
+onNameTermChanged(value: string) {
+  if (!value) {
+    this.nameTerm = '';
+    this.cdr.markForCheck();
+    return;
+  }
+
+  let s = value.replace(/[^\u0621-\u064A\s]/g, '');
+
+  s = s.replace(/\s+/g, ' ').trimStart();
+
+  this.nameTerm = s;
+  this.cdr.markForCheck();
+}
+
+
+
+
+
 
 }

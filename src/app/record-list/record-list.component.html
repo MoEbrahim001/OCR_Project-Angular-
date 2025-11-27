@@ -15,9 +15,16 @@
 
       <div class="tools">
         <div class="search-group">
-          <input type="text"
-                 [(ngModel)]="nameTerm"
-                 [placeholder]="'SEARCH_NAME' | translate" />
+    <input type="text"
+       dir="rtl"
+       [ngModel]="nameTerm"
+       (ngModelChange)="onNameTermChanged($event)"
+       (keydown)="onNameKeyDown($event)"
+       [placeholder]="'SEARCH_NAME' | translate" />
+
+
+
+
       <input type="text"
        [(ngModel)]="idTerm"
        (ngModelChange)="onIdTermChanged($event)"

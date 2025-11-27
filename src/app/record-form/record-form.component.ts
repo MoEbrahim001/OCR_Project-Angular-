@@ -162,7 +162,6 @@ onFrontSelected(ev: Event) {
   this.frontFile = file;
   this.frontPreview = this.frontObjUrl;
 
-  // ✅ new: mark as not yet extracted for this file
   this.frontExtracted = false;
 
   this.extractFront();
@@ -178,7 +177,6 @@ onBackSelected(ev: Event) {
   this.backFile = file;
   this.backPreview = this.backObjUrl;
 
-  // ✅ new: mark as not yet extracted for this file
   this.backExtracted = false;
 
   this.extractBack();
@@ -216,14 +214,12 @@ extractFront() {
     }))
     .subscribe({
       next: res => {
-        // ✅ 1) لو النتيجة شكلها BACK يبقى المستخدم حط صورة الظهر في مكان الوش
         if (this.looksLikeBackOcr(res)) {
           this.openError('This image appears to be the BACK side, not the FRONT.');
           this.clearFront(new Event('clear') as any);
           return;
         }
 
-        // ✅ 2) لو تمام، نكمل زي الأول
         this.applyAndRefresh(() => {
           const arabicId = this.toArabicDigits(res?.nationalId ?? '');
 
@@ -259,14 +255,12 @@ extractBack() {
       next: (res: any) => {
         const r = (res && res.data) ? res.data : res;
 
-        // ✅ 1) لو النتيجة شكلها FRONT يبقى دي صورة الوش
         if (this.looksLikeFrontOcr(r)) {
           this.openError('This image appears to be the FRONT side, not the BACK.');
           this.clearBack(new Event('clear') as any);
           return;
         }
 
-        // ✅ 2) نفس الكود القديم
         let occ =
           r?.occupation ?? r?.Occupation ??
           r?.profession ?? r?.Profession ??
@@ -293,7 +287,6 @@ extractBack() {
     });
 }
 
-// Map Arabic-Indic (٠-٩) & Persian (۰-۹) to ASCII
 private toEnglishDigits(s: string): string {
   const map: Record<string, string> = {
     '٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9',
@@ -319,7 +312,6 @@ private toArabicDigits(s: string): string {
 confirmSave() {
   this.showConfirm = false;
 
-  // ✅ New validation: front image selected but no back image
   if (!this.isEdit && this.frontFile && !this.backFile) {
     this.openError('You must upload the back image before saving.');
     return;
@@ -345,7 +337,6 @@ confirmSave() {
 }
 
 
-// تحديد إذا كانت نتيجة OCR تشبه ظهر البطاقة
 private looksLikeBackOcr(res: any): boolean {
   const r = (res && res.data) ? res.data : res;
   return !!(
@@ -362,7 +353,6 @@ private looksLikeBackOcr(res: any): boolean {
   );
 }
 
-// تحديد إذا كانت نتيجة OCR تشبه وش البطاقة
 private looksLikeFrontOcr(res: any): boolean {
   const r = (res && res.data) ? res.data : res;
   return !!(
