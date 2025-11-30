@@ -105,6 +105,31 @@ applyFillEmptyOnly = true;
                          this.value.imageDataUrl ?? null) || null;
     this.backPreview = this.value.backImageDataUrl ?? null;
   }
+  // Normalize & clean Arabic/English address text
+private cleanAddress(input?: string): string {
+  if (!input) return '';
+
+  let s = input;
+
+ 
+  s = s.replace(/[|_*~^]+/g, ' '); 
+  s = s.replace(/[\u0640]+/g, ' ');
+
+  s = s
+    .replace(/[أإآٱ]/g, 'ا')  
+    .replace(/ى|ی/g, 'ي')      
+    .replace(/ة/g, 'ه')      
+    .replace(/ؤ/g, 'و')     
+    .replace(/ئ/g, 'ي');    
+
+  s = s.replace(/[،,.]+/g, ', ');   
+
+  
+  s = s.replace(/\s+/g, ' ').trim();
+
+  return s;
+}
+
 
   go(s: 'front' | 'back') {
     if (s === 'back' && !this.frontDone) return;
@@ -129,15 +154,21 @@ private applyOcrFrontToForm(src: any, overwrite = false) {
     if (overwrite) this.front[key] = (val ?? '');
     else if (!this.front[key]) this.front[key] = (val ?? '');
   };
+
   set('name', src.name);
   set('nationalId', src.nationalId);
-  set('address', src.address);
+
+  // 🧹 Clean OCR noise from address before setting it
+  const cleanedAddress = this.cleanAddress(src.address);
+  set('address', cleanedAddress);
+
   set('dob', src.dob);
 
   if (typeof src.age === 'number') {
     if (overwrite || this.front.age == null) this.front.age = src.age;
   }
 }
+
 
 private applyOcrBackToForm(src: BackData, overwrite = false) {
   if (!src) return;
@@ -261,15 +292,17 @@ extractBack() {
           return;
         }
 
-        let occ =
-          r?.occupation ?? r?.Occupation ??
-          r?.profession ?? r?.Profession ??
-          r?.proffession ?? r?.Proffession ??
-          r?.job ?? r?.Job ?? r?.jobTitle ?? r?.JobTitle;
+       let occ =
+  r?.occupation ?? r?.Occupation ??
+  r?.profession ?? r?.Profession ??
+  r?.proffession ?? r?.Proffession ??
+  r?.job ?? r?.Job ?? r?.jobTitle ?? r?.JobTitle;
 
-        if (typeof occ === 'string' && /\|/.test(occ)) {
-          occ = occ.replace(/\|/g, ' ').replace(/\s+/g, ' ').trim();
-        }
+if (typeof occ === 'string') {
+  occ = occ.replace(/\|/g, ' ').replace(/\s+/g, ' ').trim();
+  occ = this.cleanOccupation(occ);
+}
+
 
         this.applyAndRefresh(() => {
           this.ocrBackLast = {
@@ -299,6 +332,9 @@ private toArabicDigits(s: string): string {
   return (s ?? '').replace(/\d/g, d => a[+d]);
 }
 
+onOccupationBlur() {
+  this.back.occupation = this.cleanOccupation(this.back.occupation);
+}
 
 
   saveNow(frontOnly: boolean) {
@@ -312,13 +348,12 @@ private toArabicDigits(s: string): string {
 confirmSave() {
   this.showConfirm = false;
 
-  if (!this.isEdit && this.frontFile && !this.backFile) {
-    this.openError('You must upload the back image before saving.');
-    return;
-  }
-
   const idEn = this.toEnglishDigits(this.front.nationalId ?? '').replace(/\D/g, '');
   if (idEn.length !== 14) { this.openError('ID number must be 14 digits'); return; }
+
+  if (this.back.occupation) {
+    this.back.occupation = this.cleanOccupation(this.back.occupation);
+  }
 
   const payload: any = {
     name: this.front.name ?? '',
@@ -335,6 +370,26 @@ confirmSave() {
   console.log('EMIT payload:', payload);
   this.save.emit(payload);
 }
+
+private cleanOccupation(input?: string): string {
+  if (!input) return '';
+
+  let s = input;
+
+  
+  s = s.replace(/[|_*~^+\-=]+/g, ' ')
+  s = s.replace(/[\u0640]+/g, ' ');       
+
+  s = s.replace(/[0-9٠-٩۰-۹]+/g, ' ');
+
+  s = s.replace(/^[^ء-يA-Za-z]+/, '');
+  s = s.replace(/[^ء-يA-Za-z]+$/, '');
+
+  s = s.replace(/\s+/g, ' ').trim();
+
+  return s;
+}
+
 
 
 private looksLikeBackOcr(res: any): boolean {

@@ -115,8 +115,11 @@
   <div class="left">
     <div class="row2">
       <label class="field">{{ 'FORM.OCCUPATION' | translate }}
-        <input type="text" [(ngModel)]="back.occupation" />
-      </label>
+  <input type="text"
+         [(ngModel)]="back.occupation"
+         (blur)="onOccupationBlur()" />
+</label>
+
       <label class="field">{{ 'FORM.GENDER' | translate }}
         <input type="text" [(ngModel)]="back.gender" />
       </label>
