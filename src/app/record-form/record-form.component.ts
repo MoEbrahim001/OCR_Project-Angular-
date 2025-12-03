@@ -286,30 +286,33 @@ extractBack() {
       next: (res: any) => {
         const r = (res && res.data) ? res.data : res;
 
-        if (this.looksLikeFrontOcr(r)) {
-          this.openError('This image appears to be the FRONT side, not the BACK.');
-          this.clearBack(new Event('clear') as any);
-          return;
+        // ===== occupation as before =====
+        let occ =
+          r?.occupation ?? r?.Occupation ??
+          r?.profession ?? r?.Profession ??
+          r?.proffession ?? r?.Proffession ??
+          r?.job ?? r?.Job ?? r?.jobTitle ?? r?.JobTitle;
+        if (typeof occ === 'string' && /\|/.test(occ)) {
+          occ = occ.replace(/\|/g, ' ').replace(/\s+/g, ' ').trim();
         }
 
-       let occ =
-  r?.occupation ?? r?.Occupation ??
-  r?.profession ?? r?.Profession ??
-  r?.proffession ?? r?.Proffession ??
-  r?.job ?? r?.Job ?? r?.jobTitle ?? r?.JobTitle;
+        // ===== NEW: normalize marital status variants =====
+        let marital =
+          r?.maritalStatus ?? r?.MaritalStatus ??
+          r?.marital ?? r?.Marital ??
+          r?.status ?? r?.Status ??
+          r?.socialStatus ?? r?.SocialStatus;
 
-if (typeof occ === 'string') {
-  occ = occ.replace(/\|/g, ' ').replace(/\s+/g, ' ').trim();
-  occ = this.cleanOccupation(occ);
-}
-
+        if (typeof marital === 'string') {
+          marital = this.cleanMaritalStatus(marital);
+        }
 
         this.applyAndRefresh(() => {
           this.ocrBackLast = {
             occupation: occ,
             gender: r?.gender,
             religion: r?.religion,
-            maritalStatus: r?.maritalStatus,
+            maritalStatus: marital,
             husbandName: r?.husbandName,
             expiryDate: r?.expiryDate
           };
@@ -319,6 +322,26 @@ if (typeof occ === 'string') {
       error: _ => this.openError('Back OCR failed. Please try again.')
     });
 }
+// Very simple normalizer for Arabic marital status
+private cleanMaritalStatus(input?: string): string {
+  if (!input) return '';
+
+  let s = input.trim();
+
+  // remove pipes, digits, and weird symbols that OCR may add
+  s = s.replace(/[|_*~^+\-=0-9٠-٩۰-۹]+/g, ' ').replace(/\s+/g, ' ').trim();
+
+  // unify some common Arabic variations
+  const lower = s.toLocaleLowerCase('ar');
+
+  if (/اعزب|عزب/.test(lower)) return 'أعزب';
+  if (/متزوج|متزوجه|متزوجة/.test(lower)) return 'متزوج';
+  if (/مطلقة|مطلق/.test(lower)) return 'مطلق';
+  if (/ارملة|أرملة|ارمل|أرمل/.test(lower)) return 'أرمل';
+
+  return s; // fallback: return cleaned original
+}
+
 
 private toEnglishDigits(s: string): string {
   const map: Record<string, string> = {
@@ -394,6 +417,8 @@ private cleanOccupation(input?: string): string {
 
 private looksLikeBackOcr(res: any): boolean {
   const r = (res && res.data) ? res.data : res;
+    console.log('BACK OCR RAW:', r);
+
   return !!(
     r?.occupation ||
     r?.Occupation ||
