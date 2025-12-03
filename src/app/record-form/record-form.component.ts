@@ -71,7 +71,7 @@ private applyAndRefresh(mutator: () => void) {
   backFile?: File;
   frontPreview?: string | null;
   backPreview?: string | null;
-
+  idLocked = false;
   private frontObjUrl?: string;
   private backObjUrl?: string;
 
@@ -235,7 +235,12 @@ clearBack(e: Event) {
 
 extractFront() {
   if (this.isEdit || this.mode === 'manual') return;
-  if (!this.frontFile) { this.openError('Please upload the front image first.'); return; }
+
+  if (!this.frontFile) {
+    this.openError('Please upload the front image first.');
+    return;
+  }
+
   this.loadingFront = true;
 
   this.ocr.extractFront(this.frontFile, 120)
@@ -263,12 +268,18 @@ extractFront() {
           };
 
           this.applyOcrFrontToForm(this.ocrFrontLast, !this.applyFillEmptyOnly);
+
+          if (this.ocrFrontLast.nationalId) {
+            this.idLocked = true;
+          }
+
           if (!this.front.age) this.recalcAge();
         });
       },
       error: _ => this.openError('Front OCR failed.')
     });
 }
+
 
 
 
@@ -322,16 +333,13 @@ extractBack() {
       error: _ => this.openError('Back OCR failed. Please try again.')
     });
 }
-// Very simple normalizer for Arabic marital status
 private cleanMaritalStatus(input?: string): string {
   if (!input) return '';
 
   let s = input.trim();
 
-  // remove pipes, digits, and weird symbols that OCR may add
   s = s.replace(/[|_*~^+\-=0-9٠-٩۰-۹]+/g, ' ').replace(/\s+/g, ' ').trim();
 
-  // unify some common Arabic variations
   const lower = s.toLocaleLowerCase('ar');
 
   if (/اعزب|عزب/.test(lower)) return 'أعزب';
@@ -339,7 +347,7 @@ private cleanMaritalStatus(input?: string): string {
   if (/مطلقة|مطلق/.test(lower)) return 'مطلق';
   if (/ارملة|أرملة|ارمل|أرمل/.test(lower)) return 'أرمل';
 
-  return s; // fallback: return cleaned original
+  return s; 
 }
 
 
