@@ -8,11 +8,25 @@
 
     <div>
       <h2>{{ ('FORM.TITLE' | translate) || 'ID Record' }}</h2>
+    </div>
 
-      <p class="extension-hint" *ngIf="!isEdit">
-        Use the OCR browser extension to open the Gradio demo, analyze the ID,
-        then press "Fill OCR Results" to populate this form.
-      </p>
+    <div
+      class="mode-toggle"
+      *ngIf="!isEdit">
+
+      <label style="margin-left: 12px">
+
+        <input
+          type="radio"
+          name="mode"
+          value="upload"
+          [(ngModel)]="mode"
+        />
+
+        {{ ('FORM.MODE_UPLOAD' | translate) || 'Upload & OCR' }}
+
+      </label>
+
     </div>
 
   </div>
@@ -23,6 +37,10 @@
   <!-- ====================================================== -->
 
   <div class="form-grid">
+
+    <!-- ==================================================== -->
+    <!-- LEFT: ALL DATA -->
+    <!-- ==================================================== -->
 
     <div class="left">
 
@@ -105,7 +123,7 @@
 
           <span
             *ngIf="front.nationalId && !validateIdNumber()"
-            class="validation-error">
+            style="color:red;font-size:12px;">
 
             ID number must be exactly 14 digits.
 
@@ -385,6 +403,244 @@
           {{ 'FORM.SAVE' | translate }}
 
         </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- ==================================================== -->
+    <!-- RIGHT: FRONT + BACK UPLOAD -->
+    <!-- ==================================================== -->
+
+    <div
+      class="right"
+      *ngIf="!isEdit && mode === 'upload'">
+
+
+      <!-- ================= FRONT IMAGE ================= -->
+
+      <div class="form-section">
+
+        <h3>
+          {{ ('FORM.STEP_FRONT' | translate) || 'Front Image' }}
+        </h3>
+
+
+        <div class="upload-label">
+          {{ 'FORM.UPLOAD_LABEL' | translate }}
+        </div>
+
+
+        <label
+          class="upload-box"
+          for="frontFile">
+
+          <ng-container
+            *ngIf="!frontPreview; else frontImgTpl">
+
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              aria-hidden="true">
+
+              <path
+                d="M19 15v4H5v-4H3v4a2 2 0 002 2h14a2 2 0 002-2v-4h-2zM12 3l-5 5h3v6h4V8h3l-5-5z"
+              />
+
+            </svg>
+
+            <span>
+              {{ 'FORM.UPLOAD_HINT' | translate }}
+            </span>
+
+          </ng-container>
+
+
+          <ng-template #frontImgTpl>
+
+            <img
+              [src]="frontPreview"
+              alt="Front preview"
+            />
+
+
+            <button
+              type="button"
+              class="remove-btn"
+              (click)="clearFront($event)">
+
+              ✕
+
+            </button>
+
+          </ng-template>
+
+        </label>
+
+
+        <input
+          id="frontFile"
+          name="frontFile"
+
+          type="file"
+
+          accept="image/*"
+
+          (change)="onFrontSelected($event)"
+
+          hidden
+        />
+
+
+        <div class="upload-actions">
+
+          <button
+            type="button"
+
+            class="primary extract-btn"
+
+            (click)="extractFront()"
+
+            [disabled]="!frontFile || loadingFront">
+
+            <span *ngIf="!loadingFront">
+              {{ ('FORM.EXTRACT' | translate) || 'Extract Front' }}
+            </span>
+
+            <span *ngIf="loadingFront">
+              {{ ('FORM.EXTRACTING' | translate) || 'Extracting…' }}
+            </span>
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- ================= BACK IMAGE ================= -->
+
+      <div class="form-section">
+
+        <h3>
+          {{ ('FORM.STEP_BACK' | translate) || 'Back Image' }}
+        </h3>
+
+
+        <div class="upload-label">
+          {{ 'FORM.UPLOAD_LABEL' | translate }}
+        </div>
+
+
+        <label
+          class="upload-box"
+          for="backFile">
+
+          <ng-container
+            *ngIf="!backPreview; else backImgTpl">
+
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              aria-hidden="true">
+
+              <path
+                d="M19 15v4H5v-4H3v4a2 2 0 002 2h14a2 2 0 002-2v-4h-2zM12 3l-5 5h3v6h4V8h3l-5-5z"
+              />
+
+            </svg>
+
+            <span>
+              {{ 'FORM.UPLOAD_HINT' | translate }}
+            </span>
+
+          </ng-container>
+
+
+          <ng-template #backImgTpl>
+
+            <img
+              [src]="backPreview"
+              alt="Back preview"
+            />
+
+
+            <button
+              type="button"
+              class="remove-btn"
+              (click)="clearBack($event)">
+
+              ✕
+
+            </button>
+
+          </ng-template>
+
+        </label>
+
+
+        <input
+          id="backFile"
+          name="backFile"
+
+          type="file"
+
+          accept="image/*"
+
+          (change)="onBackSelected($event)"
+
+          hidden
+        />
+
+
+        <div class="upload-actions">
+
+          <button
+            type="button"
+
+            class="primary extract-btn"
+
+            (click)="extractBack()"
+
+            [disabled]="!backFile || loadingBack">
+
+            <span *ngIf="!loadingBack">
+              {{ ('FORM.EXTRACT' | translate) || 'Extract Back' }}
+            </span>
+
+            <span *ngIf="loadingBack">
+              {{ ('FORM.EXTRACTING' | translate) || 'Extracting…' }}
+            </span>
+
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- FILL EMPTY -->
+
+      <div class="upload-actions">
+
+        <label class="inline">
+
+          <input
+            type="checkbox"
+            name="applyFillEmptyOnly"
+            [(ngModel)]="applyFillEmptyOnly"
+          />
+
+          {{
+            ('FORM.APPLY_FILL_EMPTY' | translate)
+            ||
+            'Only fill empty fields'
+          }}
+
+        </label>
 
       </div>
 
