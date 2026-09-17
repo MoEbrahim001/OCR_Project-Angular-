@@ -1,0 +1,12 @@
+<div class="record-card" *ngIf="record">
+  <div class="record-image" *ngIf="record.imageDataUrl">
+    <img [src]="record.imageDataUrl" alt="{{ record.name }}" />
+  </div>
+  <div class="record-info">
+    <h2>{{ record.name }}</h2>
+    <p><strong>ID:</strong> {{ record.idNumber }}</p>
+    <p><strong>Address:</strong> {{ record.address }}</p>
+    <p><strong>Date of Birth:</strong> {{ record.dateOfBirth }}</p>
+    <p><strong>Age:</strong> {{ record.age }}</p>
+  </div>
+</div>
