@@ -1,372 +1,286 @@
-<form class="record-form" (ngSubmit)="saveNow(false)">
+<form
+  class="record-form"
+  (ngSubmit)="saveNow(false)"
+>
 
-  <!-- ====================================================== -->
-  <!-- HEADER -->
-  <!-- ====================================================== -->
+  <!-- ================= HEADER ================= -->
 
   <div class="wizard-header">
 
     <div>
-      <h2>{{ ('FORM.TITLE' | translate) || 'ID Record' }}</h2>
+      <h2>
+        {{ ('FORM.TITLE' | translate) || 'ID Record' }}
+      </h2>
 
-      <p class="extension-hint" *ngIf="!isEdit">
-        Use the OCR browser extension to open the Gradio demo, analyze the ID,
-        then press "Fill OCR Results" to populate this form.
+      <p *ngIf="!isEdit" class="form-hint">
+        Upload the front and back of the ID card.
+        OCR will extract the data automatically.
       </p>
     </div>
 
   </div>
 
 
-  <!-- ====================================================== -->
-  <!-- MAIN CONTENT -->
-  <!-- ====================================================== -->
+  <!-- ================= TWO SIDES ================= -->
 
-  <div class="form-grid">
-
-    <div class="left">
-
-      <!-- ================= FRONT DATA ================= -->
-
-      <div class="form-section">
-
-        <h3>
-          {{ ('FORM.STEP_FRONT' | translate) || 'Front Data' }}
-        </h3>
+  <div class="record-columns">
 
 
-        <!-- NAME -->
+    <!-- ================================================= -->
+    <!-- FRONT -->
+    <!-- ================================================= -->
 
-        <label
-          class="field"
-          for="name">
+    <section class="record-side">
 
-          {{ 'FORM.NAME' | translate }}
-
-          <input
-            type="text"
-
-            id="name"
-            name="name"
-
-            data-ocr-field="Name"
-
-            placeholder="Name"
-            aria-label="Name"
-
-            class="rtl-preserve"
-
-            dir="auto"
-
-            [attr.lang]="hasArabic(front.name) ? 'ar' : null"
-
-            [(ngModel)]="front.name"
-          />
-
-        </label>
+      <h3>
+        {{ ('FORM.STEP_FRONT' | translate) || 'Front Data' }}
+      </h3>
 
 
-        <!-- NATIONAL ID -->
+      <!-- FRONT UPLOAD -->
 
-        <label
-          class="field"
-          for="nationalId">
+      <label class="upload-box">
 
-          {{ 'FORM.ID' | translate }}
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/jpg"
+          hidden
+          (change)="onFrontFileSelected($event)"
+        />
 
-          <input
-            type="text"
+        <div
+          class="upload-placeholder"
+          *ngIf="!frontPreview"
+        >
 
-            id="nationalId"
-            name="nationalId"
+          <div class="upload-icon">
+            📷
+          </div>
 
-            data-ocr-field="NationalID"
+          <strong>
+            Upload Front ID
+          </strong>
 
-            placeholder="National ID"
-            aria-label="National ID"
-
-            class="rtl-preserve"
-
-            dir="auto"
-
-            inputmode="numeric"
-
-            maxlength="14"
-
-            [attr.lang]="hasArabic(front.nationalId) ? 'ar' : null"
-
-            [(ngModel)]="front.nationalId"
-
-            (ngModelChange)="onIdChanged()"
-
-            [readonly]="idLocked"
-          />
-
-
-          <span
-            *ngIf="front.nationalId && !validateIdNumber()"
-            class="validation-error">
-
-            ID number must be exactly 14 digits.
-
+          <span>
+            Click to select front image
           </span>
 
-        </label>
-
-
-        <!-- ADDRESS -->
-
-        <label
-          class="field"
-          for="address">
-
-          {{ 'FORM.ADDRESS' | translate }}
-
-          <textarea
-            id="address"
-            name="address"
-
-            data-ocr-field="Address"
-
-            placeholder="Address"
-            aria-label="Address"
-
-            rows="3"
-
-            class="rtl-preserve"
-
-            dir="auto"
-
-            [attr.lang]="hasArabic(front.address) ? 'ar' : null"
-
-            [(ngModel)]="front.address">
-          </textarea>
-
-        </label>
-
-
-        <div class="row2">
-
-          <!-- DOB -->
-
-          <label
-            class="field"
-            for="dob">
-
-            {{ 'FORM.DOB' | translate }}
-
-            <input
-              id="dob"
-              name="dob"
-
-              data-ocr-field="DOB"
-
-              placeholder="Date of Birth"
-              aria-label="Date of Birth"
-
-              [type]="dobIsIso ? 'date' : 'text'"
-
-              [(ngModel)]="front.dob"
-
-              (change)="recalcAge()"
-            />
-
-          </label>
-
-
-          <!-- AGE -->
-
-          <label
-            class="field age-box"
-            for="age">
-
-            {{ 'FORM.AGE' | translate }}
-
-            <input
-              type="number"
-
-              id="age"
-              name="age"
-
-              placeholder="Age"
-              aria-label="Age"
-
-              [(ngModel)]="front.age"
-
-              readonly
-            />
-
-          </label>
-
         </div>
 
+
+        <img
+          *ngIf="frontPreview"
+          [src]="frontPreview"
+          class="image-preview"
+          alt="Front ID preview"
+        />
+
+      </label>
+
+
+      <div
+        class="ocr-loading"
+        *ngIf="loadingFront"
+      >
+        Processing front image...
       </div>
 
 
-      <!-- ================= BACK DATA ================= -->
+      <!-- NAME -->
 
-      <div class="form-section">
+      <label class="field">
 
-        <h3>
-          {{ ('FORM.STEP_BACK' | translate) || 'Back Data' }}
-        </h3>
+        {{ 'FORM.NAME' | translate }}
 
+        <input
+          type="text"
+          id="name"
+          name="name"
+          [(ngModel)]="front.name"
+          dir="auto"
+          placeholder="Name"
+        />
 
-        <div class="row2">
-
-          <!-- OCCUPATION -->
-
-          <label
-            class="field"
-            for="occupation">
-
-            {{ 'FORM.OCCUPATION' | translate }}
-
-            <input
-              type="text"
-
-              id="occupation"
-              name="occupation"
-
-              data-ocr-field="Profision"
-
-              placeholder="Occupation Profession Job"
-              aria-label="Occupation Profession"
-
-              [(ngModel)]="back.occupation"
-
-              (blur)="onOccupationBlur()"
-            />
-
-          </label>
+      </label>
 
 
-          <!-- GENDER -->
+      <!-- NATIONAL ID -->
 
-          <label
-            class="field"
-            for="gender">
+      <label class="field">
 
-            {{ 'FORM.GENDER' | translate }}
+        {{ 'FORM.ID' | translate }}
 
-            <input
-              type="text"
+        <input
+          type="text"
+          id="nationalId"
+          name="nationalId"
+          [(ngModel)]="front.nationalId"
+          (ngModelChange)="onIdChanged()"
+          maxlength="14"
+          inputmode="numeric"
+          dir="auto"
+        />
 
-              id="gender"
-              name="gender"
+        <span
+          *ngIf="
+            front.nationalId &&
+            !validateIdNumber()
+          "
+          class="validation-error"
+        >
+          ID number must be exactly 14 digits.
+        </span>
 
-              data-ocr-field="Gender"
+      </label>
 
-              placeholder="Gender"
-              aria-label="Gender"
 
-              [(ngModel)]="back.gender"
-            />
+      <!-- ADDRESS -->
 
-          </label>
+      <label class="field">
+
+        {{ 'FORM.ADDRESS' | translate }}
+
+        <textarea
+          id="address"
+          name="address"
+          [(ngModel)]="front.address"
+          rows="3"
+          dir="auto"
+          placeholder="Address"
+        ></textarea>
+
+      </label>
+
+
+      <!-- DOB + AGE -->
+
+      <div class="row2">
+
+        <label class="field">
+
+          {{ 'FORM.DOB' | translate }}
+
+          <input
+            id="dob"
+            name="dob"
+            [type]="dobIsIso ? 'date' : 'text'"
+            [(ngModel)]="front.dob"
+            (change)="recalcAge()"
+          />
+
+        </label>
+
+
+        <label class="field">
+
+          {{ 'FORM.AGE' | translate }}
+
+          <input
+            type="number"
+            id="age"
+            name="age"
+            [(ngModel)]="front.age"
+            readonly
+          />
+
+        </label>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================================================= -->
+    <!-- BACK -->
+    <!-- ================================================= -->
+
+    <section class="record-side">
+
+      <h3>
+        {{ ('FORM.STEP_BACK' | translate) || 'Back Data' }}
+      </h3>
+
+
+      <!-- BACK UPLOAD -->
+
+      <label class="upload-box">
+
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/jpg"
+          hidden
+          (change)="onBackFileSelected($event)"
+        />
+
+
+        <div
+          class="upload-placeholder"
+          *ngIf="!backPreview"
+        >
+
+          <div class="upload-icon">
+            📷
+          </div>
+
+          <strong>
+            Upload Back ID
+          </strong>
+
+          <span>
+            Click to select back image
+          </span>
 
         </div>
 
 
-        <div class="row2">
+        <img
+          *ngIf="backPreview"
+          [src]="backPreview"
+          class="image-preview"
+          alt="Back ID preview"
+        />
 
-          <!-- RELIGION -->
-
-          <label
-            class="field"
-            for="religion">
-
-            {{ 'FORM.RELIGION' | translate }}
-
-            <input
-              type="text"
-
-              id="religion"
-              name="religion"
-
-              data-ocr-field="Religion"
-
-              placeholder="Religion"
-              aria-label="Religion"
-
-              [(ngModel)]="back.religion"
-            />
-
-          </label>
+      </label>
 
 
-          <!-- MARITAL STATUS -->
-
-          <label
-            class="field"
-            for="maritalStatus">
-
-            {{ 'FORM.MARITAL' | translate }}
-
-            <input
-              type="text"
-
-              id="maritalStatus"
-              name="maritalStatus"
-
-              data-ocr-field="MartialStat"
-
-              placeholder="Marital Status"
-              aria-label="Marital Status"
-
-              [(ngModel)]="back.maritalStatus"
-            />
-
-          </label>
-
-        </div>
+      <div
+        class="ocr-loading"
+        *ngIf="loadingBack"
+      >
+        Processing back image...
+      </div>
 
 
-        <!-- HUSBAND NAME -->
+      <!-- OCCUPATION + GENDER -->
 
-        <label
-          class="field"
-          for="husbandName">
+      <div class="row2">
 
-          {{ 'FORM.HUSBANDNAME' | translate }}
+        <label class="field">
+
+          {{ 'FORM.OCCUPATION' | translate }}
 
           <input
             type="text"
-
-            id="husbandName"
-            name="husbandName"
-
-            data-ocr-field="Husband_name"
-
-            placeholder="Husband Name"
-            aria-label="Husband Name"
-
-            [(ngModel)]="back.husbandName"
+            id="occupation"
+            name="occupation"
+            [(ngModel)]="back.occupation"
+            (blur)="onOccupationBlur()"
+            dir="auto"
           />
 
         </label>
 
 
-        <!-- EXPIRY DATE -->
+        <label class="field">
 
-        <label
-          class="field"
-          for="expiryDate">
-
-          {{ 'FORM.EXPIRY' | translate }}
+          {{ 'FORM.GENDER' | translate }}
 
           <input
-            type="date"
-
-            id="expiryDate"
-            name="expiryDate"
-
-            data-ocr-field="EndDate"
-
-            placeholder="Expiry Date"
-            aria-label="Expiry Date"
-
-            [(ngModel)]="back.expiryDate"
+            type="text"
+            id="gender"
+            name="gender"
+            [(ngModel)]="back.gender"
+            dir="auto"
           />
 
         </label>
@@ -374,34 +288,101 @@
       </div>
 
 
-      <!-- ================= SAVE ================= -->
+      <!-- RELIGION + MARITAL -->
 
-      <div class="actions">
+      <div class="row2">
 
-        <button
-          type="submit"
-          class="primary">
+        <label class="field">
 
-          {{ 'FORM.SAVE' | translate }}
+          {{ 'FORM.RELIGION' | translate }}
 
-        </button>
+          <input
+            type="text"
+            id="religion"
+            name="religion"
+            [(ngModel)]="back.religion"
+            dir="auto"
+          />
+
+        </label>
+
+
+        <label class="field">
+
+          {{ 'FORM.MARITAL' | translate }}
+
+          <input
+            type="text"
+            id="maritalStatus"
+            name="maritalStatus"
+            [(ngModel)]="back.maritalStatus"
+            dir="auto"
+          />
+
+        </label>
 
       </div>
 
-    </div>
+
+      <!-- HUSBAND -->
+
+      <label class="field">
+
+        {{ 'FORM.HUSBANDNAME' | translate }}
+
+        <input
+          type="text"
+          id="husbandName"
+          name="husbandName"
+          [(ngModel)]="back.husbandName"
+          dir="auto"
+        />
+
+      </label>
+
+
+      <!-- EXPIRY -->
+
+      <label class="field">
+
+        {{ 'FORM.EXPIRY' | translate }}
+
+        <input
+          type="date"
+          id="expiryDate"
+          name="expiryDate"
+          [(ngModel)]="back.expiryDate"
+        />
+
+      </label>
+
+    </section>
+
+  </div>
+
+
+  <!-- ================= SAVE ================= -->
+
+  <div class="actions">
+
+    <button
+      type="submit"
+      class="primary"
+    >
+      {{ 'FORM.SAVE' | translate }}
+    </button>
 
   </div>
 
 </form>
 
 
-<!-- ====================================================== -->
-<!-- ERROR MODAL -->
-<!-- ====================================================== -->
+<!-- ================= ERROR MODAL ================= -->
 
 <div
   class="mini-modal"
-  *ngIf="showError">
+  *ngIf="showError"
+>
 
   <div class="mini-card">
 
@@ -416,10 +397,9 @@
     <button
       type="button"
       class="primary"
-      (click)="closeError()">
-
+      (click)="closeError()"
+    >
       {{ 'ERROR.OK' | translate }}
-
     </button>
 
   </div>
@@ -427,13 +407,12 @@
 </div>
 
 
-<!-- ====================================================== -->
-<!-- CONFIRM MODAL -->
-<!-- ====================================================== -->
+<!-- ================= CONFIRM MODAL ================= -->
 
 <div
   class="mini-modal"
-  *ngIf="showConfirm">
+  *ngIf="showConfirm"
+>
 
   <div class="mini-card">
 
@@ -450,19 +429,17 @@
       <button
         type="button"
         class="primary"
-        (click)="confirmSave()">
-
+        (click)="confirmSave()"
+      >
         {{ 'CONFIRM.YES' | translate }}
-
       </button>
 
       <button
         type="button"
         class="ghost"
-        (click)="cancelSave()">
-
+        (click)="cancelSave()"
+      >
         {{ 'CONFIRM.NO' | translate }}
-
       </button>
 
     </div>

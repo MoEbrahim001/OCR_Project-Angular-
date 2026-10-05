@@ -697,3 +697,227 @@
   }
   .modal .right { padding-inline-end: 0; }
 }
+/* =========================================================
+   SHOW FULL TABLE - REMOVE HORIZONTAL SCROLL
+   ========================================================= */
+
+.everything-container {
+  width: 98vw;
+  max-width: none;
+
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+
+/* Remove horizontal scrollbar */
+
+.table-card {
+  width: 100%;
+
+  overflow-x: hidden;
+
+  padding: 16px;
+
+  box-sizing: border-box;
+}
+
+
+/* Force table to stay inside available width */
+
+.records-table {
+  width: 100%;
+
+  min-width: 0 !important;
+
+  table-layout: fixed;
+
+  border-collapse: collapse;
+
+  font-size: 12px;
+}
+
+
+/* Allow text to wrap instead of making table wider */
+
+.records-table th,
+.records-table td {
+  white-space: normal !important;
+
+  overflow-wrap: break-word;
+  word-break: normal;
+
+  padding: 9px 5px;
+
+  text-align: center;
+
+  vertical-align: middle;
+}
+
+
+/* =========================================================
+   COLUMN WIDTHS
+   ========================================================= */
+
+
+/* # */
+
+.records-table th:nth-child(1),
+.records-table td:nth-child(1) {
+  width: 3%;
+}
+
+
+/* Name */
+
+.records-table th:nth-child(2),
+.records-table td:nth-child(2) {
+  width: 11%;
+}
+
+
+/* National ID */
+
+.records-table th:nth-child(3),
+.records-table td:nth-child(3) {
+  width: 11%;
+
+  white-space: nowrap !important;
+
+  font-size: 11px;
+}
+
+
+/* Address */
+
+.records-table th:nth-child(4),
+.records-table td:nth-child(4) {
+  width: 13%;
+
+  max-width: none !important;
+
+  overflow: visible !important;
+
+  text-overflow: unset !important;
+}
+
+
+/* DOB */
+
+.records-table th:nth-child(5),
+.records-table td:nth-child(5) {
+  width: 8%;
+
+  white-space: nowrap !important;
+
+  font-size: 11px;
+}
+
+
+/* Age */
+
+.records-table th:nth-child(6),
+.records-table td:nth-child(6) {
+  width: 4%;
+}
+
+
+/* Religion */
+
+.records-table th:nth-child(7),
+.records-table td:nth-child(7) {
+  width: 5%;
+}
+
+
+/* Gender */
+
+.records-table th:nth-child(8),
+.records-table td:nth-child(8) {
+  width: 5%;
+}
+
+
+/* Occupation */
+
+.records-table th:nth-child(9),
+.records-table td:nth-child(9) {
+  width: 14%;
+}
+
+
+/* Marital Status */
+
+.records-table th:nth-child(10),
+.records-table td:nth-child(10) {
+  width: 7%;
+}
+
+
+/* Husband Name */
+
+.records-table th:nth-child(11),
+.records-table td:nth-child(11) {
+  width: 10%;
+}
+
+
+/* Actions */
+
+.records-table th:nth-child(12),
+.records-table td:nth-child(12) {
+  width: 9%;
+
+  white-space: nowrap !important;
+}
+
+
+/* =========================================================
+   ACTION BUTTONS SMALLER
+   ========================================================= */
+
+.records-table .icon-btn {
+  width: 30px;
+  height: 30px;
+
+  margin: 2px;
+}
+
+.records-table .icon-btn img {
+  width: 15px;
+  height: 15px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+
+  .records-table {
+    font-size: 11px;
+  }
+
+  .records-table th,
+  .records-table td {
+    padding: 7px 3px;
+  }
+
+}
+
+
+/* On phones scrolling is acceptable */
+
+@media (max-width: 760px) {
+
+  .table-card {
+    overflow-x: auto;
+  }
+
+  .records-table {
+    min-width: 950px !important;
+    table-layout: auto;
+  }
+
+}

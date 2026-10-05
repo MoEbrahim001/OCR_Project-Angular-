@@ -10,7 +10,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 
+import { finalize } from 'rxjs';
+
 import { RecordModel } from '../models/record.model';
+import { OcrService } from '../services/ocr.service';
 
 
 interface BackData {
@@ -31,24 +34,39 @@ export type RecordValue = (RecordModel & BackData) & {
 
 @Component({
   selector: 'app-record-form',
+
   standalone: true,
+
   imports: [
     CommonModule,
     FormsModule,
     TranslateModule
   ],
+
   templateUrl: './record-form.component.html',
   styleUrls: ['./record-form.component.css'],
 })
 export class RecordFormComponent {
 
+  // =========================================================
+  // INPUTS / OUTPUTS
+  // =========================================================
+
   @Input() value: Partial<RecordValue> = {};
+
   @Input() isEdit = false;
+
   @Input() existingIds: string[] = [];
 
+
   @Output() save = new EventEmitter<RecordValue>();
+
   @Output() cancel = new EventEmitter<void>();
 
+
+  // =========================================================
+  // FRONT DATA
+  // =========================================================
 
   front: {
     name?: string;
@@ -58,177 +76,591 @@ export class RecordFormComponent {
     age?: number;
   } = {};
 
+
+  // =========================================================
+  // BACK DATA
+  // =========================================================
+
   back: BackData = {};
 
-  // Kept for compatibility with the existing template.
-  // In the new Extension flow the ID is not locked by Angular OCR.
+
+  // =========================================================
+  // IMAGE UPLOADS
+  // =========================================================
+
+  frontFile: File | null = null;
+
+  backFile: File | null = null;
+
+
+  frontPreview: string | null = null;
+
+  backPreview: string | null = null;
+
+
+  loadingFront = false;
+
+  loadingBack = false;
+
+
+  // =========================================================
+  // UI
+  // =========================================================
+
   idLocked = false;
 
+
   showError = false;
+
   errorText = '';
+
 
   showConfirm = false;
 
 
+  // =========================================================
+  // CONSTRUCTOR
+  // =========================================================
+
   constructor(
+    private ocr: OcrService,
     private cdr: ChangeDetectorRef
   ) {}
 
 
-  ngOnInit() {
+  // =========================================================
+  // INIT
+  // =========================================================
+
+  ngOnInit(): void {
 
     this.front = {
-      name: this.value.name,
-      nationalId: this.value.idNumber,
-      address: this.value.address,
-      dob: this.value.dateOfBirth,
-      age: this.value.age,
+
+      name:
+        this.value.name,
+
+      nationalId:
+        this.value.idNumber,
+
+      address:
+        this.value.address,
+
+      dob:
+        this.value.dateOfBirth,
+
+      age:
+        this.value.age
+
     };
+
 
     this.back = {
-      occupation: this.value.occupation,
-      gender: this.value.gender,
-      religion: this.value.religion,
-      maritalStatus: this.value.maritalStatus,
-      husbandName: this.value.husbandName,
-      expiryDate: this.value.expiryDate,
+
+      occupation:
+        this.value.occupation,
+
+      gender:
+        this.value.gender,
+
+      religion:
+        this.value.religion,
+
+      maritalStatus:
+        this.value.maritalStatus,
+
+      husbandName:
+        this.value.husbandName,
+
+      expiryDate:
+        this.value.expiryDate
+
     };
-  }
 
 
-  // =========================================================
-  // EXTENSION COMPATIBILITY
-  // =========================================================
+    // Existing previews when editing
+    this.frontPreview =
+      this.value.frontImageDataUrl ?? null;
 
-  /**
-   * Reads the real value currently displayed in an input/textarea.
-   *
-   * The Chrome extension may inject values directly into the DOM.
-   * This method lets Angular pull those values back into its model
-   * before saving.
-   */
-  private readDomValue(id: string): string | undefined {
+    this.backPreview =
+      this.value.backImageDataUrl ?? null;
 
-    if (typeof document === 'undefined') {
-      return undefined;
-    }
-
-    const element = document.getElementById(id) as
-      | HTMLInputElement
-      | HTMLTextAreaElement
-      | null;
-
-    if (!element) {
-      return undefined;
-    }
-
-    return element.value ?? '';
-  }
-
-
-  /**
-   * Pull values inserted by the OCR Chrome Extension into Angular state.
-   */
-  private syncExtensionValuesFromDom(): void {
-
-    // ================= FRONT =================
-
-    const name = this.readDomValue('name');
-    const nationalId = this.readDomValue('nationalId');
-    const address = this.readDomValue('address');
-    const dob = this.readDomValue('dob');
-
-    if (name !== undefined) {
-      this.front.name = name.trim();
-    }
-
-    if (nationalId !== undefined) {
-
-      const englishDigits =
-        this.toEnglishDigits(nationalId)
-          .replace(/\D/g, '');
-
-      this.front.nationalId =
-        this.toArabicDigits(englishDigits);
-
-      // If the extension filled a valid Egyptian ID but did not fill DOB,
-      // derive DOB from the ID automatically.
-      if (englishDigits.length === 14 && !dob) {
-
-        const parsedDob =
-          this.parseDobFromEgyptId(englishDigits);
-
-        if (parsedDob) {
-          this.front.dob = parsedDob;
-        }
-      }
-    }
-
-    if (address !== undefined) {
-      this.front.address =
-        this.cleanAddress(address);
-    }
-
-    if (dob !== undefined && dob.trim()) {
-      this.front.dob = dob.trim();
-    }
 
     if (this.front.dob) {
+
       this.recalcAge();
+
+    }
+
+  }
+
+
+  // =========================================================
+  // FRONT IMAGE
+  // =========================================================
+
+  onFrontFileSelected(
+    event: Event
+  ): void {
+
+    const input =
+      event.target as HTMLInputElement;
+
+
+    const file =
+      input.files?.[0];
+
+
+    if (!file) {
+
+      return;
+
     }
 
 
-    // ================= BACK =================
+    if (!this.isValidImage(file)) {
 
-    const occupation =
-      this.readDomValue('occupation');
+      this.openError(
+        'Please select a JPG, JPEG or PNG image.'
+      );
 
-    const gender =
-      this.readDomValue('gender');
+      input.value = '';
 
-    const religion =
-      this.readDomValue('religion');
+      return;
 
-    const maritalStatus =
-      this.readDomValue('maritalStatus');
-
-    const husbandName =
-      this.readDomValue('husbandName');
-
-    const expiryDate =
-      this.readDomValue('expiryDate');
-
-    if (occupation !== undefined) {
-      this.back.occupation =
-        this.cleanOccupation(occupation);
     }
 
-    if (gender !== undefined) {
-      this.back.gender =
-        gender.trim();
+
+    this.frontFile = file;
+
+
+    // -------------------------
+    // Preview
+    // -------------------------
+
+    this.createPreview(
+      file,
+      preview => {
+
+        this.frontPreview = preview;
+
+        this.cdr.detectChanges();
+
+      }
+    );
+
+
+    // -------------------------
+    // OCR
+    // -------------------------
+
+    this.loadingFront = true;
+
+
+    this.ocr
+      .extractFront(file)
+      .pipe(
+
+        finalize(() => {
+
+          this.loadingFront = false;
+
+          this.cdr.detectChanges();
+
+        })
+
+      )
+      .subscribe({
+
+        next: result => {
+
+          const data: any = result;
+
+
+          // Name
+          this.front.name =
+            data.name
+            ?? data.fullName
+            ?? '';
+
+
+          // National ID
+          const rawId =
+            data.nationalId
+            ?? data.idNumber
+            ?? data.ID
+            ?? data.id
+            ?? data.nid
+            ?? '';
+
+
+          if (rawId) {
+
+            const englishDigits =
+              this.toEnglishDigits(
+                String(rawId)
+              )
+                .replace(/\D/g, '');
+
+
+            this.front.nationalId =
+              this.toArabicDigits(
+                englishDigits
+              );
+
+
+            this.onIdChanged();
+
+          }
+
+
+          // Address
+          const address =
+            data.address
+            ?? '';
+
+
+          this.front.address =
+            this.cleanAddress(
+              String(address)
+            );
+
+
+          // DOB
+          const dob =
+            data.dob
+            ?? data.dateOfBirth
+            ?? data.DOB
+            ?? null;
+
+
+          if (dob) {
+
+            this.front.dob =
+              String(dob);
+
+          }
+
+
+          // If DOB is not returned,
+          // derive it from National ID
+          if (
+            !this.front.dob &&
+            this.front.nationalId
+          ) {
+
+            const id =
+              this.toEnglishDigits(
+                this.front.nationalId
+              )
+                .replace(/\D/g, '');
+
+
+            const parsedDob =
+              this.parseDobFromEgyptId(id);
+
+
+            if (parsedDob) {
+
+              this.front.dob =
+                parsedDob;
+
+            }
+
+          }
+
+
+          this.recalcAge();
+
+          this.cdr.detectChanges();
+
+        },
+
+
+        error: error => {
+
+          console.error(
+            'Front OCR error:',
+            error
+          );
+
+
+          this.openError(
+            this.getOcrErrorMessage(
+              error,
+              'Front'
+            )
+          );
+
+        }
+
+      });
+
+  }
+
+
+  // =========================================================
+  // BACK IMAGE
+  // =========================================================
+
+  onBackFileSelected(
+    event: Event
+  ): void {
+
+    const input =
+      event.target as HTMLInputElement;
+
+
+    const file =
+      input.files?.[0];
+
+
+    if (!file) {
+
+      return;
+
     }
 
-    if (religion !== undefined) {
-      this.back.religion =
-        religion.trim();
+
+    if (!this.isValidImage(file)) {
+
+      this.openError(
+        'Please select a JPG, JPEG or PNG image.'
+      );
+
+      input.value = '';
+
+      return;
+
     }
 
-    if (maritalStatus !== undefined) {
-      this.back.maritalStatus =
-        this.cleanMaritalStatus(maritalStatus);
+
+    this.backFile = file;
+
+
+    // -------------------------
+    // Preview
+    // -------------------------
+
+    this.createPreview(
+      file,
+      preview => {
+
+        this.backPreview = preview;
+
+        this.cdr.detectChanges();
+
+      }
+    );
+
+
+    // -------------------------
+    // OCR
+    // -------------------------
+
+    this.loadingBack = true;
+
+
+    this.ocr
+      .extractBack(file)
+      .pipe(
+
+        finalize(() => {
+
+          this.loadingBack = false;
+
+          this.cdr.detectChanges();
+
+        })
+
+      )
+      .subscribe({
+
+        next: result => {
+
+          const data: any = result;
+
+
+          // Occupation / Profession
+          this.back.occupation =
+            this.cleanOccupation(
+
+              data.occupation
+              ?? data.profession
+              ?? data.proffession
+              ?? data.job
+              ?? ''
+
+            );
+
+
+          // Gender
+          this.back.gender =
+            String(
+              data.gender
+              ?? ''
+            ).trim();
+
+
+          // Religion
+          this.back.religion =
+            String(
+              data.religion
+              ?? ''
+            ).trim();
+
+
+          // Marital Status
+          this.back.maritalStatus =
+            this.cleanMaritalStatus(
+
+              data.maritalStatus
+              ?? data.marital_status
+              ?? data.marital
+              ?? ''
+
+            );
+
+
+          // Husband Name
+          this.back.husbandName =
+            String(
+
+              data.husbandName
+              ?? data.husband_name
+              ?? data.husband
+              ?? ''
+
+            ).trim();
+
+
+          // Expiry Date
+          this.back.expiryDate =
+            String(
+
+              data.expiryDate
+              ?? data.endDate
+              ?? data.enddate
+              ?? data.expiry
+              ?? ''
+
+            ).trim();
+
+
+          this.cdr.detectChanges();
+
+        },
+
+
+        error: error => {
+
+          console.error(
+            'Back OCR error:',
+            error
+          );
+
+
+          this.openError(
+            this.getOcrErrorMessage(
+              error,
+              'Back'
+            )
+          );
+
+        }
+
+      });
+
+  }
+
+
+  // =========================================================
+  // IMAGE HELPERS
+  // =========================================================
+
+  private isValidImage(
+    file: File
+  ): boolean {
+
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png'
+    ];
+
+
+    return allowedTypes.includes(
+      file.type.toLowerCase()
+    );
+
+  }
+
+
+  private createPreview(
+    file: File,
+    callback: (value: string) => void
+  ): void {
+
+    const reader =
+      new FileReader();
+
+
+    reader.onload = () => {
+
+      callback(
+        reader.result as string
+      );
+
+    };
+
+
+    reader.onerror = () => {
+
+      this.openError(
+        'Could not preview the selected image.'
+      );
+
+    };
+
+
+    reader.readAsDataURL(file);
+
+  }
+
+
+  private getOcrErrorMessage(
+    error: any,
+    side: string
+  ): string {
+
+    if (
+      error?.status === 0
+    ) {
+
+      return (
+        `${side} OCR service could not be reached. ` +
+        `Make sure the .NET API and Python OCR service are running.`
+      );
+
     }
 
-    if (husbandName !== undefined) {
-      this.back.husbandName =
-        husbandName.trim();
+
+    if (
+      error?.status >= 500
+    ) {
+
+      return (
+        `${side} OCR failed on the server. ` +
+        `Please try again.`
+      );
+
     }
 
-    if (expiryDate !== undefined) {
-      this.back.expiryDate =
-        expiryDate.trim();
-    }
 
-    this.cdr.detectChanges();
+    return (
+      `${side} OCR failed. ` +
+      `Please check the selected image and try again.`
+    );
+
   }
 
 
@@ -236,124 +668,243 @@ export class RecordFormComponent {
   // DATE / AGE
   // =========================================================
 
-  recalcAge() {
+  recalcAge(): void {
 
     if (!this.front.dob) {
-      this.front.age = undefined;
+
+      this.front.age =
+        undefined;
+
       return;
+
     }
 
-    const birth = new Date(this.front.dob);
 
-    if (Number.isNaN(birth.getTime())) {
-      this.front.age = undefined;
-      return;
-    }
+    const birth =
+      new Date(
+        this.front.dob
+      );
 
-    const today = new Date();
-
-    let age =
-      today.getFullYear() -
-      birth.getFullYear();
-
-    const m =
-      today.getMonth() -
-      birth.getMonth();
 
     if (
-      m < 0 ||
-      (
-        m === 0 &&
-        today.getDate() < birth.getDate()
+      Number.isNaN(
+        birth.getTime()
       )
     ) {
-      age--;
+
+      this.front.age =
+        undefined;
+
+      return;
+
     }
 
+
+    const today =
+      new Date();
+
+
+    let age =
+      today.getFullYear()
+      -
+      birth.getFullYear();
+
+
+    const monthDifference =
+      today.getMonth()
+      -
+      birth.getMonth();
+
+
+    if (
+      monthDifference < 0
+      ||
+      (
+        monthDifference === 0
+        &&
+        today.getDate()
+        <
+        birth.getDate()
+      )
+    ) {
+
+      age--;
+
+    }
+
+
     this.front.age =
-      Math.max(0, age);
+      Math.max(
+        0,
+        age
+      );
+
   }
 
 
-  private parseDobFromEgyptId(id: string): string | null {
+  private parseDobFromEgyptId(
+    id: string
+  ): string | null {
 
-    const m =
-      id.match(/^([23])(\d{2})(\d{2})(\d{2})/);
+    const match =
+      id.match(
+        /^([23])(\d{2})(\d{2})(\d{2})/
+      );
 
-    if (!m) {
+
+    if (!match) {
+
       return null;
+
     }
 
+
     const century =
-      m[1] === '2'
+      match[1] === '2'
         ? 1900
-        : m[1] === '3'
+        : match[1] === '3'
           ? 2000
           : null;
 
-    if (century == null) {
+
+    if (century === null) {
+
       return null;
+
     }
 
-    const yy =
-      parseInt(m[2], 10);
 
-    const mm =
-      parseInt(m[3], 10);
+    const year =
+      century
+      +
+      parseInt(
+        match[2],
+        10
+      );
 
-    const dd =
-      parseInt(m[4], 10);
+
+    const month =
+      parseInt(
+        match[3],
+        10
+      );
+
+
+    const day =
+      parseInt(
+        match[4],
+        10
+      );
+
 
     if (
-      mm < 1 ||
-      mm > 12 ||
-      dd < 1 ||
-      dd > 31
+      month < 1
+      ||
+      month > 12
+      ||
+      day < 1
+      ||
+      day > 31
     ) {
+
       return null;
+
     }
+
 
     const result =
-      `${century + yy}-` +
-      `${String(mm).padStart(2, '0')}-` +
-      `${String(dd).padStart(2, '0')}`;
+      `${year}-` +
+      `${String(month).padStart(2, '0')}-` +
+      `${String(day).padStart(2, '0')}`;
 
-    const parsed = new Date(result);
 
-    if (Number.isNaN(parsed.getTime())) {
+    const parsed =
+      new Date(result);
+
+
+    if (
+      Number.isNaN(
+        parsed.getTime()
+      )
+    ) {
+
       return null;
+
     }
 
+
+    // Make sure JS did not normalize an invalid date
+    if (
+      parsed.getFullYear() !== year
+      ||
+      parsed.getMonth() + 1 !== month
+      ||
+      parsed.getDate() !== day
+    ) {
+
+      return null;
+
+    }
+
+
     return result;
+
   }
 
 
-  onIdChanged() {
+  onIdChanged(): void {
 
-    const en =
+    const english =
       this.toEnglishDigits(
-        this.front.nationalId ?? ''
+        this.front.nationalId
+        ?? ''
       );
 
+
     const digits =
-      en.replace(/\D/g, '');
+      english.replace(
+        /\D/g,
+        ''
+      );
+
 
     this.front.nationalId =
-      this.toArabicDigits(digits);
+      this.toArabicDigits(
+        digits
+      );
 
-    if (digits.length !== 14) {
+
+    if (
+      digits.length !== 14
+    ) {
+
+      this.front.dob =
+        undefined;
+
+      this.front.age =
+        undefined;
+
       return;
+
     }
 
+
     const dob =
-      this.parseDobFromEgyptId(digits);
+      this.parseDobFromEgyptId(
+        digits
+      );
+
 
     if (dob) {
 
-      this.front.dob = dob;
+      this.front.dob =
+        dob;
+
 
       this.recalcAge();
+
     }
+
   }
 
 
@@ -366,42 +917,48 @@ export class RecordFormComponent {
   ): string {
 
     if (!input) {
+
       return '';
+
     }
 
-    let s = input;
 
-    s =
-      s.replace(
+    let value =
+      input;
+
+
+    value =
+      value.replace(
         /[|_*~^]+/g,
         ' '
       );
 
-    s =
-      s.replace(
+
+    value =
+      value.replace(
         /[\u0640]+/g,
         ' '
       );
 
-    s = s
-      .replace(/[أإآٱ]/g, 'ا')
-      .replace(/ى|ی/g, 'ي')
-      .replace(/ة/g, 'ه')
-      .replace(/ؤ/g, 'و')
-      .replace(/ئ/g, 'ي');
 
-    s =
-      s.replace(
+    value =
+      value.replace(
         /[،,.]+/g,
         ', '
       );
 
-    s =
-      s
-        .replace(/\s+/g, ' ')
+
+    value =
+      value
+        .replace(
+          /\s+/g,
+          ' '
+        )
         .trim();
 
-    return s;
+
+    return value;
+
   }
 
 
@@ -410,16 +967,20 @@ export class RecordFormComponent {
   ): string {
 
     if (!input) {
+
       return '';
+
     }
 
-    let s =
+
+    let value =
       input.trim();
 
-    s =
-      s
+
+    value =
+      value
         .replace(
-          /[|_*~^+\-=0-9٠-٩۰-۹]+/g,
+          /[|_*~^+\\\-=0-9٠-٩۰-۹]+/g,
           ' '
         )
         .replace(
@@ -428,32 +989,60 @@ export class RecordFormComponent {
         )
         .trim();
 
-    const lower =
-      s.toLocaleLowerCase('ar');
 
-    if (/اعزب|عزب/.test(lower)) {
+    const normalized =
+      value
+        .replace(/[أإآٱ]/g, 'ا')
+        .replace(/ة/g, 'ه')
+        .toLocaleLowerCase('ar');
+
+
+    if (
+      /اعزب|عزب/.test(
+        normalized
+      )
+    ) {
+
       return 'أعزب';
+
     }
 
+
     if (
-      /متزوج|متزوجه|متزوجة/.test(lower)
+      /متزوج|متزوجه/.test(
+        normalized
+      )
     ) {
+
       return 'متزوج';
+
     }
 
+
     if (
-      /مطلقة|مطلق/.test(lower)
+      /مطلق|مطلقه/.test(
+        normalized
+      )
     ) {
+
       return 'مطلق';
+
     }
+
 
     if (
-      /ارملة|أرملة|ارمل|أرمل/.test(lower)
+      /ارمل|ارمله/.test(
+        normalized
+      )
     ) {
+
       return 'أرمل';
+
     }
 
-    return s;
+
+    return value;
+
   }
 
 
@@ -462,56 +1051,72 @@ export class RecordFormComponent {
   ): string {
 
     if (!input) {
+
       return '';
+
     }
 
-    let s = input;
 
-    s =
-      s.replace(
-        /[|_*~^+\-=]+/g,
+    let value =
+      String(input);
+
+
+    value =
+      value.replace(
+        /[|_*~^+\\\-=]+/g,
         ' '
       );
 
-    s =
-      s.replace(
+
+    value =
+      value.replace(
         /[\u0640]+/g,
         ' '
       );
 
-    s =
-      s.replace(
+
+    value =
+      value.replace(
         /[0-9٠-٩۰-۹]+/g,
         ' '
       );
 
-    s =
-      s.replace(
+
+    value =
+      value.replace(
         /^[^ء-يA-Za-z]+/,
         ''
       );
 
-    s =
-      s.replace(
+
+    value =
+      value.replace(
         /[^ء-يA-Za-z]+$/,
         ''
       );
 
-    s =
-      s
-        .replace(/\s+/g, ' ')
+
+    value =
+      value
+        .replace(
+          /\s+/g,
+          ' '
+        )
         .trim();
 
-    return s;
+
+    return value;
+
   }
 
 
-  onOccupationBlur() {
+  onOccupationBlur(): void {
 
     this.back.occupation =
       this.cleanOccupation(
         this.back.occupation
       );
+
   }
 
 
@@ -520,57 +1125,71 @@ export class RecordFormComponent {
   // =========================================================
 
   private toEnglishDigits(
-    s: string
+    value: string
   ): string {
 
     const map:
       Record<string, string> = {
 
-      '٠': '0',
-      '١': '1',
-      '٢': '2',
-      '٣': '3',
-      '٤': '4',
-      '٥': '5',
-      '٦': '6',
-      '٧': '7',
-      '٨': '8',
-      '٩': '9',
+        '٠': '0',
+        '١': '1',
+        '٢': '2',
+        '٣': '3',
+        '٤': '4',
+        '٥': '5',
+        '٦': '6',
+        '٧': '7',
+        '٨': '8',
+        '٩': '9',
 
-      '۰': '0',
-      '۱': '1',
-      '۲': '2',
-      '۳': '3',
-      '۴': '4',
-      '۵': '5',
-      '۶': '6',
-      '۷': '7',
-      '۸': '8',
-      '۹': '9'
-    };
+        '۰': '0',
+        '۱': '1',
+        '۲': '2',
+        '۳': '3',
+        '۴': '4',
+        '۵': '5',
+        '۶': '6',
+        '۷': '7',
+        '۸': '8',
+        '۹': '9'
+
+      };
+
 
     return (
-      s ?? ''
-    ).replace(
-      /[٠-٩۰-۹]/g,
-      d => map[d] ?? d
-    );
+      value
+      ?? ''
+    )
+      .replace(
+        /[٠-٩۰-۹]/g,
+        digit =>
+          map[digit]
+          ?? digit
+      );
+
   }
 
 
   private toArabicDigits(
-    s: string
+    value: string
   ): string {
 
     const arabicDigits =
       '٠١٢٣٤٥٦٧٨٩';
 
+
     return (
-      s ?? ''
-    ).replace(
-      /\d/g,
-      d => arabicDigits[+d]
-    );
+      value
+      ?? ''
+    )
+      .replace(
+        /\d/g,
+        digit =>
+          arabicDigits[
+            Number(digit)
+          ]
+      );
+
   }
 
 
@@ -580,145 +1199,259 @@ export class RecordFormComponent {
 
   saveNow(
     _frontOnly: boolean
-  ) {
-
-    // Pull extension values into Angular first.
-    this.syncExtensionValuesFromDom();
+  ): void {
 
     if (
-      !this.front.name?.trim() &&
+      this.loadingFront
+      ||
+      this.loadingBack
+    ) {
+
+      this.openError(
+        'Please wait until OCR processing is complete.'
+      );
+
+      return;
+
+    }
+
+
+    if (
+      !this.front.name?.trim()
+      &&
       !this.front.nationalId?.trim()
     ) {
 
       this.openError(
-        'Please provide at least a Name or National ID on the front.'
+        'Please provide at least a Name or National ID.'
       );
 
       return;
+
     }
 
-    this.showConfirm = true;
+
+    this.showConfirm =
+      true;
+
   }
 
 
-  confirmSave() {
+  confirmSave(): void {
 
-    // Pull extension values one last time before emitting the payload.
-    this.syncExtensionValuesFromDom();
+    this.showConfirm =
+      false;
 
-    this.showConfirm = false;
 
-    const idEn =
+    const idEnglish =
       this.toEnglishDigits(
-        this.front.nationalId ?? ''
+        this.front.nationalId
+        ?? ''
       )
-        .replace(/\D/g, '');
+        .replace(
+          /\D/g,
+          ''
+        );
 
-    if (idEn.length !== 14) {
+
+    if (
+      idEnglish.length !== 14
+    ) {
 
       this.openError(
-        'ID number must be 14 digits'
+        'ID number must be 14 digits.'
       );
 
       return;
+
     }
 
-    if (this.back.occupation) {
+
+    if (
+      this.back.occupation
+    ) {
 
       this.back.occupation =
         this.cleanOccupation(
           this.back.occupation
         );
+
     }
+
 
     const payload: any = {
 
       name:
-        this.front.name ?? '',
+        this.front.name
+        ?? '',
+
 
       idNumber:
-        idEn,
+        idEnglish,
+
 
       nationalId:
-        idEn,
+        idEnglish,
+
 
       address:
-        this.front.address ?? '',
+        this.front.address
+        ?? '',
+
 
       dateOfBirth:
-        this.front.dob ?? '',
+        this.front.dob
+        ?? null,
+
 
       age:
-        this.front.age ?? 0,
+        this.front.age
+        ?? 0,
 
-      ...this.back,
+
+      occupation:
+        this.back.occupation
+        ?? '',
+
+
+      gender:
+        this.back.gender
+        ?? '',
+
+
+      religion:
+        this.back.religion
+        ?? '',
+
+
+      maritalStatus:
+        this.back.maritalStatus
+        ?? '',
+
+
+      husbandName:
+        this.back.husbandName
+        ?? '',
+
+
+      expiryDate:
+        this.back.expiryDate
+        ?? null,
+
+
+      frontImageDataUrl:
+        this.frontPreview,
+
+
+      backImageDataUrl:
+        this.backPreview
+
     };
 
+
     console.log(
-      'EMIT payload:',
+      'SAVE RECORD PAYLOAD:',
       payload
     );
 
-    this.save.emit(payload);
+
+    this.save.emit(
+      payload as RecordValue
+    );
+
   }
 
 
   // =========================================================
-  // VALIDATION / UI
+  // VALIDATION
   // =========================================================
 
   validateIdNumber(): boolean {
 
-    const idEn =
+    const idEnglish =
       this.toEnglishDigits(
-        this.front.nationalId ?? ''
+        this.front.nationalId
+        ?? ''
       )
-        .replace(/\D/g, '');
+        .replace(
+          /\D/g,
+          ''
+        );
 
-    return idEn.length === 14;
+
+    return (
+      idEnglish.length === 14
+    );
+
   }
 
 
   get dobIsIso(): boolean {
 
-    return /^\d{4}-\d{2}-\d{2}$/
-      .test(
-        this.front.dob ?? ''
-      );
+    return (
+      /^\d{4}-\d{2}-\d{2}$/
+        .test(
+          this.front.dob
+          ?? ''
+        )
+    );
+
   }
 
 
   hasArabic(
-    s?: string
+    value?: string
   ): boolean {
 
-    return /[\u0590-\u08FF]/
-      .test(
-        s ?? ''
-      );
+    return (
+      /[\u0590-\u08FF]/
+        .test(
+          value
+          ?? ''
+        )
+    );
+
   }
 
 
-  cancelSave() {
-    this.showConfirm = false;
+  // =========================================================
+  // MODALS / CANCEL
+  // =========================================================
+
+  cancelSave(): void {
+
+    this.showConfirm =
+      false;
+
   }
 
 
   openError(
-    msg: string
-  ) {
+    message: string
+  ): void {
 
-    this.errorText = msg;
-    this.showError = true;
+    this.errorText =
+      message;
+
+
+    this.showError =
+      true;
+
   }
 
 
-  closeError() {
-    this.showError = false;
+  closeError(): void {
+
+    this.showError =
+      false;
+
   }
 
 
-  onCancel() {
+  onCancel(): void {
+
     this.cancel.emit();
+
   }
+
 }

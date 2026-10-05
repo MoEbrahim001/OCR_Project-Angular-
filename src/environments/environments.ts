@@ -2,12 +2,12 @@ export const environment = {
   production: false,
 
   records: {
-    list:   'http://localhost:6001/api/Records',
-   create: 'http://localhost:8000/save',
-    edit:   'http://localhost:6001/api/Records/',
-    delete: 'http://localhost:6001/api/Records/',
-    getbyid:'http://localhost:6001/api/Records/',
-    search: 'http://localhost:6001/api/Records/Search'
+    list:   'http://localhost:5100/api/Records',
+    create: 'http://localhost:5100/api/Records',
+    edit:   'http://localhost:5100/api/Records/',
+    delete: 'http://localhost:5100/api/Records/',
+    getbyid:'http://localhost:5100/api/Records/',
+    search: 'http://localhost:5100/api/Records/Search'
   },
 
   /*
@@ -25,8 +25,8 @@ export const environment = {
    * references environment.ocr does not break at compile time.
    */
   ocr: {
-    front:  'http://localhost:6001/api/Ocr/extract/front',
-    back:   'http://localhost:6001/api/Ocr/extract/back',
-    import: 'http://localhost:6001/api/Ocr/import'
+    front:  'http://localhost:5100/api/Ocr/extract/front',
+    back:   'http://localhost:5100/api/Ocr/extract/back',
+    import: 'http://localhost:5100/api/Ocr/import'
   }
 };
