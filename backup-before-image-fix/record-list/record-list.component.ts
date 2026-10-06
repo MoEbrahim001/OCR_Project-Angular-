@@ -262,275 +262,70 @@ backImageDataUrl:
   }
 
 onSave(rec: any) {
+  const dto = this.toDto(rec);
 
-  const dto =
-    this.toDto(rec);
-
-  const idForCheck =
-    (rec.idNumber ?? '').trim();
-
-
-  // =========================================
-  // DUPLICATE CHECK
-  // =========================================
+  const idForCheck = (rec.idNumber ?? '').trim();
 
   if (!this.editingKey) {
-
-    if (
-      this.isDuplicateId(idForCheck)
-    ) {
-
+    if (this.isDuplicateId(idForCheck)) {
       this.showError = true;
-
-      this.errorText =
-        'National ID already exists.';
-
+      this.errorText = 'National ID already exists.';
       this.cdr.markForCheck();
-
       return;
     }
-
-  }
-  else {
-
-    if (
-      this.isDuplicateId(
-        idForCheck,
-        this.editingKey
-      )
-    ) {
-
+  } else {
+    if (this.isDuplicateId(idForCheck, this.editingKey)) {
       this.showError = true;
-
-      this.errorText =
-        'Another record already has this National ID.';
-
+      this.errorText = 'Another record already has this National ID.';
       this.cdr.markForCheck();
-
       return;
     }
-
   }
-
-
-  // =========================================
-  // EDIT
-  // KEEP NORMAL UPDATE FOR NOW
-  // =========================================
 
   if (this.editingKey) {
-
     const recordId =
-
-      (this.draft as any)?.id
-
-      ??
-
-      this.records.find(
-        r =>
-          r.idNumber
-          === this.editingKey
-      )?.id;
-
+      (this.draft as any)?.id ??
+      this.records.find(r => r.idNumber === this.editingKey)?.id;
 
     if (!recordId) {
-
       this.showError = true;
-
-      this.errorText =
-        'Missing record ID for update.';
-
+      this.errorText = 'Missing record ID for update.';
       this.cdr.markForCheck();
-
       return;
     }
 
-
-    this.ocr
-      .updateRecord(
-        recordId,
-        dto
-      )
-      .subscribe({
-
-        next: (res: any) => {
-
-          const updated =
-            this.mapItem({
-
-              id: recordId,
-
-              ...(res || {}),
-
-              ...dto
-
-            });
-
-
-          this.replaceInArrays(
-            updated
-          );
-
-          this.finishSave(
-            'Updated ✓'
-          );
-        },
-
-
-        error: err => {
-
-          this.showError = true;
-
-          this.errorText =
-            'Update failed';
-
-          console.error(err);
-
-          this.cdr.markForCheck();
-        }
-
-      });
-
-
-    return;
-  }
-
-
-  // =========================================
-  // CREATE → IMPORT
-  // =========================================
-
-  const frontFile =
-    rec.frontFile as File | null;
-
-  const backFile =
-    rec.backFile as File | null;
-
-
-  console.log(
-    'FRONT FILE TO IMPORT:',
-    frontFile
-  );
-
-  console.log(
-    'BACK FILE TO IMPORT:',
-    backFile
-  );
-
-
-  if (!frontFile) {
-
-    this.showError = true;
-
-    this.errorText =
-      'Front image file is missing.';
-
-    this.cdr.markForCheck();
-
-    return;
-  }
-
-
-  if (!backFile) {
-
-    this.showError = true;
-
-    this.errorText =
-      'Back image file is missing.';
-
-    this.cdr.markForCheck();
-
-    return;
-  }
-
-
-  const formData =
-    new FormData();
-
-
-  // Must match OcrFileRequest property names
-
-  formData.append(
-    'FrontImage',
-    frontFile,
-    frontFile.name
-  );
-
-
-  formData.append(
-    'BackImage',
-    backFile,
-    backFile.name
-  );
-
-
-  formData.append(
-    'Threshold',
-    '120'
-  );
-
-
-  console.log(
-    'SENDING TO /api/Ocr/import'
-  );
-
-
-  this.ocr
-    .postFormDataToImport(
-      formData
-    )
-    .subscribe({
-
+    this.ocr.updateRecord(recordId, dto).subscribe({
       next: (res: any) => {
-
-        console.log(
-          'IMPORT RESPONSE:',
-          res
-        );
-
-
-        const created =
-          this.mapItem(res);
-
-
-        this.records =
-          [
-            created,
-            ...this.records
-          ];
-
-
-        this.filteredRecords =
-          [
-            created,
-            ...this.filteredRecords
-          ];
-
-
-        this.finishSave(
-          'Saved ✓'
-        );
+        const updated = this.mapItem({ id: recordId, ...(res || {}), ...dto });
+        this.replaceInArrays(updated);
+        this.finishSave('Updated ✓');
       },
-
-
       error: err => {
-
         this.showError = true;
-
-        this.errorText =
-          'Import failed';
-
-        console.error(
-          'IMPORT ERROR:',
-          err
-        );
-
+        this.errorText = 'Update failed';
+        console.error(err);
         this.cdr.markForCheck();
       }
-
     });
+    return;
+  }
 
+  this.ocr.createRecord(dto).subscribe({
+    next: (res: any) => {
+      const created = this.mapItem(res || dto);
+      this.records = [created, ...this.records];
+      this.filteredRecords = [created, ...this.filteredRecords];
+      this.finishSave('Saved ✓');
+    },
+    error: err => {
+      this.showError = true;
+      this.errorText = 'Create (manual) failed';
+      console.error(err);
+      this.cdr.markForCheck();
+    }
+  });
 }
+
 
 
   closeError() { this.showError = false; this.cdr.markForCheck(); }

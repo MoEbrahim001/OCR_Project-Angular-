@@ -1,0 +1,741 @@
+<form
+  class="record-form"
+  (ngSubmit)="saveNow(false)"
+>
+
+  <!-- ====================================================== -->
+  <!-- HEADER -->
+  <!-- ====================================================== -->
+
+  <div class="wizard-header">
+
+    <div>
+
+      <h2>
+        {{ ('FORM.TITLE' | translate) || 'ID Record' }}
+      </h2>
+
+      <p class="form-hint">
+
+        Choose an image from your computer
+        or capture the ID directly using a camera.
+
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <!-- ====================================================== -->
+  <!-- FRONT / BACK -->
+  <!-- ====================================================== -->
+
+  <div class="record-columns">
+
+
+    <!-- ==================================================== -->
+    <!-- FRONT -->
+    <!-- ==================================================== -->
+
+    <section class="record-side">
+
+      <h3>
+        {{ ('FORM.STEP_FRONT' | translate) || 'Front Data' }}
+      </h3>
+
+
+      <!-- ================= IMAGE SOURCE ================= -->
+
+      <div class="image-source-title">
+        Front ID Image
+      </div>
+
+
+      <div class="image-actions">
+
+        <!-- UPLOAD -->
+
+        <label class="image-source-btn">
+
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/jpg"
+            hidden
+            (change)="onFrontFileSelected($event)"
+          />
+
+          <span class="source-icon">
+            📁
+          </span>
+
+          <span>
+            Upload Image
+          </span>
+
+        </label>
+
+
+        <!-- CAMERA -->
+
+        <button
+          type="button"
+          class="image-source-btn camera-btn"
+          (click)="openCamera('front')"
+        >
+
+          <span class="source-icon">
+            📷
+          </span>
+
+          <span>
+            Take Photo
+          </span>
+
+        </button>
+
+      </div>
+
+
+      <!-- ================= FRONT PREVIEW ================= -->
+
+      <div
+        class="image-preview-container"
+        *ngIf="frontPreview"
+      >
+
+        <div class="preview-label">
+          Front Image
+        </div>
+
+
+        <img
+          [src]="frontPreview"
+          class="image-preview"
+          alt="Front ID preview"
+        />
+
+      </div>
+
+
+      <!-- ================= FRONT LOADING ================= -->
+
+      <div
+        class="ocr-loading"
+        *ngIf="loadingFront"
+      >
+
+        Processing front ID with OCR...
+
+      </div>
+
+
+      <!-- ================= NAME ================= -->
+
+      <label class="field">
+
+        {{ 'FORM.NAME' | translate }}
+
+        <input
+          type="text"
+          id="name"
+          name="name"
+          [(ngModel)]="front.name"
+          dir="auto"
+          placeholder="Name"
+        />
+
+      </label>
+
+
+      <!-- ================= NATIONAL ID ================= -->
+
+      <label class="field">
+
+        {{ 'FORM.ID' | translate }}
+
+        <input
+          type="text"
+          id="nationalId"
+          name="nationalId"
+          [(ngModel)]="front.nationalId"
+          (ngModelChange)="onIdChanged()"
+          maxlength="14"
+          inputmode="numeric"
+          dir="auto"
+          placeholder="National ID"
+        />
+
+
+        <span
+          class="validation-error"
+          *ngIf="
+            front.nationalId &&
+            !validateIdNumber()
+          "
+        >
+
+          ID number must be exactly 14 digits.
+
+        </span>
+
+      </label>
+
+
+      <!-- ================= ADDRESS ================= -->
+
+      <label class="field">
+
+        {{ 'FORM.ADDRESS' | translate }}
+
+        <textarea
+          id="address"
+          name="address"
+          [(ngModel)]="front.address"
+          rows="3"
+          dir="auto"
+          placeholder="Address"
+        ></textarea>
+
+      </label>
+
+
+      <!-- ================= DOB / AGE ================= -->
+
+      <div class="row2">
+
+        <label class="field">
+
+          {{ 'FORM.DOB' | translate }}
+
+          <input
+            id="dob"
+            name="dob"
+            [type]="dobIsIso ? 'date' : 'text'"
+            [(ngModel)]="front.dob"
+            (change)="recalcAge()"
+          />
+
+        </label>
+
+
+        <label class="field age-box">
+
+          {{ 'FORM.AGE' | translate }}
+
+          <input
+            type="number"
+            id="age"
+            name="age"
+            [(ngModel)]="front.age"
+            readonly
+          />
+
+        </label>
+
+      </div>
+
+    </section>
+
+
+    <!-- ==================================================== -->
+    <!-- BACK -->
+    <!-- ==================================================== -->
+
+    <section class="record-side">
+
+      <h3>
+        {{ ('FORM.STEP_BACK' | translate) || 'Back Data' }}
+      </h3>
+
+
+      <!-- ================= IMAGE SOURCE ================= -->
+
+      <div class="image-source-title">
+        Back ID Image
+      </div>
+
+
+      <div class="image-actions">
+
+        <!-- UPLOAD -->
+
+        <label class="image-source-btn">
+
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/jpg"
+            hidden
+            (change)="onBackFileSelected($event)"
+          />
+
+          <span class="source-icon">
+            📁
+          </span>
+
+          <span>
+            Upload Image
+          </span>
+
+        </label>
+
+
+        <!-- CAMERA -->
+
+        <button
+          type="button"
+          class="image-source-btn camera-btn"
+          (click)="openCamera('back')"
+        >
+
+          <span class="source-icon">
+            📷
+          </span>
+
+          <span>
+            Take Photo
+          </span>
+
+        </button>
+
+      </div>
+
+
+      <!-- ================= BACK PREVIEW ================= -->
+
+      <div
+        class="image-preview-container"
+        *ngIf="backPreview"
+      >
+
+        <div class="preview-label">
+          Back Image
+        </div>
+
+
+        <img
+          [src]="backPreview"
+          class="image-preview"
+          alt="Back ID preview"
+        />
+
+      </div>
+
+
+      <!-- ================= BACK LOADING ================= -->
+
+      <div
+        class="ocr-loading"
+        *ngIf="loadingBack"
+      >
+
+        Processing back ID with OCR...
+
+      </div>
+
+
+      <!-- ================= OCCUPATION / GENDER ================= -->
+
+      <div class="row2">
+
+        <label class="field">
+
+          {{ 'FORM.OCCUPATION' | translate }}
+
+          <input
+            type="text"
+            id="occupation"
+            name="occupation"
+            [(ngModel)]="back.occupation"
+            (blur)="onOccupationBlur()"
+            dir="auto"
+            placeholder="Occupation"
+          />
+
+        </label>
+
+
+        <label class="field">
+
+          {{ 'FORM.GENDER' | translate }}
+
+          <input
+            type="text"
+            id="gender"
+            name="gender"
+            [(ngModel)]="back.gender"
+            dir="auto"
+            placeholder="Gender"
+          />
+
+        </label>
+
+      </div>
+
+
+      <!-- ================= RELIGION / MARITAL ================= -->
+
+      <div class="row2">
+
+        <label class="field">
+
+          {{ 'FORM.RELIGION' | translate }}
+
+          <input
+            type="text"
+            id="religion"
+            name="religion"
+            [(ngModel)]="back.religion"
+            dir="auto"
+            placeholder="Religion"
+          />
+
+        </label>
+
+
+        <label class="field">
+
+          {{ 'FORM.MARITAL' | translate }}
+
+          <input
+            type="text"
+            id="maritalStatus"
+            name="maritalStatus"
+            [(ngModel)]="back.maritalStatus"
+            dir="auto"
+            placeholder="Marital Status"
+          />
+
+        </label>
+
+      </div>
+
+
+      <!-- ================= HUSBAND ================= -->
+
+      <label class="field">
+
+        {{ 'FORM.HUSBANDNAME' | translate }}
+
+        <input
+          type="text"
+          id="husbandName"
+          name="husbandName"
+          [(ngModel)]="back.husbandName"
+          dir="auto"
+          placeholder="Husband Name"
+        />
+
+      </label>
+
+
+      <!-- ================= EXPIRY ================= -->
+
+      <label class="field">
+
+        {{ 'FORM.EXPIRY' | translate }}
+
+        <input
+          type="date"
+          id="expiryDate"
+          name="expiryDate"
+          [(ngModel)]="back.expiryDate"
+        />
+
+      </label>
+
+    </section>
+
+  </div>
+
+
+  <!-- ====================================================== -->
+  <!-- SAVE -->
+  <!-- ====================================================== -->
+
+  <div class="actions">
+
+    <button
+      type="submit"
+      class="primary"
+      [disabled]="loadingFront || loadingBack"
+    >
+
+      {{ 'FORM.SAVE' | translate }}
+
+    </button>
+
+  </div>
+
+</form>
+
+
+
+<!-- ======================================================== -->
+<!-- CAMERA WINDOW -->
+<!-- ======================================================== -->
+
+<div
+  class="camera-modal"
+  *ngIf="showCamera"
+>
+
+  <div class="camera-dialog">
+
+
+    <!-- ================= CAMERA HEADER ================= -->
+
+    <div class="camera-header">
+
+      <div>
+
+        <h3>
+
+          {{
+            cameraTarget === 'front'
+              ? 'Capture Front ID'
+              : 'Capture Back ID'
+          }}
+
+        </h3>
+
+
+        <p>
+
+          Choose your laptop integrated camera
+          or an external webcam.
+
+        </p>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="camera-close"
+        (click)="closeCamera()"
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    <!-- ================= CAMERA SELECTOR ================= -->
+
+    <div class="camera-selector">
+
+      <label for="cameraDevice">
+
+        Camera Source
+
+      </label>
+
+
+      <select
+        id="cameraDevice"
+        name="cameraDevice"
+        [(ngModel)]="selectedCameraId"
+        (change)="onCameraChanged()"
+        [disabled]="cameraLoading"
+      >
+
+        <option
+          *ngFor="
+            let camera of cameraDevices;
+            let i = index
+          "
+          [value]="camera.deviceId"
+        >
+
+          {{
+            cameraDisplayName(
+              camera,
+              i
+            )
+          }}
+
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <!-- ================= CAMERA LOADING ================= -->
+
+    <div
+      class="camera-loading"
+      *ngIf="cameraLoading"
+    >
+
+      <span class="camera-spinner"></span>
+
+      Starting camera...
+
+    </div>
+
+
+    <!-- ================= CAMERA ERROR ================= -->
+
+    <div
+      class="camera-error"
+      *ngIf="cameraError"
+    >
+
+      {{ cameraError }}
+
+    </div>
+
+
+    <!-- ================= LIVE VIDEO ================= -->
+
+    <div class="camera-preview">
+
+      <video
+        #cameraVideo
+        autoplay
+        playsinline
+        muted
+      ></video>
+
+
+      <!-- ID GUIDE -->
+
+      <div class="id-camera-guide">
+
+        <div class="guide-label">
+
+          Position the ID card inside this frame
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ================= CAMERA FOOTER ================= -->
+
+    <div class="camera-footer">
+
+      <button
+        type="button"
+        class="camera-cancel"
+        (click)="closeCamera()"
+      >
+
+        Cancel
+
+      </button>
+
+
+      <button
+        type="button"
+        class="camera-capture"
+        [disabled]="cameraLoading"
+        (click)="capturePhoto()"
+      >
+
+        <span>
+          📷
+        </span>
+
+        Capture Photo
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ======================================================== -->
+<!-- ERROR MODAL -->
+<!-- ======================================================== -->
+
+<div
+  class="mini-modal"
+  *ngIf="showError"
+>
+
+  <div class="mini-card">
+
+    <h4>
+      {{ 'ERROR.TITLE' | translate }}
+    </h4>
+
+
+    <p>
+      {{ errorText }}
+    </p>
+
+
+    <button
+      type="button"
+      class="primary"
+      (click)="closeError()"
+    >
+
+      {{ 'ERROR.OK' | translate }}
+
+    </button>
+
+  </div>
+
+</div>
+
+
+
+<!-- ======================================================== -->
+<!-- CONFIRM SAVE -->
+<!-- ======================================================== -->
+
+<div
+  class="mini-modal"
+  *ngIf="showConfirm"
+>
+
+  <div class="mini-card">
+
+    <h4>
+      {{ 'CONFIRM.TITLE' | translate }}
+    </h4>
+
+
+    <p>
+      {{ 'CONFIRM.MESSAGE' | translate }}
+    </p>
+
+
+    <div class="confirm-actions">
+
+      <button
+        type="button"
+        class="primary"
+        (click)="confirmSave()"
+      >
+
+        {{ 'CONFIRM.YES' | translate }}
+
+      </button>
+
+
+      <button
+        type="button"
+        class="ghost"
+        (click)="cancelSave()"
+      >
+
+        {{ 'CONFIRM.NO' | translate }}
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

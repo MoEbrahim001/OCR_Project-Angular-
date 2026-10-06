@@ -32,10 +32,8 @@ interface BackData {
 export type RecordValue = (RecordModel & BackData) & {
   frontImageDataUrl?: string | null;
   backImageDataUrl?: string | null;
-
-  frontFile?: File | null;
-  backFile?: File | null;
 };
+
 
 @Component({
   selector: 'app-record-form',
@@ -2078,72 +2076,74 @@ export class RecordFormComponent implements OnDestroy {
     }
 
 
-   const payload: any = {
+    const payload: any = {
 
-  name: this.front.name ?? '',
+      name:
+        this.front.name
+        ?? '',
 
-  idNumber: idEnglish,
 
-  nationalId: idEnglish,
+      idNumber:
+        idEnglish,
 
-  address: this.front.address ?? '',
 
-  dateOfBirth:
-    this.front.dob ?? null,
+      nationalId:
+        idEnglish,
 
-  age:
-    this.front.age ?? 0,
 
-  occupation:
-    this.back.occupation ?? '',
+      address:
+        this.front.address
+        ?? '',
 
-  gender:
-    this.back.gender ?? '',
 
-  religion:
-    this.back.religion ?? '',
+      dateOfBirth:
+        this.front.dob
+        ?? null,
 
-  maritalStatus:
-    this.back.maritalStatus ?? '',
 
-  husbandName:
-    this.back.husbandName ?? '',
+      age:
+        this.front.age
+        ?? 0,
 
-  expiryDate:
-    this.back.expiryDate ?? null,
 
-  frontImageDataUrl:
-    this.frontPreview,
+      occupation:
+        this.back.occupation
+        ?? '',
 
-  backImageDataUrl:
-    this.backPreview,
 
-  // IMPORTANT
-  frontFile:
-    this.frontFile,
+      gender:
+        this.back.gender
+        ?? '',
 
-  backFile:
-    this.backFile
-};
 
-console.log(
-  'SAVE RECORD PAYLOAD:',
-  payload
-);
+      religion:
+        this.back.religion
+        ?? '',
 
-console.log(
-  'FRONT FILE:',
-  payload.frontFile
-);
 
-console.log(
-  'BACK FILE:',
-  payload.backFile
-);
+      maritalStatus:
+        this.back.maritalStatus
+        ?? '',
 
-this.save.emit(
-  payload as RecordValue
-);
+
+      husbandName:
+        this.back.husbandName
+        ?? '',
+
+
+      expiryDate:
+        this.back.expiryDate
+        ?? null,
+
+
+      frontImageDataUrl:
+        this.frontPreview,
+
+
+      backImageDataUrl:
+        this.backPreview
+    };
+
 
     console.log(
       'SAVE RECORD PAYLOAD:',

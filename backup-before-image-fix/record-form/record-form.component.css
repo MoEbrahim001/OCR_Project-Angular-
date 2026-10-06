@@ -1,0 +1,1238 @@
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.wizard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 16px 24px 4px;
+
+  gap: 16px;
+}
+
+.wizard-header h2 {
+  margin: 0 0 4px;
+
+  color: #1f2a28;
+}
+
+.form-hint {
+  margin: 0;
+
+  color: #6b7280;
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.record-form {
+  max-height: 78vh;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  min-height: 0;
+
+  scrollbar-gutter: stable;
+
+  padding-bottom: 10px;
+}
+
+
+/* =========================================================
+   FRONT + BACK
+   ========================================================= */
+
+.record-columns {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr);
+
+  gap: 24px;
+
+  align-items: start;
+
+  padding: 16px 24px 10px;
+}
+
+
+/* =========================================================
+   CARD SIDE
+   ========================================================= */
+
+.record-side {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+
+  min-width: 0;
+
+  padding: 18px;
+
+  background: #ffffff;
+
+  border:
+    1px solid #e3e9e8;
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 8px 24px
+    rgba(31, 42, 40, 0.06);
+}
+
+.record-side h3 {
+  margin: 0 0 14px;
+
+  color: #1f2a28;
+
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   IMAGE SOURCE
+   ========================================================= */
+
+.image-source-title {
+  margin-bottom: 8px;
+
+  color: #374151;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+
+.image-actions {
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap: 10px;
+
+  margin-bottom: 14px;
+}
+
+
+.image-source-btn {
+  min-height: 48px;
+
+  padding: 10px 14px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  box-sizing: border-box;
+
+  border:
+    1px solid #6b84c0;
+
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #536eae;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
+}
+
+
+.image-source-btn:hover {
+  background: #6b84c0;
+
+  color: #ffffff;
+
+  transform:
+    translateY(-1px);
+
+  box-shadow:
+    0 6px 14px
+    rgba(107, 132, 192, 0.18);
+}
+
+
+.source-icon {
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   IMAGE PREVIEW
+   ========================================================= */
+
+.image-preview-container {
+  width: 100%;
+
+  margin-bottom: 14px;
+
+  padding: 8px;
+
+  box-sizing: border-box;
+
+  border:
+    1px solid #dce5e3;
+
+  border-radius: 12px;
+
+  background: #f8faf9;
+}
+
+
+.preview-label {
+  margin:
+    2px 4px 8px;
+
+  color: #6b7280;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+
+.image-preview {
+  display: block;
+
+  width: 100%;
+  height: 210px;
+
+  object-fit: contain;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+}
+
+
+/* =========================================================
+   OCR LOADING
+   ========================================================= */
+
+.ocr-loading {
+  position: relative;
+
+  margin:
+    0 0 14px;
+
+  padding:
+    10px 12px
+    10px 38px;
+
+  border-radius: 9px;
+
+  background: #f1f4fb;
+
+  color: #536eae;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+
+.ocr-loading::before {
+  content: "";
+
+  position: absolute;
+
+  top: 50%;
+  left: 13px;
+
+  width: 14px;
+  height: 14px;
+
+  margin-top: -8px;
+
+  border:
+    2px solid
+    rgba(107, 132, 192, 0.25);
+
+  border-top-color:
+    #6b84c0;
+
+  border-radius: 50%;
+
+  animation:
+    ocr-spin
+    0.8s
+    linear
+    infinite;
+}
+
+
+@keyframes ocr-spin {
+
+  to {
+    transform:
+      rotate(360deg);
+  }
+
+}
+
+
+/* =========================================================
+   FIELDS
+   ========================================================= */
+
+.field {
+  display: grid;
+
+  gap: 6px;
+
+  margin-bottom: 12px;
+
+  min-width: 0;
+
+  color: #1f2a28;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+
+.field > input,
+.field > textarea {
+  font-weight: 400;
+}
+
+
+/* =========================================================
+   ROW 2
+   ========================================================= */
+
+.row2 {
+  display: flex;
+
+  gap: 12px;
+
+  align-items:
+    flex-end;
+}
+
+
+.row2 .field {
+  flex: 1;
+
+  min-width: 0;
+}
+
+
+.age-box {
+  flex:
+    0 0 110px;
+
+  width: 110px;
+}
+
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
+input[type="text"],
+input[type="date"],
+input[type="number"],
+textarea {
+  width: 100%;
+
+  padding:
+    10px 12px;
+
+  box-sizing:
+    border-box;
+
+  border:
+    1px solid #d7e1df;
+
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #1f2a28;
+
+  outline: none;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+
+textarea {
+  min-height: 82px;
+
+  resize: vertical;
+}
+
+
+input::placeholder,
+textarea::placeholder {
+  color: #8a98ba;
+}
+
+
+input:focus,
+textarea:focus {
+  border-color:
+    #6b84c0;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(107, 132, 192, 0.18);
+}
+
+
+input[readonly] {
+  background:
+    #f5f7f7;
+}
+
+
+/* =========================================================
+   VALIDATION
+   ========================================================= */
+
+.validation-error {
+  color: #dc2626;
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
+
+/* =========================================================
+   SAVE
+   ========================================================= */
+
+.actions {
+  margin:
+    14px 24px 8px;
+
+  display: flex;
+
+  justify-content:
+    flex-end;
+
+  align-items:
+    center;
+
+  gap: 10px;
+}
+
+
+.actions .primary,
+.mini-card .primary {
+  padding:
+    10px 18px;
+
+  border: 0;
+
+  border-radius:
+    10px;
+
+  background:
+    #3261ed;
+
+  color:
+    #ffffff;
+
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
+
+  box-shadow:
+    0 10px 20px
+    rgba(50, 97, 237, 0.22);
+}
+
+
+.actions .primary:hover,
+.mini-card .primary:hover {
+  background:
+    #2049c5;
+}
+
+
+.actions .primary:disabled {
+  opacity: 0.5;
+
+  cursor:
+    not-allowed;
+}
+
+
+/* =========================================================
+   CAMERA MODAL
+   ========================================================= */
+
+.camera-modal {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 2000;
+
+  display: grid;
+
+  place-items: center;
+
+  padding: 20px;
+
+  background:
+    rgba(0, 0, 0, 0.65);
+
+  backdrop-filter:
+    blur(4px);
+}
+
+
+.camera-dialog {
+  width:
+    min(760px, 96vw);
+
+  max-height: 94vh;
+
+  overflow-y: auto;
+
+  padding: 20px;
+
+  box-sizing:
+    border-box;
+
+  background:
+    #ffffff;
+
+  border-radius:
+    16px;
+
+  box-shadow:
+    0 24px 70px
+    rgba(0, 0, 0, 0.30);
+}
+
+
+/* =========================================================
+   CAMERA HEADER
+   ========================================================= */
+
+.camera-header {
+  display: flex;
+
+  align-items:
+    flex-start;
+
+  gap: 16px;
+
+  margin-bottom:
+    18px;
+}
+
+
+.camera-header h3 {
+  margin:
+    0 0 5px;
+
+  color:
+    #1f2a28;
+
+  font-size:
+    20px;
+}
+
+
+.camera-header p {
+  margin: 0;
+
+  color:
+    #6b7280;
+
+  font-size:
+    13px;
+
+  line-height:
+    1.5;
+}
+
+
+.camera-close {
+  margin-left: auto;
+
+  flex:
+    0 0 auto;
+
+  width: 38px;
+  height: 38px;
+
+  border: 0;
+
+  border-radius:
+    9px;
+
+  background:
+    #f1f3f5;
+
+  color:
+    #374151;
+
+  font-size:
+    17px;
+
+  cursor:
+    pointer;
+}
+
+
+.camera-close:hover {
+  background:
+    #e5e7eb;
+}
+
+
+/* =========================================================
+   CAMERA SELECT
+   ========================================================= */
+
+.camera-selector {
+  display: grid;
+
+  gap: 7px;
+
+  margin-bottom:
+    14px;
+}
+
+
+.camera-selector label {
+  color:
+    #1f2a28;
+
+  font-size:
+    14px;
+
+  font-weight:
+    700;
+}
+
+
+.camera-selector select {
+  width: 100%;
+
+  padding:
+    11px 12px;
+
+  border:
+    1px solid #d7e1df;
+
+  border-radius:
+    10px;
+
+  background:
+    #ffffff;
+
+  color:
+    #1f2a28;
+
+  outline:
+    none;
+
+  font-family:
+    inherit;
+
+  font-size:
+    14px;
+}
+
+
+.camera-selector select:focus {
+  border-color:
+    #3261ed;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(50, 97, 237, 0.15);
+}
+
+
+/* =========================================================
+   CAMERA LOADING
+   ========================================================= */
+
+.camera-loading {
+  display: flex;
+
+  align-items:
+    center;
+
+  gap: 8px;
+
+  margin-bottom:
+    12px;
+
+  padding:
+    9px 12px;
+
+  border-radius:
+    8px;
+
+  background:
+    #eef3ff;
+
+  color:
+    #3261ed;
+
+  font-size:
+    13px;
+
+  font-weight:
+    700;
+}
+
+
+.camera-spinner {
+  width: 14px;
+  height: 14px;
+
+  border:
+    2px solid
+    rgba(50, 97, 237, 0.25);
+
+  border-top-color:
+    #3261ed;
+
+  border-radius:
+    50%;
+
+  animation:
+    camera-spin
+    0.8s
+    linear
+    infinite;
+}
+
+
+@keyframes camera-spin {
+
+  to {
+    transform:
+      rotate(360deg);
+  }
+
+}
+
+
+.camera-error {
+  margin-bottom:
+    12px;
+
+  padding:
+    10px 12px;
+
+  border-radius:
+    8px;
+
+  background:
+    #fee2e2;
+
+  color:
+    #b91c1c;
+
+  font-size:
+    13px;
+}
+
+
+/* =========================================================
+   LIVE CAMERA
+   ========================================================= */
+
+.camera-preview {
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio:
+    16 / 9;
+
+  overflow:
+    hidden;
+
+  border-radius:
+    14px;
+
+  background:
+    #111827;
+
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(255, 255, 255, 0.1);
+}
+
+
+.camera-preview video {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit:
+    contain;
+
+  background:
+    #000;
+}
+
+
+/* =========================================================
+   ID GUIDE ON CAMERA
+   ========================================================= */
+
+.id-camera-guide {
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+
+  width: 78%;
+
+  aspect-ratio:
+    1.586 / 1;
+
+  transform:
+    translate(-50%, -50%);
+
+  pointer-events:
+    none;
+
+  border:
+    2px dashed
+    rgba(255, 255, 255, 0.9);
+
+  border-radius:
+    14px;
+
+  box-shadow:
+    0 0 0 9999px
+    rgba(0, 0, 0, 0.10);
+}
+
+
+.guide-label {
+  position: absolute;
+
+  left: 50%;
+  bottom: -34px;
+
+  transform:
+    translateX(-50%);
+
+  width:
+    max-content;
+
+  max-width:
+    95%;
+
+  padding:
+    5px 10px;
+
+  border-radius:
+    6px;
+
+  background:
+    rgba(0, 0, 0, 0.65);
+
+  color:
+    #ffffff;
+
+  font-size:
+    12px;
+}
+
+
+/* =========================================================
+   CAMERA FOOTER
+   ========================================================= */
+
+.camera-footer {
+  display: flex;
+
+  justify-content:
+    flex-end;
+
+  gap: 10px;
+
+  margin-top:
+    18px;
+}
+
+
+.camera-cancel,
+.camera-capture {
+  min-height:
+    42px;
+
+  padding:
+    9px 18px;
+
+  border-radius:
+    10px;
+
+  font-family:
+    inherit;
+
+  font-size:
+    14px;
+
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
+}
+
+
+.camera-cancel {
+  border:
+    1px solid #d7e1df;
+
+  background:
+    #ffffff;
+
+  color:
+    #4b5563;
+}
+
+
+.camera-cancel:hover {
+  background:
+    #f3f4f6;
+}
+
+
+.camera-capture {
+  display: flex;
+
+  align-items:
+    center;
+
+  gap: 7px;
+
+  border: 0;
+
+  background:
+    #3261ed;
+
+  color:
+    #ffffff;
+}
+
+
+.camera-capture:hover {
+  background:
+    #2049c5;
+}
+
+
+.camera-capture:disabled {
+  opacity:
+    0.5;
+
+  cursor:
+    not-allowed;
+}
+
+
+/* =========================================================
+   MINI MODALS
+   ========================================================= */
+
+.mini-modal {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 2100;
+
+  display: grid;
+
+  place-items: center;
+
+  padding: 18px;
+
+  background:
+    rgba(0, 0, 0, 0.45);
+
+  backdrop-filter:
+    blur(2px);
+}
+
+
+.mini-card {
+  width: 100%;
+
+  min-width:
+    280px;
+
+  max-width:
+    420px;
+
+  padding:
+    18px 20px;
+
+  box-sizing:
+    border-box;
+
+  border:
+    1px solid
+    rgba(0, 0, 0, 0.06);
+
+  border-radius:
+    12px;
+
+  background:
+    #ffffff;
+
+  box-shadow:
+    0 12px 30px
+    rgba(0, 0, 0, 0.18);
+}
+
+
+.mini-card h4 {
+  margin:
+    0 0 8px;
+
+  color:
+    #3261ed;
+
+  font-size:
+    18px;
+}
+
+
+.mini-card p {
+  margin:
+    0 0 14px;
+
+  color:
+    #4b5563;
+}
+
+
+.confirm-actions {
+  display: flex;
+
+  justify-content:
+    flex-end;
+
+  gap:
+    10px;
+
+  margin-top:
+    16px;
+}
+
+
+.mini-card .ghost {
+  padding:
+    10px 16px;
+
+  border:
+    1px solid #dbe4e2;
+
+  border-radius:
+    10px;
+
+  background:
+    #f5f7f7;
+
+  color:
+    #e2855a;
+
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
+}
+
+
+/* =========================================================
+   RTL
+   ========================================================= */
+
+.rtl-preserve {
+  unicode-bidi:
+    isolate;
+
+  white-space:
+    pre-wrap;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media
+(max-width: 1050px) {
+
+  .record-columns {
+    gap: 16px;
+
+    padding-inline:
+      16px;
+  }
+
+
+  .record-side {
+    padding:
+      15px;
+  }
+}
+
+
+@media
+(max-width: 860px) {
+
+  .wizard-header {
+    padding-inline:
+      14px;
+  }
+
+
+  .record-columns {
+    grid-template-columns:
+      1fr;
+
+    padding-inline:
+      14px;
+  }
+
+
+  .actions {
+    margin-inline:
+      14px;
+  }
+
+
+  .row2 {
+    flex-direction:
+      column;
+
+    align-items:
+      stretch;
+  }
+
+
+  .age-box {
+    flex:
+      1 1 auto;
+
+    width:
+      100%;
+  }
+}
+
+
+@media
+(max-width: 600px) {
+
+  .image-actions {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .camera-dialog {
+    padding:
+      14px;
+  }
+
+
+  .camera-footer {
+    flex-direction:
+      column-reverse;
+  }
+
+
+  .camera-cancel,
+  .camera-capture {
+    width:
+      100%;
+
+    justify-content:
+      center;
+  }
+
+
+  .id-camera-guide {
+    width:
+      88%;
+  }
+}
+
+
+@media
+(max-width: 520px) {
+
+  .record-side {
+    padding:
+      12px;
+
+    border-radius:
+      12px;
+  }
+
+
+  .image-preview {
+    height:
+      180px;
+  }
+
+
+  .actions {
+    justify-content:
+      stretch;
+  }
+
+
+  .actions .primary {
+    width:
+      100%;
+  }
+}

@@ -1,0 +1,704 @@
+<div class="everything-container">
+
+  <div class="content-container">
+
+    <!-- ================================================== -->
+    <!-- HEADER -->
+    <!-- ================================================== -->
+
+    <section class="header">
+
+      <div class="header-row">
+
+        <h2>
+          {{ 'TITLE' | translate }}
+        </h2>
+
+        <button
+          type="button"
+          class="lang-btn"
+          [class.active]="currentLang === 'en'"
+          (click)="switchLang()"
+        >
+          {{ currentLang === 'en' ? 'En' : 'ع' }}
+        </button>
+
+      </div>
+
+
+      <!-- ================================================== -->
+      <!-- SEARCH -->
+      <!-- ================================================== -->
+
+      <div class="tools">
+
+        <div class="search-group">
+
+          <input
+            type="text"
+            dir="rtl"
+            [ngModel]="nameTerm"
+            (ngModelChange)="onNameTermChanged($event)"
+            (keydown)="onNameKeyDown($event)"
+            [placeholder]="'SEARCH_NAME' | translate"
+          />
+
+
+          <input
+            type="text"
+            [(ngModel)]="idTerm"
+            (ngModelChange)="onIdTermChanged($event)"
+            inputmode="numeric"
+            dir="auto"
+            [placeholder]="'SEARCH_ID' | translate"
+          />
+
+
+          <button
+            class="primary"
+            (click)="onSearchClick()"
+          >
+            {{ 'SEARCH' | translate }}
+          </button>
+
+
+          <button
+            class="secondary"
+            (click)="clearSearch()"
+          >
+            {{ 'CLEAR' | translate }}
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================================================== -->
+    <!-- TABLE -->
+    <!-- ================================================== -->
+
+    <section class="table-container">
+
+      <div class="table-card">
+
+        <table class="records-table">
+
+          <thead>
+
+            <tr>
+
+              <th>
+                {{ 'TABLE.INDEX' | translate }}
+              </th>
+
+              <th>
+                {{ 'TABLE.NAME' | translate }}
+              </th>
+
+              <th>
+                {{ 'TABLE.NID' | translate }}
+              </th>
+
+              <th>
+                {{ 'TABLE.ADDRESS' | translate }}
+              </th>
+
+              <th>
+                {{ 'TABLE.DOB' | translate }}
+              </th>
+
+              <th>
+                {{ 'TABLE.AGE' | translate }}
+              </th>
+
+              <th>
+                {{ 'TABLE.RELIGION' | translate }}
+              </th>
+
+              <th>
+                {{ 'TABLE.GENDER' | translate }}
+              </th>
+
+              <th>
+                {{ 'TABLE.OCCUPATION' | translate }}
+              </th>
+
+              <th>
+                {{ 'TABLE.MARITAL' | translate }}
+              </th>
+
+              <th>
+                {{ 'TABLE.HUSBANDNAME' | translate }}
+              </th>
+
+
+              <!-- NEW -->
+
+              <th class="image-col">
+                Front Image
+              </th>
+
+              <th class="image-col">
+                Back Image
+              </th>
+
+
+              <th class="actions-col">
+                {{ 'TABLE.ACTIONS' | translate }}
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            <tr
+              *ngFor="
+                let r of filteredRecords;
+                let i = index
+              "
+            >
+
+              <td>
+                {{
+                  (
+                    (pageNumber - 1)
+                    * pageSize
+                    + i
+                    + 1
+                  )
+                  | arabicDigits
+                }}
+              </td>
+
+
+              <td>
+                {{ r.name }}
+              </td>
+
+
+              <td>
+                {{ r.idNumber | arabicDigits }}
+              </td>
+
+
+              <td>
+                {{ r.address }}
+              </td>
+
+
+              <td>
+                {{
+                  r.dateOfBirth
+                  | date:'yyyy-MM-dd'
+                  | arabicDigits
+                }}
+              </td>
+
+
+              <td>
+                {{ r.age | arabicDigits }}
+              </td>
+
+
+              <td>
+                {{ r.religion }}
+              </td>
+
+
+              <td>
+                {{ r.gender }}
+              </td>
+
+
+              <td>
+                {{ r.occupation }}
+              </td>
+
+
+              <td>
+                {{ r.maritalStatus }}
+              </td>
+
+
+              <td>
+                {{ r.husbandName }}
+              </td>
+
+
+              <!-- ================================================== -->
+              <!-- FRONT IMAGE -->
+              <!-- ================================================== -->
+
+              <td class="image-col">
+
+                <button
+                  type="button"
+                  class="view-image-btn"
+                  [disabled]="!getFrontImage(r)"
+                  (click)="viewRecordImage('front', r)"
+                >
+                  👁 View
+                </button>
+
+              </td>
+
+
+              <!-- ================================================== -->
+              <!-- BACK IMAGE -->
+              <!-- ================================================== -->
+
+              <td class="image-col">
+
+                <button
+                  type="button"
+                  class="view-image-btn"
+                  [disabled]="!getBackImage(r)"
+                  (click)="viewRecordImage('back', r)"
+                >
+                  👁 View
+                </button>
+
+              </td>
+
+
+              <!-- ================================================== -->
+              <!-- ACTIONS -->
+              <!-- ================================================== -->
+
+              <td class="actions-col">
+
+                <div class="row-actions">
+
+
+                  <!-- EDIT -->
+
+                  <button
+                    type="button"
+                    class="icon-btn edit"
+                    title="Edit"
+                    (click)="startEdit(i)"
+                  >
+
+                    <img
+                      src="assets/images/edit.png"
+                      alt="edit"
+                    />
+
+                  </button>
+
+
+                  <!-- DELETE -->
+
+                  <button
+                    type="button"
+                    class="icon-btn danger"
+                    title="Delete"
+                    (click)="askDelete(i)"
+                  >
+
+                    <img
+                      src="assets/images/delete.png"
+                      alt="delete"
+                    />
+
+                  </button>
+
+
+                  <!-- PRINT -->
+
+                  <div
+                    class="print-wrapper"
+                    (click)="$event.stopPropagation()"
+                  >
+
+                    <button
+                      type="button"
+                      class="icon-btn print-btn"
+                      title="Print ID"
+                      (click)="togglePrintMenu($event, r)"
+                    >
+                      🖨️
+                    </button>
+
+
+                    <!-- PRINT DROPDOWN -->
+
+                    <div
+                      class="print-menu"
+                      *ngIf="openPrintMenuId === r.id"
+                    >
+
+                      <button
+                        type="button"
+                        (click)="printRecordImage(r, 'front')"
+                      >
+                        Print Front
+                      </button>
+
+
+                      <button
+                        type="button"
+                        (click)="printRecordImage(r, 'back')"
+                      >
+                        Print Back
+                      </button>
+
+
+                      <button
+                        type="button"
+                        class="print-both"
+                        (click)="printRecordImage(r, 'both')"
+                      >
+                        Print Both
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+
+            <!-- EMPTY -->
+
+            <tr *ngIf="!filteredRecords.length">
+
+              <td
+                colspan="14"
+                class="empty"
+              >
+                {{ 'TABLE.EMPTY' | translate }}
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+      <!-- ================================================== -->
+      <!-- PAGINATION -->
+      <!-- ================================================== -->
+
+      <div
+        class="pager"
+        *ngIf="totalCount"
+      >
+
+        <button
+          (click)="goFirst()"
+          [disabled]="pageNumber === 1 || loading"
+        >
+          «
+        </button>
+
+
+        <button
+          (click)="goPrev()"
+          [disabled]="pageNumber === 1 || loading"
+        >
+          ‹
+        </button>
+
+
+        <span>
+
+          {{ 'PAGE' | translate }}
+
+          <ng-container
+            *ngIf="
+              currentLang === 'ar';
+              else enPage
+            "
+          >
+
+            {{ pageNumber | arabicDigits }}
+
+            <ng-container *ngIf="totalPages">
+
+              /
+              {{ totalPages | arabicDigits }}
+
+            </ng-container>
+
+          </ng-container>
+
+
+          <ng-template #enPage>
+
+            {{ pageNumber }}
+
+            <ng-container *ngIf="totalPages">
+
+              /
+              {{ totalPages }}
+
+            </ng-container>
+
+          </ng-template>
+
+        </span>
+
+
+        <button
+          (click)="goNext()"
+          [disabled]="
+            (totalPages && pageNumber >= totalPages)
+            || loading
+          "
+        >
+          ›
+        </button>
+
+
+        <button
+          (click)="goLast()"
+          [disabled]="
+            (totalPages && pageNumber >= totalPages)
+            || loading
+          "
+        >
+          »
+        </button>
+
+
+        <span class="count">
+
+          ·
+          {{ totalCount }}
+          {{ 'ITEMS' | translate }}
+
+        </span>
+
+
+        <select
+          [(ngModel)]="pageSize"
+          (change)="loadPage(1)"
+          [disabled]="loading"
+        >
+
+          <option [ngValue]="5">
+            5
+          </option>
+
+          <option [ngValue]="10">
+            10
+          </option>
+
+          <option [ngValue]="20">
+            20
+          </option>
+
+          <option [ngValue]="50">
+            50
+          </option>
+
+        </select>
+
+      </div>
+
+    </section>
+
+  </div>
+
+
+  <!-- ================================================== -->
+  <!-- ADD / EDIT FORM -->
+  <!-- ================================================== -->
+
+  <div
+    class="modal"
+    *ngIf="showForm"
+  >
+
+    <div class="dialog">
+
+      <div class="dialog-header">
+
+        <h3>
+          {{ 'DIALOG.TITLE' | translate }}
+        </h3>
+
+
+        <button
+          type="button"
+          class="x"
+          (click)="onCancel()"
+        >
+          ✕
+        </button>
+
+      </div>
+
+
+      <app-record-form
+
+        [value]="draft"
+
+        [isEdit]="!!editingKey"
+
+        [existingIds]="existingIds"
+
+        (save)="onSave($event)"
+
+        (cancel)="onCancel()"
+
+      >
+      </app-record-form>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================================================== -->
+  <!-- IMAGE VIEWER -->
+  <!-- ================================================== -->
+
+  <div
+    class="image-viewer-modal"
+    *ngIf="showImageViewer"
+    (click)="closeImageViewer()"
+  >
+
+    <div
+      class="image-viewer-card"
+      (click)="$event.stopPropagation()"
+    >
+
+      <div class="image-viewer-header">
+
+        <h3>
+          {{ imageViewerTitle }}
+        </h3>
+
+
+        <button
+          type="button"
+          class="image-viewer-close"
+          (click)="closeImageViewer()"
+        >
+          ✕
+        </button>
+
+      </div>
+
+
+      <div class="image-viewer-content">
+
+        <img
+          *ngIf="imageViewerSrc"
+          [src]="imageViewerSrc"
+          [alt]="imageViewerTitle"
+        />
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================================================== -->
+  <!-- DELETE -->
+  <!-- ================================================== -->
+
+  <div
+    class="mini-modal"
+    *ngIf="showDeleteConfirm"
+  >
+
+    <div class="mini-card">
+
+      <h4>
+        {{ 'DELETE_CONFIRM.TITLE' | translate }}
+      </h4>
+
+
+      <p>
+        {{ 'DELETE_CONFIRM.MESSAGE' | translate }}
+      </p>
+
+
+      <div class="confirm-actions">
+
+        <button
+          class="primary"
+          (click)="confirmDelete()"
+          [disabled]="deleting"
+        >
+          {{ 'DELETE_CONFIRM.YES' | translate }}
+        </button>
+
+
+        <button
+          class="ghost"
+          (click)="cancelDelete()"
+          [disabled]="deleting"
+        >
+          {{ 'DELETE_CONFIRM.CANCEL' | translate }}
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================================================== -->
+  <!-- TOASTS -->
+  <!-- ================================================== -->
+
+  <div
+    class="toast error"
+    *ngIf="showError"
+  >
+
+    {{ errorText }}
+
+    <button
+      class="x"
+      (click)="closeError()"
+    >
+      ✕
+    </button>
+
+  </div>
+
+
+  <div
+    class="toast success"
+    *ngIf="showSuccess"
+  >
+
+    {{ successText }}
+
+  </div>
+
+
+  <!-- ================================================== -->
+  <!-- ADD BUTTON -->
+  <!-- ================================================== -->
+
+  <button
+    class="fab"
+    (click)="openForm()"
+  >
+    {{ 'ADD' | translate }}
+  </button>
+
+</div>

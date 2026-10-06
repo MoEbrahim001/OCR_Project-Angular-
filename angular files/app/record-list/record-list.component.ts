@@ -212,6 +212,12 @@ export class RecordListComponent implements OnInit, OnDestroy {
 
 private toDto(rec: any): CreateUpdateRecordDto {
 
+  const dob =
+    String(rec.dateOfBirth ?? '').trim();
+
+  const expiry =
+    String(rec.expiryDate ?? '').trim();
+
   const dto: CreateUpdateRecordDto = {
 
     name:
@@ -221,9 +227,7 @@ private toDto(rec: any): CreateUpdateRecordDto {
       (rec.idNumber ?? '').trim(),
 
     dateOfBirth:
-      rec.dateOfBirth
-        ? String(rec.dateOfBirth)
-        : null,
+      dob ? dob : null,
 
     address:
       rec.address ?? null,
@@ -241,7 +245,7 @@ private toDto(rec: any): CreateUpdateRecordDto {
       rec.religion ?? null,
 
     endDate:
-      rec.expiryDate ?? null,
+      expiry ? expiry : null,
 
     photoBase64:
       null,
@@ -261,16 +265,14 @@ private toDto(rec: any): CreateUpdateRecordDto {
 
 
   console.log(
-    'DTO AFTER toDto():',
+    'FINAL DTO SENT TO API:',
     dto
   );
-
 
   console.log(
     'FRONT LENGTH:',
     dto.frontImageDataUrl?.length ?? 0
   );
-
 
   console.log(
     'BACK LENGTH:',
@@ -280,7 +282,6 @@ private toDto(rec: any): CreateUpdateRecordDto {
 
   return dto;
 }
-
 onSave(rec: any) {
 
   console.log(
@@ -302,7 +303,26 @@ onSave(rec: any) {
   const dto =
     this.toDto(rec);
 
+dto.frontImageDataUrl =
+  rec.frontImageDataUrl ?? null;
 
+dto.backImageDataUrl =
+  rec.backImageDataUrl ?? null;
+
+console.log(
+  'ACTUAL DTO BEFORE HTTP:',
+  dto
+);
+
+console.log(
+  'ACTUAL FRONT:',
+  dto.frontImageDataUrl?.length ?? 0
+);
+
+console.log(
+  'ACTUAL BACK:',
+  dto.backImageDataUrl?.length ?? 0
+);
   console.log(
     'FINAL DTO SENT TO API:',
     dto
