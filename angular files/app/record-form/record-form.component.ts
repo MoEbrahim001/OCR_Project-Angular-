@@ -1390,52 +1390,146 @@ export class RecordFormComponent {
     this.showConfirm = true;
   }
 
+private fileToDataUrl(
+  file: File
+): Promise<string> {
 
-  confirmSave() {
+  return new Promise(
+    (resolve, reject) => {
 
-    // CRITICAL:
-    // synchronize values injected by Chrome Extension
-    this.syncExtensionValuesFromDom();
+      const reader =
+        new FileReader();
+
+      reader.onload = () => {
+
+        resolve(
+          reader.result as string
+        );
+
+      };
+
+      reader.onerror = () => {
+
+        reject(
+          new Error(
+            'Could not read image file.'
+          )
+        );
+
+      };
+
+      reader.readAsDataURL(file);
+
+    }
+  );
+}
+ async confirmSave(): Promise<void> {
+
+  // Sync any values injected directly into the DOM
+  this.syncExtensionValuesFromDom();
 
 
-    this.showConfirm = false;
+  this.showConfirm = false;
 
 
-    const idEn =
-      this.toEnglishDigits(
-        this.front.nationalId ?? ''
-      )
-        .replace(/\D/g, '');
+  const idEn =
+    this.toEnglishDigits(
+      this.front.nationalId ?? ''
+    )
+      .replace(/\D/g, '');
 
 
-    if (idEn.length !== 14) {
+  if (idEn.length !== 14) {
 
-      this.openError(
-        'ID number must be 14 digits'
+    this.openError(
+      'ID number must be 14 digits'
+    );
+
+    return;
+  }
+
+
+  if (this.back.occupation) {
+
+    this.back.occupation =
+      this.cleanOccupation(
+        this.back.occupation
       );
 
-      return;
-    }
+  }
 
 
-    if (this.back.occupation) {
+  try {
 
-      this.back.occupation =
-        this.cleanOccupation(
-          this.back.occupation
+    // =====================================================
+    // FRONT IMAGE
+    // =====================================================
+
+    let frontImageDataUrl:
+      string | null = null;
+
+
+    if (this.frontFile) {
+
+      frontImageDataUrl =
+        await this.fileToDataUrl(
+          this.frontFile
         );
+
+    }
+    else {
+
+      // Preserve existing image when editing
+      frontImageDataUrl =
+        this.value.frontImageDataUrl
+        ??
+        this.value.imageDataUrl
+        ??
+        null;
+
     }
 
 
-    const payload: any = {
+    // =====================================================
+    // BACK IMAGE
+    // =====================================================
+
+    let backImageDataUrl:
+      string | null = null;
+
+
+    if (this.backFile) {
+
+      backImageDataUrl =
+        await this.fileToDataUrl(
+          this.backFile
+        );
+
+    }
+    else {
+
+      // Preserve existing image when editing
+      backImageDataUrl =
+        this.value.backImageDataUrl
+        ??
+        null;
+
+    }
+
+
+    // =====================================================
+    // FINAL PAYLOAD
+    // =====================================================
+
+    const payload: RecordValue = {
+
+      id:
+        this.value.id ?? 0,
 
       name:
         this.front.name ?? '',
 
       idNumber:
-        idEn,
-
-      nationalId:
         idEn,
 
       address:
@@ -1447,34 +1541,70 @@ export class RecordFormComponent {
       age:
         this.front.age ?? 0,
 
-      ...this.back,
+      occupation:
+        this.back.occupation,
 
-      frontFile:
-        this.isEdit
-          ? null
-          : (
-            this.frontFile ??
-            null
-          ),
+      gender:
+        this.back.gender,
 
-      backFile:
-        this.isEdit
-          ? null
-          : (
-            this.backFile ??
-            null
-          ),
+      religion:
+        this.back.religion,
+
+      maritalStatus:
+        this.back.maritalStatus,
+
+      husbandName:
+        this.back.husbandName,
+
+      expiryDate:
+        this.back.expiryDate,
+
+      frontImageDataUrl:
+        frontImageDataUrl,
+
+      backImageDataUrl:
+        backImageDataUrl
+
     };
 
 
     console.log(
-      'EMIT payload:',
+      'FINAL RECORD PAYLOAD:',
       payload
     );
 
 
-    this.save.emit(payload);
+    console.log(
+      'FRONT IMAGE LENGTH:',
+      payload.frontImageDataUrl?.length ?? 0
+    );
+
+
+    console.log(
+      'BACK IMAGE LENGTH:',
+      payload.backImageDataUrl?.length ?? 0
+    );
+
+
+    this.save.emit(
+      payload
+    );
+
   }
+  catch (error) {
+
+    console.error(
+      'Image conversion error:',
+      error
+    );
+
+
+    this.openError(
+      'Could not prepare the ID images for saving.'
+    );
+
+  }
+}
 
 
   // =========================================================

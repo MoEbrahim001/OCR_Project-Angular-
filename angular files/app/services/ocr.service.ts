@@ -27,18 +27,34 @@ export interface BackOcrResult {
   expiryDate?: string;
 }
 export interface CreateUpdateRecordDto {
+
   name: string;
+
   idNumber: string;
+
   dateOfBirth: string | null;
+
   address: string | null;
+
   gender?: string | null;
+
   profession?: string | null;
+
   maritalStatus?: string | null;
+
   religion?: string | null;
+
   endDate?: string | null;
+
   photoBase64?: string | null;
+
   faceBase64?: string | null;
+
   notes?: string | null;
+
+  frontImageDataUrl?: string | null;
+
+  backImageDataUrl?: string | null;
 }
 @Injectable({ providedIn: 'root' })
 

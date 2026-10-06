@@ -1,4 +1,11 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  HostListener,
+  OnInit,
+  OnDestroy
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -46,6 +53,22 @@ export class RecordListComponent implements OnInit, OnDestroy {
   errorText = '';
   showError = false;
   showSuccess = false;
+  // =========================================================
+// IMAGE VIEWER
+// =========================================================
+
+showImageViewer = false;
+
+imageViewerSrc: string | null = null;
+
+imageViewerTitle = '';
+
+
+// =========================================================
+// PRINT MENU
+// =========================================================
+
+openPrintMenuId: number | null = null;
   successText = '';
 
   records: RecordModel[] = [];
@@ -152,9 +175,20 @@ export class RecordListComponent implements OnInit, OnDestroy {
       maritalStatus: r.maritalStatus ?? undefined,
       husbandName: r.husbandName ?? undefined,
       expiryDate: r.endDate ?? r.expiryDate ?? undefined,
-      imageDataUrl: r.photoBase64 ?? r.imageDataUrl ?? null,
-      frontImageDataUrl: r.frontImageDataUrl ?? null,
-      backImageDataUrl: r.backImageDataUrl ?? null,
+   imageDataUrl:
+  r.photoBase64
+  ?? r.imageDataUrl
+  ?? null,
+
+frontImageDataUrl:
+  r.frontImageDataUrl
+  ?? r.frontImageBase64
+  ?? null,
+
+backImageDataUrl:
+  r.backImageDataUrl
+  ?? r.backImageBase64
+  ?? null,
     } as RecordModel;
   };
 
@@ -488,7 +522,567 @@ onNameTermChanged(value: string) {
 
 
 
+// =========================================================
+// IMAGE HELPERS
+// =========================================================
 
+private normalizeImageSource(
+  value?: string | null
+): string | null {
+
+  if (!value) {
+    return null;
+  }
+
+  const source =
+    value.trim();
+
+
+  if (!source) {
+    return null;
+  }
+
+
+  // Already a valid browser image source
+  if (
+    source.startsWith('data:image/')
+    ||
+    source.startsWith('blob:')
+    ||
+    source.startsWith('http://')
+    ||
+    source.startsWith('https://')
+  ) {
+
+    return source;
+
+  }
+
+
+  // Raw base64 coming from API / DB
+  return (
+    'data:image/jpeg;base64,'
+    +
+    source
+  );
+}
+
+
+getFrontImage(
+  record: RecordModel
+): string | null {
+
+  return this.normalizeImageSource(
+
+    record.frontImageDataUrl
+
+    ??
+
+    record.imageDataUrl
+
+    ??
+
+    null
+
+  );
+}
+
+
+getBackImage(
+  record: RecordModel
+): string | null {
+
+  return this.normalizeImageSource(
+
+    record.backImageDataUrl
+
+    ??
+
+    null
+
+  );
+}
+
+
+// =========================================================
+// VIEW IMAGE
+// =========================================================
+
+viewRecordImage(
+  side: 'front' | 'back',
+  record: RecordModel
+): void {
+
+  const source =
+
+    side === 'front'
+
+      ? this.getFrontImage(record)
+
+      : this.getBackImage(record);
+
+
+  if (!source) {
+
+    this.showError = true;
+
+    this.errorText =
+
+      side === 'front'
+
+        ? 'Front ID image is not available.'
+
+        : 'Back ID image is not available.';
+
+
+    this.cdr.markForCheck();
+
+    return;
+  }
+
+
+  this.imageViewerSrc =
+    source;
+
+
+  this.imageViewerTitle =
+
+    side === 'front'
+
+      ? `Front ID - ${record.name ?? ''}`
+
+      : `Back ID - ${record.name ?? ''}`;
+
+
+  this.showImageViewer =
+    true;
+
+
+  this.openPrintMenuId =
+    null;
+
+
+  this.cdr.markForCheck();
+}
+
+
+closeImageViewer(): void {
+
+  this.showImageViewer =
+    false;
+
+
+  this.imageViewerSrc =
+    null;
+
+
+  this.imageViewerTitle =
+    '';
+
+
+  this.cdr.markForCheck();
+}
+
+
+// =========================================================
+// PRINT DROPDOWN
+// =========================================================
+
+togglePrintMenu(
+  event: MouseEvent,
+  record: RecordModel
+): void {
+
+  event.stopPropagation();
+
+
+  this.openPrintMenuId =
+
+    this.openPrintMenuId === record.id
+
+      ? null
+
+      : record.id;
+
+
+  this.cdr.markForCheck();
+}
+
+
+@HostListener('document:click')
+closePrintMenu(): void {
+
+  if (
+    this.openPrintMenuId !== null
+  ) {
+
+    this.openPrintMenuId =
+      null;
+
+
+    this.cdr.markForCheck();
+
+  }
+}
+
+
+// =========================================================
+// PRINT
+// =========================================================
+
+printRecordImage(
+  record: RecordModel,
+  mode: 'front' | 'back' | 'both'
+): void {
+
+  const front =
+    this.getFrontImage(record);
+
+
+  const back =
+    this.getBackImage(record);
+
+
+  this.openPrintMenuId =
+    null;
+
+
+  if (
+    mode === 'front'
+    &&
+    !front
+  ) {
+
+    this.showError = true;
+
+    this.errorText =
+      'Front ID image is not available.';
+
+    this.cdr.markForCheck();
+
+    return;
+  }
+
+
+  if (
+    mode === 'back'
+    &&
+    !back
+  ) {
+
+    this.showError = true;
+
+    this.errorText =
+      'Back ID image is not available.';
+
+    this.cdr.markForCheck();
+
+    return;
+  }
+
+
+  if (
+    mode === 'both'
+    &&
+    !front
+    &&
+    !back
+  ) {
+
+    this.showError = true;
+
+    this.errorText =
+      'No ID images are available for this record.';
+
+    this.cdr.markForCheck();
+
+    return;
+  }
+
+
+  const printWindow =
+
+    window.open(
+      '',
+      '_blank',
+      'width=1000,height=800'
+    );
+
+
+  if (!printWindow) {
+
+    this.showError = true;
+
+    this.errorText =
+      'The browser blocked the print window. Please allow pop-ups and try again.';
+
+    this.cdr.markForCheck();
+
+    return;
+  }
+
+
+  const images:
+    {
+      title: string;
+      src: string;
+    }[] = [];
+
+
+  if (
+    (mode === 'front' || mode === 'both')
+    &&
+    front
+  ) {
+
+    images.push({
+
+      title: 'Front ID',
+
+      src: front
+
+    });
+
+  }
+
+
+  if (
+    (mode === 'back' || mode === 'both')
+    &&
+    back
+  ) {
+
+    images.push({
+
+      title: 'Back ID',
+
+      src: back
+
+    });
+
+  }
+
+
+  const cards =
+
+    images
+      .map(
+        image => `
+          <section class="id-card">
+            <h2>${image.title}</h2>
+
+            <img
+              src="${image.src}"
+              alt="${image.title}"
+            />
+          </section>
+        `
+      )
+      .join('');
+
+
+  const name =
+    this.escapePrintText(
+      record.name ?? ''
+    );
+
+
+  const nationalId =
+    this.escapePrintText(
+      record.idNumber ?? ''
+    );
+
+
+  printWindow.document.write(`
+    <!doctype html>
+
+    <html>
+
+      <head>
+
+        <meta charset="utf-8" />
+
+        <title>
+          ID - ${name}
+        </title>
+
+        <style>
+
+          * {
+            box-sizing: border-box;
+          }
+
+          body {
+            margin: 0;
+            padding: 24px;
+
+            font-family:
+              Arial,
+              sans-serif;
+
+            color: #111;
+          }
+
+          .record-header {
+            margin-bottom: 24px;
+
+            text-align: center;
+          }
+
+          .record-header h1 {
+            margin: 0 0 8px;
+
+            font-size: 22px;
+          }
+
+          .record-header p {
+            margin: 4px 0;
+
+            font-size: 14px;
+          }
+
+          .images {
+            display: flex;
+
+            gap: 24px;
+
+            justify-content: center;
+
+            align-items: flex-start;
+
+            flex-wrap: wrap;
+          }
+
+          .id-card {
+            flex: 1 1 420px;
+
+            max-width: 700px;
+
+            text-align: center;
+          }
+
+          .id-card h2 {
+            margin:
+              0 0 10px;
+
+            font-size:
+              18px;
+          }
+
+          .id-card img {
+            display: block;
+
+            width: 100%;
+
+            max-height: 70vh;
+
+            object-fit: contain;
+
+            margin: 0 auto;
+
+            border:
+              1px solid #ddd;
+
+            border-radius:
+              8px;
+          }
+
+          @media print {
+
+            body {
+              padding: 10mm;
+            }
+
+            .id-card {
+              break-inside: avoid;
+            }
+
+          }
+
+        </style>
+
+      </head>
+
+
+      <body>
+
+        <div class="record-header">
+
+          <h1>
+            ${name}
+          </h1>
+
+          <p>
+            National ID:
+            ${nationalId}
+          </p>
+
+        </div>
+
+
+        <div class="images">
+
+          ${cards}
+
+        </div>
+
+      </body>
+
+    </html>
+  `);
+
+
+  printWindow.document.close();
+
+
+  printWindow.onload = () => {
+
+    setTimeout(
+      () => {
+
+        printWindow.focus();
+
+        printWindow.print();
+
+      },
+      250
+    );
+
+  };
+}
+
+
+private escapePrintText(
+  value: string
+): string {
+
+  return value
+
+    .replace(
+      /&/g,
+      '&amp;'
+    )
+
+    .replace(
+      /</g,
+      '&lt;'
+    )
+
+    .replace(
+      />/g,
+      '&gt;'
+    )
+
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+
+    .replace(
+      /'/g,
+      '&#039;'
+    );
+}
 
 
 }

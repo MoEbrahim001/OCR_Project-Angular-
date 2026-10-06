@@ -1,5 +1,5 @@
 /* =========================================================
-   WIZARD HEADER
+   HEADER
    ========================================================= */
 
 .wizard-header {
@@ -21,8 +21,6 @@
 .form-hint {
   margin: 0;
 
-  max-width: 760px;
-
   color: #6b7280;
 
   font-size: 13px;
@@ -31,7 +29,7 @@
 
 
 /* =========================================================
-   FORM CONTAINER
+   FORM
    ========================================================= */
 
 .record-form {
@@ -49,7 +47,7 @@
 
 
 /* =========================================================
-   TWO-COLUMN FRONT / BACK LAYOUT
+   FRONT + BACK
    ========================================================= */
 
 .record-columns {
@@ -68,11 +66,12 @@
 
 
 /* =========================================================
-   EACH CARD SIDE
+   CARD SIDE
    ========================================================= */
 
 .record-side {
   display: flex;
+
   flex-direction: column;
 
   gap: 4px;
@@ -83,12 +82,14 @@
 
   background: #ffffff;
 
-  border: 1px solid #e3e9e8;
+  border:
+    1px solid #e3e9e8;
 
   border-radius: 16px;
 
   box-shadow:
-    0 8px 24px rgba(31, 42, 40, 0.06);
+    0 8px 24px
+    rgba(31, 42, 40, 0.06);
 }
 
 .record-side h3 {
@@ -101,114 +102,134 @@
 
 
 /* =========================================================
-   IMAGE UPLOAD AREA
+   IMAGE SOURCE
    ========================================================= */
 
-.upload-box {
-  position: relative;
+.image-source-title {
+  margin-bottom: 8px;
 
-  width: 100%;
+  color: #374151;
 
-  min-height: 220px;
-
-  margin-bottom: 16px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  overflow: hidden;
-
-  cursor: pointer;
-
-  border: 2px dashed #b9c8c5;
-  border-radius: 14px;
-
-  background:
-    linear-gradient(
-      180deg,
-      #fafcfc 0%,
-      #f6f9f8 100%
-    );
-
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease,
-    box-shadow 0.15s ease,
-    transform 0.15s ease;
-}
-
-.upload-box:hover {
-  border-color: #6b84c0;
-
-  background: #f5f7fd;
-
-  box-shadow:
-    0 0 0 4px rgba(107, 132, 192, 0.08);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 
-/* upload text */
+.image-actions {
+  display: grid;
 
-.upload-placeholder {
-  width: 100%;
+  grid-template-columns:
+    1fr 1fr;
 
-  min-height: 216px;
+  gap: 10px;
 
-  padding: 22px;
+  margin-bottom: 14px;
+}
+
+
+.image-source-btn {
+  min-height: 48px;
+
+  padding: 10px 14px;
 
   display: flex;
-  flex-direction: column;
 
   align-items: center;
   justify-content: center;
 
   gap: 8px;
 
+  box-sizing: border-box;
+
+  border:
+    1px solid #6b84c0;
+
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #536eae;
+
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+
   text-align: center;
 
-  color: #58625f;
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease,
+    box-shadow 0.15s ease;
 }
 
-.upload-placeholder strong {
-  color: #1f2a28;
 
-  font-size: 15px;
+.image-source-btn:hover {
+  background: #6b84c0;
+
+  color: #ffffff;
+
+  transform:
+    translateY(-1px);
+
+  box-shadow:
+    0 6px 14px
+    rgba(107, 132, 192, 0.18);
 }
 
-.upload-placeholder span {
-  color: #7a8582;
+
+.source-icon {
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   IMAGE PREVIEW
+   ========================================================= */
+
+.image-preview-container {
+  width: 100%;
+
+  margin-bottom: 14px;
+
+  padding: 8px;
+
+  box-sizing: border-box;
+
+  border:
+    1px solid #dce5e3;
+
+  border-radius: 12px;
+
+  background: #f8faf9;
+}
+
+
+.preview-label {
+  margin:
+    2px 4px 8px;
+
+  color: #6b7280;
 
   font-size: 12px;
+  font-weight: 700;
 }
 
-
-/* camera icon */
-
-.upload-icon {
-  margin-bottom: 4px;
-
-  font-size: 36px;
-
-  line-height: 1;
-}
-
-
-/* selected image */
 
 .image-preview {
   display: block;
 
   width: 100%;
-  height: 220px;
-
-  padding: 8px;
+  height: 210px;
 
   object-fit: contain;
 
-  box-sizing: border-box;
+  border-radius: 8px;
 
-  background: #f8faf9;
+  background: #ffffff;
 }
 
 
@@ -219,9 +240,12 @@
 .ocr-loading {
   position: relative;
 
-  margin: -6px 0 14px;
+  margin:
+    0 0 14px;
 
-  padding: 9px 12px 9px 36px;
+  padding:
+    10px 12px
+    10px 38px;
 
   border-radius: 9px;
 
@@ -233,32 +257,44 @@
   font-weight: 700;
 }
 
+
 .ocr-loading::before {
   content: "";
 
   position: absolute;
 
   top: 50%;
-  left: 12px;
+  left: 13px;
 
   width: 14px;
   height: 14px;
 
-  margin-top: -7px;
+  margin-top: -8px;
 
-  border: 2px solid rgba(107, 132, 192, 0.28);
+  border:
+    2px solid
+    rgba(107, 132, 192, 0.25);
 
-  border-top-color: #6b84c0;
+  border-top-color:
+    #6b84c0;
 
   border-radius: 50%;
 
-  animation: ocr-spin 0.8s linear infinite;
+  animation:
+    ocr-spin
+    0.8s
+    linear
+    infinite;
 }
 
+
 @keyframes ocr-spin {
+
   to {
-    transform: rotate(360deg);
+    transform:
+      rotate(360deg);
   }
+
 }
 
 
@@ -281,6 +317,7 @@
   font-weight: 700;
 }
 
+
 .field > input,
 .field > textarea {
   font-weight: 400;
@@ -288,7 +325,7 @@
 
 
 /* =========================================================
-   TWO INPUTS ON SAME ROW
+   ROW 2
    ========================================================= */
 
 .row2 {
@@ -296,8 +333,10 @@
 
   gap: 12px;
 
-  align-items: flex-end;
+  align-items:
+    flex-end;
 }
+
 
 .row2 .field {
   flex: 1;
@@ -305,15 +344,17 @@
   min-width: 0;
 }
 
+
 .age-box {
-  flex: 0 0 110px;
+  flex:
+    0 0 110px;
 
   width: 110px;
 }
 
 
 /* =========================================================
-   INPUTS / TEXTAREA
+   INPUTS
    ========================================================= */
 
 input[type="text"],
@@ -322,11 +363,15 @@ input[type="number"],
 textarea {
   width: 100%;
 
-  padding: 10px 12px;
+  padding:
+    10px 12px;
 
-  box-sizing: border-box;
+  box-sizing:
+    border-box;
 
-  border: 1px solid #d7e1df;
+  border:
+    1px solid #d7e1df;
+
   border-radius: 10px;
 
   background: #ffffff;
@@ -336,6 +381,7 @@ textarea {
   outline: none;
 
   font-family: inherit;
+
   font-size: 14px;
 
   transition:
@@ -344,29 +390,34 @@ textarea {
     background 0.15s ease;
 }
 
+
 textarea {
   min-height: 82px;
 
   resize: vertical;
 }
 
+
 input::placeholder,
 textarea::placeholder {
   color: #8a98ba;
 }
 
+
 input:focus,
 textarea:focus {
-  border-color: #6b84c0;
+  border-color:
+    #6b84c0;
 
   box-shadow:
-    0 0 0 3px rgba(107, 132, 192, 0.18);
+    0 0 0 3px
+    rgba(107, 132, 192, 0.18);
 }
 
-input[readonly] {
-  background: #f5f7f7;
 
-  cursor: default;
+input[readonly] {
+  background:
+    #f5f7f7;
 }
 
 
@@ -379,94 +430,549 @@ input[readonly] {
 
   font-size: 12px;
   font-weight: 500;
-
-  line-height: 1.35;
 }
 
 
 /* =========================================================
-   SAVE ACTION
+   SAVE
    ========================================================= */
 
 .actions {
-  margin: 14px 24px 8px;
+  margin:
+    14px 24px 8px;
 
   display: flex;
 
-  justify-content: flex-end;
-  align-items: center;
+  justify-content:
+    flex-end;
+
+  align-items:
+    center;
 
   gap: 10px;
-
-  flex-wrap: wrap;
 }
+
 
 .actions .primary,
 .mini-card .primary {
-  padding: 10px 18px;
+  padding:
+    10px 18px;
 
   border: 0;
-  border-radius: 10px;
 
-  background: #6b84c0;
+  border-radius:
+    10px;
 
-  color: #ffffff;
+  background:
+    #3261ed;
 
-  font-weight: 700;
+  color:
+    #ffffff;
 
-  cursor: pointer;
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
 
   box-shadow:
-    0 10px 20px rgba(107, 132, 192, 0.22);
-
-  transition:
-    background 0.15s ease,
-    transform 0.1s ease,
-    box-shadow 0.15s ease;
+    0 10px 20px
+    rgba(50, 97, 237, 0.22);
 }
+
 
 .actions .primary:hover,
 .mini-card .primary:hover {
-  background: #3261ed;
-
-  transform: translateY(-1px);
+  background:
+    #2049c5;
 }
 
-.actions .primary:active,
-.mini-card .primary:active {
-  transform: translateY(0);
+
+.actions .primary:disabled {
+  opacity: 0.5;
+
+  cursor:
+    not-allowed;
 }
 
 
 /* =========================================================
-   GHOST BUTTON
+   CAMERA MODAL
    ========================================================= */
 
-.actions .ghost,
-.mini-card .ghost {
-  padding: 10px 16px;
+.camera-modal {
+  position: fixed;
 
-  border: 1px solid #dbe4e2;
-  border-radius: 10px;
+  inset: 0;
 
-  background: #f5f7f7;
+  z-index: 2000;
 
-  color: #e2855a;
+  display: grid;
 
-  font-weight: 700;
+  place-items: center;
 
-  cursor: pointer;
+  padding: 20px;
 
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease;
+  background:
+    rgba(0, 0, 0, 0.65);
+
+  backdrop-filter:
+    blur(4px);
 }
 
-.actions .ghost:hover,
-.mini-card .ghost:hover {
-  background: #eef3f2;
 
-  border-color: #cfdad7;
+.camera-dialog {
+  width:
+    min(760px, 96vw);
+
+  max-height: 94vh;
+
+  overflow-y: auto;
+
+  padding: 20px;
+
+  box-sizing:
+    border-box;
+
+  background:
+    #ffffff;
+
+  border-radius:
+    16px;
+
+  box-shadow:
+    0 24px 70px
+    rgba(0, 0, 0, 0.30);
+}
+
+
+/* =========================================================
+   CAMERA HEADER
+   ========================================================= */
+
+.camera-header {
+  display: flex;
+
+  align-items:
+    flex-start;
+
+  gap: 16px;
+
+  margin-bottom:
+    18px;
+}
+
+
+.camera-header h3 {
+  margin:
+    0 0 5px;
+
+  color:
+    #1f2a28;
+
+  font-size:
+    20px;
+}
+
+
+.camera-header p {
+  margin: 0;
+
+  color:
+    #6b7280;
+
+  font-size:
+    13px;
+
+  line-height:
+    1.5;
+}
+
+
+.camera-close {
+  margin-left: auto;
+
+  flex:
+    0 0 auto;
+
+  width: 38px;
+  height: 38px;
+
+  border: 0;
+
+  border-radius:
+    9px;
+
+  background:
+    #f1f3f5;
+
+  color:
+    #374151;
+
+  font-size:
+    17px;
+
+  cursor:
+    pointer;
+}
+
+
+.camera-close:hover {
+  background:
+    #e5e7eb;
+}
+
+
+/* =========================================================
+   CAMERA SELECT
+   ========================================================= */
+
+.camera-selector {
+  display: grid;
+
+  gap: 7px;
+
+  margin-bottom:
+    14px;
+}
+
+
+.camera-selector label {
+  color:
+    #1f2a28;
+
+  font-size:
+    14px;
+
+  font-weight:
+    700;
+}
+
+
+.camera-selector select {
+  width: 100%;
+
+  padding:
+    11px 12px;
+
+  border:
+    1px solid #d7e1df;
+
+  border-radius:
+    10px;
+
+  background:
+    #ffffff;
+
+  color:
+    #1f2a28;
+
+  outline:
+    none;
+
+  font-family:
+    inherit;
+
+  font-size:
+    14px;
+}
+
+
+.camera-selector select:focus {
+  border-color:
+    #3261ed;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(50, 97, 237, 0.15);
+}
+
+
+/* =========================================================
+   CAMERA LOADING
+   ========================================================= */
+
+.camera-loading {
+  display: flex;
+
+  align-items:
+    center;
+
+  gap: 8px;
+
+  margin-bottom:
+    12px;
+
+  padding:
+    9px 12px;
+
+  border-radius:
+    8px;
+
+  background:
+    #eef3ff;
+
+  color:
+    #3261ed;
+
+  font-size:
+    13px;
+
+  font-weight:
+    700;
+}
+
+
+.camera-spinner {
+  width: 14px;
+  height: 14px;
+
+  border:
+    2px solid
+    rgba(50, 97, 237, 0.25);
+
+  border-top-color:
+    #3261ed;
+
+  border-radius:
+    50%;
+
+  animation:
+    camera-spin
+    0.8s
+    linear
+    infinite;
+}
+
+
+@keyframes camera-spin {
+
+  to {
+    transform:
+      rotate(360deg);
+  }
+
+}
+
+
+.camera-error {
+  margin-bottom:
+    12px;
+
+  padding:
+    10px 12px;
+
+  border-radius:
+    8px;
+
+  background:
+    #fee2e2;
+
+  color:
+    #b91c1c;
+
+  font-size:
+    13px;
+}
+
+
+/* =========================================================
+   LIVE CAMERA
+   ========================================================= */
+
+.camera-preview {
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio:
+    16 / 9;
+
+  overflow:
+    hidden;
+
+  border-radius:
+    14px;
+
+  background:
+    #111827;
+
+  box-shadow:
+    inset 0 0 0 1px
+    rgba(255, 255, 255, 0.1);
+}
+
+
+.camera-preview video {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit:
+    contain;
+
+  background:
+    #000;
+}
+
+
+/* =========================================================
+   ID GUIDE ON CAMERA
+   ========================================================= */
+
+.id-camera-guide {
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+
+  width: 78%;
+
+  aspect-ratio:
+    1.586 / 1;
+
+  transform:
+    translate(-50%, -50%);
+
+  pointer-events:
+    none;
+
+  border:
+    2px dashed
+    rgba(255, 255, 255, 0.9);
+
+  border-radius:
+    14px;
+
+  box-shadow:
+    0 0 0 9999px
+    rgba(0, 0, 0, 0.10);
+}
+
+
+.guide-label {
+  position: absolute;
+
+  left: 50%;
+  bottom: -34px;
+
+  transform:
+    translateX(-50%);
+
+  width:
+    max-content;
+
+  max-width:
+    95%;
+
+  padding:
+    5px 10px;
+
+  border-radius:
+    6px;
+
+  background:
+    rgba(0, 0, 0, 0.65);
+
+  color:
+    #ffffff;
+
+  font-size:
+    12px;
+}
+
+
+/* =========================================================
+   CAMERA FOOTER
+   ========================================================= */
+
+.camera-footer {
+  display: flex;
+
+  justify-content:
+    flex-end;
+
+  gap: 10px;
+
+  margin-top:
+    18px;
+}
+
+
+.camera-cancel,
+.camera-capture {
+  min-height:
+    42px;
+
+  padding:
+    9px 18px;
+
+  border-radius:
+    10px;
+
+  font-family:
+    inherit;
+
+  font-size:
+    14px;
+
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
+}
+
+
+.camera-cancel {
+  border:
+    1px solid #d7e1df;
+
+  background:
+    #ffffff;
+
+  color:
+    #4b5563;
+}
+
+
+.camera-cancel:hover {
+  background:
+    #f3f4f6;
+}
+
+
+.camera-capture {
+  display: flex;
+
+  align-items:
+    center;
+
+  gap: 7px;
+
+  border: 0;
+
+  background:
+    #3261ed;
+
+  color:
+    #ffffff;
+}
+
+
+.camera-capture:hover {
+  background:
+    #2049c5;
+}
+
+
+.camera-capture:disabled {
+  opacity:
+    0.5;
+
+  cursor:
+    not-allowed;
 }
 
 
@@ -479,7 +985,7 @@ input[readonly] {
 
   inset: 0;
 
-  z-index: 1100;
+  z-index: 2100;
 
   display: grid;
 
@@ -490,65 +996,111 @@ input[readonly] {
   background:
     rgba(0, 0, 0, 0.45);
 
-  backdrop-filter: blur(2px);
+  backdrop-filter:
+    blur(2px);
 }
+
 
 .mini-card {
   width: 100%;
 
-  min-width: 280px;
-  max-width: 420px;
+  min-width:
+    280px;
 
-  padding: 18px 20px;
+  max-width:
+    420px;
 
-  box-sizing: border-box;
+  padding:
+    18px 20px;
 
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 12px;
+  box-sizing:
+    border-box;
 
-  background: #ffffff;
+  border:
+    1px solid
+    rgba(0, 0, 0, 0.06);
+
+  border-radius:
+    12px;
+
+  background:
+    #ffffff;
 
   box-shadow:
-    0 12px 30px rgba(0, 0, 0, 0.18);
+    0 12px 30px
+    rgba(0, 0, 0, 0.18);
 }
+
 
 .mini-card h4 {
-  margin: 0 0 8px;
+  margin:
+    0 0 8px;
 
-  color: #6ba292;
+  color:
+    #3261ed;
 
-  font-size: 18px;
-
-  letter-spacing: 0.2px;
+  font-size:
+    18px;
 }
+
 
 .mini-card p {
-  margin: 0;
+  margin:
+    0 0 14px;
 
-  color: #4b5563;
-
-  line-height: 1.5;
+  color:
+    #4b5563;
 }
+
 
 .confirm-actions {
   display: flex;
 
-  justify-content: flex-end;
+  justify-content:
+    flex-end;
 
-  gap: 10px;
+  gap:
+    10px;
 
-  margin-top: 16px;
+  margin-top:
+    16px;
+}
+
+
+.mini-card .ghost {
+  padding:
+    10px 16px;
+
+  border:
+    1px solid #dbe4e2;
+
+  border-radius:
+    10px;
+
+  background:
+    #f5f7f7;
+
+  color:
+    #e2855a;
+
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
 }
 
 
 /* =========================================================
-   ARABIC / ENGLISH TEXT
+   RTL
    ========================================================= */
 
 .rtl-preserve {
-  unicode-bidi: isolate;
+  unicode-bidi:
+    isolate;
 
-  white-space: pre-wrap;
+  white-space:
+    pre-wrap;
 }
 
 
@@ -556,83 +1108,131 @@ input[readonly] {
    RESPONSIVE
    ========================================================= */
 
-@media (max-width: 1050px) {
+@media
+(max-width: 1050px) {
 
   .record-columns {
     gap: 16px;
 
-    padding-inline: 16px;
+    padding-inline:
+      16px;
   }
+
 
   .record-side {
-    padding: 15px;
+    padding:
+      15px;
   }
-
 }
 
 
-@media (max-width: 860px) {
+@media
+(max-width: 860px) {
 
   .wizard-header {
-    padding-inline: 14px;
+    padding-inline:
+      14px;
   }
 
 
   .record-columns {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
 
-    padding-inline: 14px;
+    padding-inline:
+      14px;
   }
 
 
   .actions {
-    margin-inline: 14px;
+    margin-inline:
+      14px;
   }
 
 
   .row2 {
-    flex-direction: column;
+    flex-direction:
+      column;
 
-    align-items: stretch;
+    align-items:
+      stretch;
   }
 
 
   .age-box {
-    flex: 1 1 auto;
+    flex:
+      1 1 auto;
 
-    width: 100%;
+    width:
+      100%;
   }
-
 }
 
 
-@media (max-width: 520px) {
+@media
+(max-width: 600px) {
 
-  .record-side {
-    padding: 12px;
-
-    border-radius: 12px;
+  .image-actions {
+    grid-template-columns:
+      1fr;
   }
 
 
-  .upload-box,
-  .upload-placeholder {
-    min-height: 180px;
+  .camera-dialog {
+    padding:
+      14px;
+  }
+
+
+  .camera-footer {
+    flex-direction:
+      column-reverse;
+  }
+
+
+  .camera-cancel,
+  .camera-capture {
+    width:
+      100%;
+
+    justify-content:
+      center;
+  }
+
+
+  .id-camera-guide {
+    width:
+      88%;
+  }
+}
+
+
+@media
+(max-width: 520px) {
+
+  .record-side {
+    padding:
+      12px;
+
+    border-radius:
+      12px;
   }
 
 
   .image-preview {
-    height: 180px;
+    height:
+      180px;
   }
 
 
   .actions {
-    justify-content: stretch;
+    justify-content:
+      stretch;
   }
 
 
   .actions .primary {
-    width: 100%;
+    width:
+      100%;
   }
-
 }

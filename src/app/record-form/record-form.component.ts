@@ -1,9 +1,12 @@
 import {
   ChangeDetectorRef,
   Component,
+  ElementRef,
   EventEmitter,
   Input,
-  Output
+  OnDestroy,
+  Output,
+  ViewChild
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -44,9 +47,9 @@ export type RecordValue = (RecordModel & BackData) & {
   ],
 
   templateUrl: './record-form.component.html',
-  styleUrls: ['./record-form.component.css'],
+  styleUrls: ['./record-form.component.css']
 })
-export class RecordFormComponent {
+export class RecordFormComponent implements OnDestroy {
 
   // =========================================================
   // INPUTS / OUTPUTS
@@ -59,13 +62,15 @@ export class RecordFormComponent {
   @Input() existingIds: string[] = [];
 
 
-  @Output() save = new EventEmitter<RecordValue>();
+  @Output() save =
+    new EventEmitter<RecordValue>();
 
-  @Output() cancel = new EventEmitter<void>();
+  @Output() cancel =
+    new EventEmitter<void>();
 
 
   // =========================================================
-  // FRONT DATA
+  // FRONT
   // =========================================================
 
   front: {
@@ -78,14 +83,14 @@ export class RecordFormComponent {
 
 
   // =========================================================
-  // BACK DATA
+  // BACK
   // =========================================================
 
   back: BackData = {};
 
 
   // =========================================================
-  // IMAGE UPLOADS
+  // FILES / PREVIEWS
   // =========================================================
 
   frontFile: File | null = null;
@@ -101,6 +106,37 @@ export class RecordFormComponent {
   loadingFront = false;
 
   loadingBack = false;
+
+
+  // =========================================================
+  // CAMERA
+  // =========================================================
+
+  @ViewChild('cameraVideo')
+  cameraVideo?: ElementRef<HTMLVideoElement>;
+
+
+  showCamera = false;
+
+  cameraLoading = false;
+
+
+  cameraTarget:
+    'front' | 'back' = 'front';
+
+
+  cameraDevices:
+    MediaDeviceInfo[] = [];
+
+
+  selectedCameraId = '';
+
+
+  cameraStream:
+    MediaStream | null = null;
+
+
+  cameraError = '';
 
 
   // =========================================================
@@ -150,7 +186,6 @@ export class RecordFormComponent {
 
       age:
         this.value.age
-
     };
 
 
@@ -173,16 +208,17 @@ export class RecordFormComponent {
 
       expiryDate:
         this.value.expiryDate
-
     };
 
 
-    // Existing previews when editing
     this.frontPreview =
-      this.value.frontImageDataUrl ?? null;
+      this.value.frontImageDataUrl
+      ?? null;
+
 
     this.backPreview =
-      this.value.backImageDataUrl ?? null;
+      this.value.backImageDataUrl
+      ?? null;
 
 
     if (this.front.dob) {
@@ -190,12 +226,11 @@ export class RecordFormComponent {
       this.recalcAge();
 
     }
-
   }
 
 
   // =========================================================
-  // FRONT IMAGE
+  // FRONT FILE UPLOAD
   // =========================================================
 
   onFrontFileSelected(
@@ -211,9 +246,7 @@ export class RecordFormComponent {
 
 
     if (!file) {
-
       return;
-
     }
 
 
@@ -226,180 +259,19 @@ export class RecordFormComponent {
       input.value = '';
 
       return;
-
     }
 
 
-    this.frontFile = file;
+    this.processFrontFile(file);
 
 
-    // -------------------------
-    // Preview
-    // -------------------------
-
-    this.createPreview(
-      file,
-      preview => {
-
-        this.frontPreview = preview;
-
-        this.cdr.detectChanges();
-
-      }
-    );
-
-
-    // -------------------------
-    // OCR
-    // -------------------------
-
-    this.loadingFront = true;
-
-
-    this.ocr
-      .extractFront(file)
-      .pipe(
-
-        finalize(() => {
-
-          this.loadingFront = false;
-
-          this.cdr.detectChanges();
-
-        })
-
-      )
-      .subscribe({
-
-        next: result => {
-
-          const data: any = result;
-
-
-          // Name
-          this.front.name =
-            data.name
-            ?? data.fullName
-            ?? '';
-
-
-          // National ID
-          const rawId =
-            data.nationalId
-            ?? data.idNumber
-            ?? data.ID
-            ?? data.id
-            ?? data.nid
-            ?? '';
-
-
-          if (rawId) {
-
-            const englishDigits =
-              this.toEnglishDigits(
-                String(rawId)
-              )
-                .replace(/\D/g, '');
-
-
-            this.front.nationalId =
-              this.toArabicDigits(
-                englishDigits
-              );
-
-
-            this.onIdChanged();
-
-          }
-
-
-          // Address
-          const address =
-            data.address
-            ?? '';
-
-
-          this.front.address =
-            this.cleanAddress(
-              String(address)
-            );
-
-
-          // DOB
-          const dob =
-            data.dob
-            ?? data.dateOfBirth
-            ?? data.DOB
-            ?? null;
-
-
-          if (dob) {
-
-            this.front.dob =
-              String(dob);
-
-          }
-
-
-          // If DOB is not returned,
-          // derive it from National ID
-          if (
-            !this.front.dob &&
-            this.front.nationalId
-          ) {
-
-            const id =
-              this.toEnglishDigits(
-                this.front.nationalId
-              )
-                .replace(/\D/g, '');
-
-
-            const parsedDob =
-              this.parseDobFromEgyptId(id);
-
-
-            if (parsedDob) {
-
-              this.front.dob =
-                parsedDob;
-
-            }
-
-          }
-
-
-          this.recalcAge();
-
-          this.cdr.detectChanges();
-
-        },
-
-
-        error: error => {
-
-          console.error(
-            'Front OCR error:',
-            error
-          );
-
-
-          this.openError(
-            this.getOcrErrorMessage(
-              error,
-              'Front'
-            )
-          );
-
-        }
-
-      });
-
+    // Allows selecting the same file again
+    input.value = '';
   }
 
 
   // =========================================================
-  // BACK IMAGE
+  // BACK FILE UPLOAD
   // =========================================================
 
   onBackFileSelected(
@@ -415,9 +287,7 @@ export class RecordFormComponent {
 
 
     if (!file) {
-
       return;
-
     }
 
 
@@ -430,32 +300,232 @@ export class RecordFormComponent {
       input.value = '';
 
       return;
-
     }
 
 
-    this.backFile = file;
+    this.processBackFile(file);
 
 
-    // -------------------------
-    // Preview
-    // -------------------------
+    input.value = '';
+  }
+
+
+  // =========================================================
+  // PROCESS FRONT
+  // =========================================================
+
+  private processFrontFile(
+    file: File
+  ): void {
+
+    this.frontFile = file;
+
 
     this.createPreview(
       file,
       preview => {
 
-        this.backPreview = preview;
+        this.frontPreview =
+          preview;
 
         this.cdr.detectChanges();
-
       }
     );
 
 
-    // -------------------------
-    // OCR
-    // -------------------------
+    this.loadingFront = true;
+
+
+    this.ocr
+      .extractFront(file)
+      .pipe(
+
+        finalize(() => {
+
+          this.loadingFront =
+            false;
+
+          this.cdr.detectChanges();
+        })
+
+      )
+      .subscribe({
+
+        next: result => {
+
+          const data: any =
+            result;
+
+
+          // -------------------------
+          // NAME
+          // -------------------------
+
+          this.front.name =
+
+            data.name
+            ?? data.fullName
+            ?? '';
+
+
+          // -------------------------
+          // NATIONAL ID
+          // -------------------------
+
+          const rawId =
+
+            data.nationalId
+            ?? data.idNumber
+            ?? data.ID
+            ?? data.id
+            ?? data.nid
+            ?? '';
+
+
+          if (rawId) {
+
+            const englishDigits =
+
+              this.toEnglishDigits(
+                String(rawId)
+              )
+                .replace(
+                  /\D/g,
+                  ''
+                );
+
+
+            this.front.nationalId =
+
+              this.toArabicDigits(
+                englishDigits
+              );
+
+
+            this.onIdChanged();
+          }
+
+
+          // -------------------------
+          // ADDRESS
+          // -------------------------
+
+          this.front.address =
+
+            this.cleanAddress(
+
+              String(
+                data.address
+                ?? ''
+              )
+
+            );
+
+
+          // -------------------------
+          // DOB
+          // -------------------------
+
+          const dob =
+
+            data.dob
+            ?? data.dateOfBirth
+            ?? data.DOB
+            ?? null;
+
+
+          if (dob) {
+
+            this.front.dob =
+              String(dob);
+          }
+
+
+          // If DOB was not returned,
+          // derive from National ID.
+
+          if (
+            !this.front.dob
+            &&
+            this.front.nationalId
+          ) {
+
+            const id =
+
+              this.toEnglishDigits(
+                this.front.nationalId
+              )
+                .replace(
+                  /\D/g,
+                  ''
+                );
+
+
+            const parsedDob =
+
+              this.parseDobFromEgyptId(
+                id
+              );
+
+
+            if (parsedDob) {
+
+              this.front.dob =
+                parsedDob;
+            }
+          }
+
+
+          this.recalcAge();
+
+          this.cdr.detectChanges();
+        },
+
+
+        error: error => {
+
+          console.error(
+            'Front OCR error:',
+            error
+          );
+
+
+          this.openError(
+
+            this.getOcrErrorMessage(
+              error,
+              'Front'
+            )
+
+          );
+        }
+
+      });
+  }
+
+
+  // =========================================================
+  // PROCESS BACK
+  // =========================================================
+
+  private processBackFile(
+    file: File
+  ): void {
+
+    this.backFile = file;
+
+
+    this.createPreview(
+      file,
+      preview => {
+
+        this.backPreview =
+          preview;
+
+        this.cdr.detectChanges();
+      }
+    );
+
 
     this.loadingBack = true;
 
@@ -466,10 +536,10 @@ export class RecordFormComponent {
 
         finalize(() => {
 
-          this.loadingBack = false;
+          this.loadingBack =
+            false;
 
           this.cdr.detectChanges();
-
         })
 
       )
@@ -477,11 +547,16 @@ export class RecordFormComponent {
 
         next: result => {
 
-          const data: any = result;
+          const data: any =
+            result;
 
 
-          // Occupation / Profession
+          // -------------------------
+          // OCCUPATION
+          // -------------------------
+
           this.back.occupation =
+
             this.cleanOccupation(
 
               data.occupation
@@ -493,24 +568,38 @@ export class RecordFormComponent {
             );
 
 
-          // Gender
+          // -------------------------
+          // GENDER
+          // -------------------------
+
           this.back.gender =
+
             String(
               data.gender
               ?? ''
-            ).trim();
+            )
+              .trim();
 
 
-          // Religion
+          // -------------------------
+          // RELIGION
+          // -------------------------
+
           this.back.religion =
+
             String(
               data.religion
               ?? ''
-            ).trim();
+            )
+              .trim();
 
 
-          // Marital Status
+          // -------------------------
+          // MARITAL STATUS
+          // -------------------------
+
           this.back.maritalStatus =
+
             this.cleanMaritalStatus(
 
               data.maritalStatus
@@ -521,8 +610,12 @@ export class RecordFormComponent {
             );
 
 
-          // Husband Name
+          // -------------------------
+          // HUSBAND
+          // -------------------------
+
           this.back.husbandName =
+
             String(
 
               data.husbandName
@@ -530,11 +623,16 @@ export class RecordFormComponent {
               ?? data.husband
               ?? ''
 
-            ).trim();
+            )
+              .trim();
 
 
-          // Expiry Date
+          // -------------------------
+          // EXPIRY
+          // -------------------------
+
           this.back.expiryDate =
+
             String(
 
               data.expiryDate
@@ -543,11 +641,11 @@ export class RecordFormComponent {
               ?? data.expiry
               ?? ''
 
-            ).trim();
+            )
+              .trim();
 
 
           this.cdr.detectChanges();
-
         },
 
 
@@ -560,16 +658,630 @@ export class RecordFormComponent {
 
 
           this.openError(
+
             this.getOcrErrorMessage(
               error,
               'Back'
             )
+
+          );
+        }
+
+      });
+  }
+
+
+  // =========================================================
+  // CAMERA OPEN
+  // =========================================================
+
+  async openCamera(
+    target: 'front' | 'back'
+  ): Promise<void> {
+
+    this.cameraTarget =
+      target;
+
+
+    this.cameraError =
+      '';
+
+
+    this.cameraLoading =
+      true;
+
+
+    this.showCamera =
+      true;
+
+
+    this.cdr.detectChanges();
+
+
+    if (
+      !navigator.mediaDevices
+      ||
+      !navigator.mediaDevices.getUserMedia
+    ) {
+
+      this.cameraLoading =
+        false;
+
+      this.showCamera =
+        false;
+
+
+      this.openError(
+        'Camera access is not supported by this browser.'
+      );
+
+      return;
+    }
+
+
+    try {
+
+      // First permission request.
+      // Browser usually does not reveal camera names
+      // until permission is granted.
+
+      const permissionStream =
+
+        await navigator.mediaDevices
+          .getUserMedia({
+
+            video: true,
+
+            audio: false
+
+          });
+
+
+      permissionStream
+        .getTracks()
+        .forEach(
+          track =>
+            track.stop()
+        );
+
+
+      // -------------------------
+      // GET CAMERAS
+      // -------------------------
+
+      const devices =
+
+        await navigator.mediaDevices
+          .enumerateDevices();
+
+
+      this.cameraDevices =
+
+        devices.filter(
+          device =>
+            device.kind
+            === 'videoinput'
+        );
+
+
+      if (
+        this.cameraDevices.length === 0
+      ) {
+
+        throw new Error(
+          'No camera was found.'
+        );
+      }
+
+
+      // -------------------------
+      // DEFAULT:
+      // Prefer integrated camera
+      // -------------------------
+
+      const integratedCamera =
+
+        this.cameraDevices.find(
+          camera =>
+            this.isIntegratedCamera(
+              camera.label
+            )
+        );
+
+
+      this.selectedCameraId =
+
+        integratedCamera?.deviceId
+        ??
+        this.cameraDevices[0].deviceId;
+
+
+      this.cdr.detectChanges();
+
+
+      await this.startSelectedCamera();
+
+    }
+    catch (error) {
+
+      console.error(
+        'Camera access error:',
+        error
+      );
+
+
+      this.stopCameraStream();
+
+
+      this.showCamera =
+        false;
+
+
+      this.openError(
+        'Could not access the camera. Please allow camera permission in the browser and try again.'
+      );
+    }
+    finally {
+
+      this.cameraLoading =
+        false;
+
+      this.cdr.detectChanges();
+    }
+  }
+
+
+  // =========================================================
+  // START SELECTED CAMERA
+  // =========================================================
+
+  async startSelectedCamera():
+    Promise<void> {
+
+    this.stopCameraStream();
+
+
+    this.cameraLoading =
+      true;
+
+
+    this.cameraError =
+      '';
+
+
+    try {
+
+      const videoConstraints:
+        MediaTrackConstraints = {};
+
+
+      if (this.selectedCameraId) {
+
+        videoConstraints.deviceId = {
+
+          exact:
+            this.selectedCameraId
+
+        };
+      }
+
+
+      // Good resolution for ID OCR
+
+      videoConstraints.width = {
+        ideal: 1920
+      };
+
+      videoConstraints.height = {
+        ideal: 1080
+      };
+
+
+      this.cameraStream =
+
+        await navigator.mediaDevices
+          .getUserMedia({
+
+            video:
+              videoConstraints,
+
+            audio:
+              false
+
+          });
+
+
+      this.cdr.detectChanges();
+
+
+      // Wait until Angular renders the video tag
+
+      setTimeout(
+        async () => {
+
+          const video =
+
+            this.cameraVideo
+              ?.nativeElement;
+
+
+          if (!video) {
+
+            return;
+          }
+
+
+          video.srcObject =
+            this.cameraStream;
+
+
+          try {
+
+            await video.play();
+
+          }
+          catch (error) {
+
+            console.error(
+              'Camera video play error:',
+              error
+            );
+
+          }
+
+        },
+        0
+      );
+
+    }
+    catch (error) {
+
+      console.error(
+        'Selected camera error:',
+        error
+      );
+
+
+      this.cameraError =
+        'Unable to start the selected camera.';
+
+
+      this.openError(
+        'Unable to start the selected camera.'
+      );
+
+    }
+    finally {
+
+      this.cameraLoading =
+        false;
+
+      this.cdr.detectChanges();
+    }
+  }
+
+
+  // =========================================================
+  // CHANGE CAMERA
+  // =========================================================
+
+  async onCameraChanged():
+    Promise<void> {
+
+    if (!this.selectedCameraId) {
+      return;
+    }
+
+
+    await this.startSelectedCamera();
+  }
+
+
+  // =========================================================
+  // CAMERA LABEL
+  // =========================================================
+
+  cameraDisplayName(
+    camera: MediaDeviceInfo,
+    index: number
+  ): string {
+
+    const label =
+      camera.label
+        ?.trim();
+
+
+    if (!label) {
+
+      return `Camera ${index + 1}`;
+    }
+
+
+    if (
+      this.isIntegratedCamera(label)
+    ) {
+
+      return `Laptop / Integrated Camera - ${label}`;
+    }
+
+
+    if (
+      this.isExternalCamera(label)
+    ) {
+
+      return `External Camera - ${label}`;
+    }
+
+
+    return label;
+  }
+
+
+  private isIntegratedCamera(
+    label: string
+  ): boolean {
+
+    const value =
+      (
+        label
+        ?? ''
+      )
+        .toLowerCase();
+
+
+    return (
+
+      value.includes('integrated')
+      ||
+      value.includes('built-in')
+      ||
+      value.includes('builtin')
+      ||
+      value.includes('internal')
+      ||
+      value.includes('facetime')
+      ||
+      value.includes('front camera')
+
+    );
+  }
+
+
+  private isExternalCamera(
+    label: string
+  ): boolean {
+
+    const value =
+      (
+        label
+        ?? ''
+      )
+        .toLowerCase();
+
+
+    return (
+
+      value.includes('logitech')
+      ||
+      value.includes('usb')
+      ||
+      value.includes('ugreen')
+      ||
+      value.includes('webcam')
+      ||
+      value.includes('external')
+
+    );
+  }
+
+
+  // =========================================================
+  // CAPTURE CAMERA PHOTO
+  // =========================================================
+
+  capturePhoto(): void {
+
+    const video =
+
+      this.cameraVideo
+        ?.nativeElement;
+
+
+    if (
+      !video
+      ||
+      !video.videoWidth
+      ||
+      !video.videoHeight
+    ) {
+
+      this.openError(
+        'Camera is not ready yet. Please wait a moment and try again.'
+      );
+
+      return;
+    }
+
+
+    const canvas =
+
+      document.createElement(
+        'canvas'
+      );
+
+
+    canvas.width =
+      video.videoWidth;
+
+
+    canvas.height =
+      video.videoHeight;
+
+
+    const context =
+
+      canvas.getContext(
+        '2d'
+      );
+
+
+    if (!context) {
+
+      this.openError(
+        'Could not capture camera image.'
+      );
+
+      return;
+    }
+
+
+    context.drawImage(
+
+      video,
+
+      0,
+      0,
+
+      canvas.width,
+      canvas.height
+
+    );
+
+
+    canvas.toBlob(
+
+      blob => {
+
+        if (!blob) {
+
+          this.openError(
+            'Could not create the captured image.'
+          );
+
+          return;
+        }
+
+
+        const fileName =
+
+          this.cameraTarget === 'front'
+
+            ? `id-front-${Date.now()}.jpg`
+
+            : `id-back-${Date.now()}.jpg`;
+
+
+        const file =
+
+          new File(
+
+            [blob],
+
+            fileName,
+
+            {
+              type: 'image/jpeg'
+            }
+
+          );
+
+
+        const target =
+          this.cameraTarget;
+
+
+        this.closeCamera();
+
+
+        // Run exactly the same OCR flow
+        // used by normal uploaded images.
+
+        if (
+          target === 'front'
+        ) {
+
+          this.processFrontFile(
+            file
+          );
+
+        }
+        else {
+
+          this.processBackFile(
+            file
           );
 
         }
 
-      });
+      },
 
+      'image/jpeg',
+
+      0.95
+
+    );
+  }
+
+
+  // =========================================================
+  // CLOSE CAMERA
+  // =========================================================
+
+  closeCamera(): void {
+
+    this.stopCameraStream();
+
+
+    this.showCamera =
+      false;
+
+
+    this.cameraLoading =
+      false;
+
+
+    this.cameraError =
+      '';
+
+
+    this.cdr.detectChanges();
+  }
+
+
+  // =========================================================
+  // STOP CAMERA
+  // =========================================================
+
+  private stopCameraStream():
+    void {
+
+    if (
+      this.cameraStream
+    ) {
+
+      this.cameraStream
+        .getTracks()
+        .forEach(
+          track =>
+            track.stop()
+        );
+
+
+      this.cameraStream =
+        null;
+    }
+
+
+    const video =
+      this.cameraVideo
+        ?.nativeElement;
+
+
+    if (video) {
+
+      video.srcObject =
+        null;
+    }
   }
 
 
@@ -582,22 +1294,26 @@ export class RecordFormComponent {
   ): boolean {
 
     const allowedTypes = [
+
       'image/jpeg',
+
       'image/jpg',
+
       'image/png'
+
     ];
 
 
     return allowedTypes.includes(
       file.type.toLowerCase()
     );
-
   }
 
 
   private createPreview(
     file: File,
-    callback: (value: string) => void
+    callback:
+      (value: string) => void
   ): void {
 
     const reader =
@@ -622,10 +1338,15 @@ export class RecordFormComponent {
     };
 
 
-    reader.readAsDataURL(file);
-
+    reader.readAsDataURL(
+      file
+    );
   }
 
+
+  // =========================================================
+  // OCR ERROR
+  // =========================================================
 
   private getOcrErrorMessage(
     error: any,
@@ -637,10 +1358,14 @@ export class RecordFormComponent {
     ) {
 
       return (
-        `${side} OCR service could not be reached. ` +
-        `Make sure the .NET API and Python OCR service are running.`
-      );
 
+        `${side} OCR service could not be reached. `
+
+        +
+
+        `Make sure the .NET API and Python OCR service are running.`
+
+      );
     }
 
 
@@ -649,18 +1374,26 @@ export class RecordFormComponent {
     ) {
 
       return (
-        `${side} OCR failed on the server. ` +
-        `Please try again.`
-      );
 
+        `${side} OCR failed on the server. `
+
+        +
+
+        `Please try again.`
+
+      );
     }
 
 
     return (
-      `${side} OCR failed. ` +
-      `Please check the selected image and try again.`
-    );
 
+      `${side} OCR failed. `
+
+      +
+
+      `Please check the image and try again.`
+
+    );
   }
 
 
@@ -670,13 +1403,14 @@ export class RecordFormComponent {
 
   recalcAge(): void {
 
-    if (!this.front.dob) {
+    if (
+      !this.front.dob
+    ) {
 
       this.front.age =
         undefined;
 
       return;
-
     }
 
 
@@ -696,7 +1430,6 @@ export class RecordFormComponent {
         undefined;
 
       return;
-
     }
 
 
@@ -705,40 +1438,53 @@ export class RecordFormComponent {
 
 
     let age =
+
       today.getFullYear()
+
       -
+
       birth.getFullYear();
 
 
     const monthDifference =
+
       today.getMonth()
+
       -
+
       birth.getMonth();
 
 
     if (
+
       monthDifference < 0
+
       ||
+
       (
+
         monthDifference === 0
+
         &&
+
         today.getDate()
         <
         birth.getDate()
+
       )
+
     ) {
 
       age--;
-
     }
 
 
     this.front.age =
+
       Math.max(
         0,
         age
       );
-
   }
 
 
@@ -747,6 +1493,7 @@ export class RecordFormComponent {
   ): string | null {
 
     const match =
+
       id.match(
         /^([23])(\d{2})(\d{2})(\d{2})/
       );
@@ -755,28 +1502,36 @@ export class RecordFormComponent {
     if (!match) {
 
       return null;
-
     }
 
 
     const century =
+
       match[1] === '2'
+
         ? 1900
+
         : match[1] === '3'
+
           ? 2000
+
           : null;
 
 
-    if (century === null) {
+    if (
+      century === null
+    ) {
 
       return null;
-
     }
 
 
     const year =
+
       century
+
       +
+
       parseInt(
         match[2],
         10
@@ -784,6 +1539,7 @@ export class RecordFormComponent {
 
 
     const month =
+
       parseInt(
         match[3],
         10
@@ -791,6 +1547,7 @@ export class RecordFormComponent {
 
 
     const day =
+
       parseInt(
         match[4],
         10
@@ -798,23 +1555,37 @@ export class RecordFormComponent {
 
 
     if (
+
       month < 1
+
       ||
+
       month > 12
+
       ||
+
       day < 1
+
       ||
+
       day > 31
+
     ) {
 
       return null;
-
     }
 
 
     const result =
-      `${year}-` +
-      `${String(month).padStart(2, '0')}-` +
+
+      `${year}-`
+
+      +
+
+      `${String(month).padStart(2, '0')}-`
+
+      +
+
       `${String(day).padStart(2, '0')}`;
 
 
@@ -829,39 +1600,48 @@ export class RecordFormComponent {
     ) {
 
       return null;
-
     }
 
 
-    // Make sure JS did not normalize an invalid date
     if (
-      parsed.getFullYear() !== year
+
+      parsed.getFullYear()
+      !== year
+
       ||
-      parsed.getMonth() + 1 !== month
+
+      parsed.getMonth() + 1
+      !== month
+
       ||
-      parsed.getDate() !== day
+
+      parsed.getDate()
+      !== day
+
     ) {
 
       return null;
-
     }
 
 
     return result;
-
   }
 
 
   onIdChanged(): void {
 
     const english =
+
       this.toEnglishDigits(
+
         this.front.nationalId
         ?? ''
+
       );
 
 
     const digits =
+
       english.replace(
         /\D/g,
         ''
@@ -869,6 +1649,7 @@ export class RecordFormComponent {
 
 
     this.front.nationalId =
+
       this.toArabicDigits(
         digits
       );
@@ -885,11 +1666,11 @@ export class RecordFormComponent {
         undefined;
 
       return;
-
     }
 
 
     const dob =
+
       this.parseDobFromEgyptId(
         digits
       );
@@ -902,9 +1683,7 @@ export class RecordFormComponent {
 
 
       this.recalcAge();
-
     }
-
   }
 
 
@@ -917,9 +1696,7 @@ export class RecordFormComponent {
   ): string {
 
     if (!input) {
-
       return '';
-
     }
 
 
@@ -928,6 +1705,7 @@ export class RecordFormComponent {
 
 
     value =
+
       value.replace(
         /[|_*~^]+/g,
         ' '
@@ -935,6 +1713,7 @@ export class RecordFormComponent {
 
 
     value =
+
       value.replace(
         /[\u0640]+/g,
         ' '
@@ -942,23 +1721,21 @@ export class RecordFormComponent {
 
 
     value =
+
       value.replace(
         /[،,.]+/g,
         ', '
       );
 
 
-    value =
-      value
-        .replace(
-          /\s+/g,
-          ' '
-        )
-        .trim();
+    return value
 
+      .replace(
+        /\s+/g,
+        ' '
+      )
 
-    return value;
-
+      .trim();
   }
 
 
@@ -967,9 +1744,7 @@ export class RecordFormComponent {
   ): string {
 
     if (!input) {
-
       return '';
-
     }
 
 
@@ -978,23 +1753,39 @@ export class RecordFormComponent {
 
 
     value =
+
       value
+
         .replace(
           /[|_*~^+\\\-=0-9٠-٩۰-۹]+/g,
           ' '
         )
+
         .replace(
           /\s+/g,
           ' '
         )
+
         .trim();
 
 
     const normalized =
+
       value
-        .replace(/[أإآٱ]/g, 'ا')
-        .replace(/ة/g, 'ه')
-        .toLocaleLowerCase('ar');
+
+        .replace(
+          /[أإآٱ]/g,
+          'ا'
+        )
+
+        .replace(
+          /ة/g,
+          'ه'
+        )
+
+        .toLocaleLowerCase(
+          'ar'
+        );
 
 
     if (
@@ -1004,7 +1795,6 @@ export class RecordFormComponent {
     ) {
 
       return 'أعزب';
-
     }
 
 
@@ -1015,7 +1805,6 @@ export class RecordFormComponent {
     ) {
 
       return 'متزوج';
-
     }
 
 
@@ -1026,7 +1815,6 @@ export class RecordFormComponent {
     ) {
 
       return 'مطلق';
-
     }
 
 
@@ -1037,12 +1825,10 @@ export class RecordFormComponent {
     ) {
 
       return 'أرمل';
-
     }
 
 
     return value;
-
   }
 
 
@@ -1051,9 +1837,7 @@ export class RecordFormComponent {
   ): string {
 
     if (!input) {
-
       return '';
-
     }
 
 
@@ -1062,6 +1846,7 @@ export class RecordFormComponent {
 
 
     value =
+
       value.replace(
         /[|_*~^+\\\-=]+/g,
         ' '
@@ -1069,6 +1854,7 @@ export class RecordFormComponent {
 
 
     value =
+
       value.replace(
         /[\u0640]+/g,
         ' '
@@ -1076,6 +1862,7 @@ export class RecordFormComponent {
 
 
     value =
+
       value.replace(
         /[0-9٠-٩۰-۹]+/g,
         ' '
@@ -1083,6 +1870,7 @@ export class RecordFormComponent {
 
 
     value =
+
       value.replace(
         /^[^ء-يA-Za-z]+/,
         ''
@@ -1090,38 +1878,37 @@ export class RecordFormComponent {
 
 
     value =
+
       value.replace(
         /[^ء-يA-Za-z]+$/,
         ''
       );
 
 
-    value =
-      value
-        .replace(
-          /\s+/g,
-          ' '
-        )
-        .trim();
+    return value
 
+      .replace(
+        /\s+/g,
+        ' '
+      )
 
-    return value;
-
+      .trim();
   }
 
 
-  onOccupationBlur(): void {
+  onOccupationBlur():
+    void {
 
     this.back.occupation =
+
       this.cleanOccupation(
         this.back.occupation
       );
-
   }
 
 
   // =========================================================
-  // NUMBER CONVERSION
+  // DIGITS
   // =========================================================
 
   private toEnglishDigits(
@@ -1152,7 +1939,6 @@ export class RecordFormComponent {
         '۷': '7',
         '۸': '8',
         '۹': '9'
-
       };
 
 
@@ -1161,12 +1947,14 @@ export class RecordFormComponent {
       ?? ''
     )
       .replace(
+
         /[٠-٩۰-۹]/g,
+
         digit =>
           map[digit]
           ?? digit
-      );
 
+      );
   }
 
 
@@ -1183,13 +1971,15 @@ export class RecordFormComponent {
       ?? ''
     )
       .replace(
+
         /\d/g,
+
         digit =>
           arabicDigits[
             Number(digit)
           ]
-      );
 
+      );
   }
 
 
@@ -1202,9 +1992,13 @@ export class RecordFormComponent {
   ): void {
 
     if (
+
       this.loadingFront
+
       ||
+
       this.loadingBack
+
     ) {
 
       this.openError(
@@ -1212,14 +2006,17 @@ export class RecordFormComponent {
       );
 
       return;
-
     }
 
 
     if (
+
       !this.front.name?.trim()
+
       &&
+
       !this.front.nationalId?.trim()
+
     ) {
 
       this.openError(
@@ -1227,13 +2024,11 @@ export class RecordFormComponent {
       );
 
       return;
-
     }
 
 
     this.showConfirm =
       true;
-
   }
 
 
@@ -1244,9 +2039,12 @@ export class RecordFormComponent {
 
 
     const idEnglish =
+
       this.toEnglishDigits(
+
         this.front.nationalId
         ?? ''
+
       )
         .replace(
           /\D/g,
@@ -1263,7 +2061,6 @@ export class RecordFormComponent {
       );
 
       return;
-
     }
 
 
@@ -1272,10 +2069,10 @@ export class RecordFormComponent {
     ) {
 
       this.back.occupation =
+
         this.cleanOccupation(
           this.back.occupation
         );
-
     }
 
 
@@ -1345,7 +2142,6 @@ export class RecordFormComponent {
 
       backImageDataUrl:
         this.backPreview
-
     };
 
 
@@ -1358,7 +2154,6 @@ export class RecordFormComponent {
     this.save.emit(
       payload as RecordValue
     );
-
   }
 
 
@@ -1366,12 +2161,16 @@ export class RecordFormComponent {
   // VALIDATION
   // =========================================================
 
-  validateIdNumber(): boolean {
+  validateIdNumber():
+    boolean {
 
     const idEnglish =
+
       this.toEnglishDigits(
+
         this.front.nationalId
         ?? ''
+
       )
         .replace(
           /\D/g,
@@ -1382,20 +2181,22 @@ export class RecordFormComponent {
     return (
       idEnglish.length === 14
     );
-
   }
 
 
-  get dobIsIso(): boolean {
+  get dobIsIso():
+    boolean {
 
     return (
+
       /^\d{4}-\d{2}-\d{2}$/
+
         .test(
           this.front.dob
           ?? ''
         )
-    );
 
+    );
   }
 
 
@@ -1404,25 +2205,26 @@ export class RecordFormComponent {
   ): boolean {
 
     return (
+
       /[\u0590-\u08FF]/
+
         .test(
           value
           ?? ''
         )
-    );
 
+    );
   }
 
 
   // =========================================================
-  // MODALS / CANCEL
+  // MODALS
   // =========================================================
 
   cancelSave(): void {
 
     this.showConfirm =
       false;
-
   }
 
 
@@ -1436,7 +2238,6 @@ export class RecordFormComponent {
 
     this.showError =
       true;
-
   }
 
 
@@ -1444,14 +2245,23 @@ export class RecordFormComponent {
 
     this.showError =
       false;
-
   }
 
 
   onCancel(): void {
 
-    this.cancel.emit();
+    this.closeCamera();
 
+    this.cancel.emit();
   }
 
+
+  // =========================================================
+  // DESTROY
+  // =========================================================
+
+  ngOnDestroy(): void {
+
+    this.stopCameraStream();
+  }
 }

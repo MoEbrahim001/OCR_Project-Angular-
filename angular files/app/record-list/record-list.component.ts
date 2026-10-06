@@ -210,27 +210,107 @@ export class RecordListComponent implements OnInit, OnDestroy {
     return this.records.some(r => r.idNumber === target && r.idNumber !== ignoreId);
   }
 
-  private toDto(rec: any): CreateUpdateRecordDto {
-    return {
-      name: (rec.name ?? '').trim(),
-      idNumber: (rec.idNumber ?? '').trim(),
-      dateOfBirth: rec.dateOfBirth ? String(rec.dateOfBirth) : null,
-      address: rec.address ?? null,
-      gender: rec.gender ?? null,
-      profession: rec.occupation ?? null,
-      maritalStatus: rec.maritalStatus ?? null,
-      religion: rec.religion ?? null,
-      endDate: rec.expiryDate ?? null,
-      photoBase64: null,
-      faceBase64: null,
-      notes: null
-    };
-  }
+private toDto(rec: any): CreateUpdateRecordDto {
+
+  const dto: CreateUpdateRecordDto = {
+
+    name:
+      (rec.name ?? '').trim(),
+
+    idNumber:
+      (rec.idNumber ?? '').trim(),
+
+    dateOfBirth:
+      rec.dateOfBirth
+        ? String(rec.dateOfBirth)
+        : null,
+
+    address:
+      rec.address ?? null,
+
+    gender:
+      rec.gender ?? null,
+
+    profession:
+      rec.occupation ?? null,
+
+    maritalStatus:
+      rec.maritalStatus ?? null,
+
+    religion:
+      rec.religion ?? null,
+
+    endDate:
+      rec.expiryDate ?? null,
+
+    photoBase64:
+      null,
+
+    faceBase64:
+      null,
+
+    notes:
+      null,
+
+    frontImageDataUrl:
+      rec.frontImageDataUrl ?? null,
+
+    backImageDataUrl:
+      rec.backImageDataUrl ?? null
+  };
+
+
+  console.log(
+    'DTO AFTER toDto():',
+    dto
+  );
+
+
+  console.log(
+    'FRONT LENGTH:',
+    dto.frontImageDataUrl?.length ?? 0
+  );
+
+
+  console.log(
+    'BACK LENGTH:',
+    dto.backImageDataUrl?.length ?? 0
+  );
+
+
+  return dto;
+}
 
 onSave(rec: any) {
-  const dto = this.toDto(rec);
 
-  const idForCheck = (rec.idNumber ?? '').trim();
+  console.log(
+    'RECORD RECEIVED FROM FORM:',
+    rec
+  );
+
+  console.log(
+    'REC FRONT LENGTH:',
+    rec.frontImageDataUrl?.length ?? 0
+  );
+
+  console.log(
+    'REC BACK LENGTH:',
+    rec.backImageDataUrl?.length ?? 0
+  );
+
+
+  const dto =
+    this.toDto(rec);
+
+
+  console.log(
+    'FINAL DTO SENT TO API:',
+    dto
+  );
+
+
+  const idForCheck =
+    (rec.idNumber ?? '').trim();
 
   if (!this.editingKey) {
     if (this.isDuplicateId(idForCheck)) {
