@@ -579,7 +579,7 @@
 
             <button
               type="button"
-              [disabled]="!getFrontImage(r)"
+[disabled]="!hasFrontImage(r)"
               (click)="printRecordImage(r, 'front')"
             >
               {{ 'ACTIONS.PRINT_FRONT' | translate }}
@@ -588,7 +588,7 @@
 
             <button
               type="button"
-              [disabled]="!getBackImage(r)"
+              [disabled]="!hasBackImage(r)"
               (click)="printRecordImage(r, 'back')"
             >
               {{ 'ACTIONS.PRINT_BACK' | translate }}
@@ -599,8 +599,8 @@
               type="button"
               class="menu-emphasis"
               [disabled]="
-                !getFrontImage(r) &&
-                !getBackImage(r)
+                !hasFrontImage(r) &&
+                !hasBackImage(r)
               "
               (click)="printRecordImage(r, 'both')"
             >

@@ -29,13 +29,37 @@ interface BackData {
 }
 
 
-export type RecordValue = (RecordModel & BackData) & {
-  frontImageDataUrl?: string | null;
-  backImageDataUrl?: string | null;
+export type RecordValue =
+  Omit<
+    Partial<RecordModel>,
+    'dateOfBirth'
+  >
+  &
+  BackData
+  &
+  {
+    id?: number;
 
-  frontFile?: File | null;
-  backFile?: File | null;
-};
+    name?: string;
+
+    idNumber?: string;
+
+    nationalId?: string;
+
+    address?: string;
+
+    dateOfBirth?: string | null;
+
+    age?: number;
+
+    frontImageDataUrl?: string | null;
+
+    backImageDataUrl?: string | null;
+
+    frontFile?: File | null;
+
+    backFile?: File | null;
+  };
 
 @Component({
   selector: 'app-record-form',
@@ -183,8 +207,8 @@ export class RecordFormComponent implements OnDestroy {
       address:
         this.value.address,
 
-      dob:
-        this.value.dateOfBirth,
+       dob:
+    this.value.dateOfBirth ?? undefined,
 
       age:
         this.value.age
@@ -2034,59 +2058,51 @@ export class RecordFormComponent implements OnDestroy {
   }
 
 
-  confirmSave(): void {
+ confirmSave(): void {
 
-    this.showConfirm =
-      false;
+  this.showConfirm = false;
 
 
-    const idEnglish =
-
-      this.toEnglishDigits(
-
-        this.front.nationalId
-        ?? ''
-
+  const idEnglish =
+    this
+      .toEnglishDigits(
+        this.front.nationalId ?? ''
       )
-        .replace(
-          /\D/g,
-          ''
-        );
+      .replace(/\D/g, '');
 
 
-    if (
-      idEnglish.length !== 14
-    ) {
+  if (idEnglish.length !== 14) {
 
-      this.openError(
-        'ID number must be 14 digits.'
+    this.openError(
+      'ID number must be 14 digits.'
+    );
+
+    return;
+  }
+
+
+  if (this.back.occupation) {
+
+    this.back.occupation =
+      this.cleanOccupation(
+        this.back.occupation
       );
-
-      return;
-    }
+  }
 
 
-    if (
-      this.back.occupation
-    ) {
+const payload: RecordValue = {
 
-      this.back.occupation =
+  name:
+    this.front.name ?? '',
 
-        this.cleanOccupation(
-          this.back.occupation
-        );
-    }
+  idNumber:
+    idEnglish,
 
+  nationalId:
+    idEnglish,
 
-   const payload: any = {
-
-  name: this.front.name ?? '',
-
-  idNumber: idEnglish,
-
-  nationalId: idEnglish,
-
-  address: this.front.address ?? '',
+  address:
+    this.front.address ?? '',
 
   dateOfBirth:
     this.front.dob ?? null,
@@ -2110,7 +2126,7 @@ export class RecordFormComponent implements OnDestroy {
     this.back.husbandName ?? '',
 
   expiryDate:
-    this.back.expiryDate ?? null,
+    this.back.expiryDate ?? undefined,
 
   frontImageDataUrl:
     this.frontPreview,
@@ -2118,7 +2134,6 @@ export class RecordFormComponent implements OnDestroy {
   backImageDataUrl:
     this.backPreview,
 
-  // IMPORTANT
   frontFile:
     this.frontFile,
 
@@ -2126,35 +2141,19 @@ export class RecordFormComponent implements OnDestroy {
     this.backFile
 };
 
-console.log(
-  'SAVE RECORD PAYLOAD:',
-  payload
-);
 
-console.log(
-  'FRONT FILE:',
-  payload.frontFile
-);
-
-console.log(
-  'BACK FILE:',
-  payload.backFile
-);
-
-this.save.emit(
-  payload as RecordValue
-);
-
-    console.log(
-      'SAVE RECORD PAYLOAD:',
-      payload
-    );
+  console.log(
+    'SAVE RECORD PAYLOAD:',
+    payload
+  );
 
 
-    this.save.emit(
-      payload as RecordValue
-    );
-  }
+  // IMPORTANT:
+  // Emit ONCE only.
+  this.save.emit(
+    payload
+  );
+}
 
 
   // =========================================================
