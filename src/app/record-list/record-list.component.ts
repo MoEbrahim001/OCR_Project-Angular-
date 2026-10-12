@@ -98,7 +98,9 @@ export class RecordListComponent
 
   addressTerm = '';
 
+showExportMenu = false;
 
+exportingExcel = false;
   // =========================================================
   // IMAGE MARKER
   // =========================================================
@@ -798,108 +800,104 @@ export class RecordListComponent
   // DTO
   // =========================================================
 
-  private toDto(
-    rec: any
-  ): CreateUpdateRecordDto {
+private toDto(
+  rec: any
+): CreateUpdateRecordDto {
 
-    const dob =
-      String(
-        rec.dateOfBirth ?? ''
-      )
-        .trim();
+  const dob =
+    String(
+      rec.dateOfBirth ?? ''
+    ).trim();
 
-
-    const expiry =
-      String(
-        rec.expiryDate ?? ''
-      )
-        .trim();
+  const expiry =
+    String(
+      rec.expiryDate ?? ''
+    ).trim();
 
 
-    return {
+  const dto: CreateUpdateRecordDto = {
 
-      name:
-        (
-          rec.name
-          ?? ''
-        )
-          .trim(),
+    name:
+      (rec.name ?? '').trim(),
 
-
-      idNumber:
-        this
-          .toEnglishDigits(
-
-            String(
-              rec.idNumber
-              ?? ''
-            )
+    idNumber:
+      this
+        .toEnglishDigits(
+          String(
+            rec.idNumber ?? ''
           )
-          .replace(
-            /\D/g,
-            ''
-          ),
+        )
+        .replace(/\D/g, ''),
+
+    dateOfBirth:
+      dob
+        ? dob
+        : null,
+
+    address:
+      rec.address ?? null,
+
+    gender:
+      rec.gender ?? null,
+
+    profession:
+      rec.occupation ?? null,
+
+    maritalStatus:
+      rec.maritalStatus ?? null,
+
+    religion:
+      rec.religion ?? null,
+
+    endDate:
+      expiry
+        ? expiry
+        : null,
+
+    photoBase64:
+      null,
+
+    faceBase64:
+      null,
+
+    notes:
+      null
+  };
 
 
-      dateOfBirth:
-        dob
-          ? dob
-          : null,
+  // Only add image properties
+  // when the form actually supplied them.
 
+  if (
+    Object.prototype.hasOwnProperty.call(
+      rec,
+      'frontImageDataUrl'
+    )
+    &&
+    rec.frontImageDataUrl !== undefined
+  ) {
 
-      address:
-        rec.address
-        ?? null,
-
-
-      gender:
-        rec.gender
-        ?? null,
-
-
-      profession:
-        rec.occupation
-        ?? null,
-
-
-      maritalStatus:
-        rec.maritalStatus
-        ?? null,
-
-
-      religion:
-        rec.religion
-        ?? null,
-
-
-      endDate:
-        expiry
-          ? expiry
-          : null,
-
-
-      photoBase64:
-        null,
-
-
-      faceBase64:
-        null,
-
-
-      notes:
-        null,
-
-
-      frontImageDataUrl:
-        rec.frontImageDataUrl
-        ?? null,
-
-
-      backImageDataUrl:
-        rec.backImageDataUrl
-        ?? null
-    };
+    dto.frontImageDataUrl =
+      rec.frontImageDataUrl;
   }
+
+
+  if (
+    Object.prototype.hasOwnProperty.call(
+      rec,
+      'backImageDataUrl'
+    )
+    &&
+    rec.backImageDataUrl !== undefined
+  ) {
+
+    dto.backImageDataUrl =
+      rec.backImageDataUrl;
+  }
+
+
+  return dto;
+}
 
 
   // =========================================================
@@ -1037,17 +1035,49 @@ export class RecordListComponent
           next:
             (res: any) => {
 
-              const updated =
-                this.mapItem({
+              const current =
+  this.records.find(
+    r => r.id === recordId
+  );
 
-                  id:
-                    recordId,
 
-                  ...(res || {}),
+const updated =
+  this.mapItem({
 
-                  ...dto
-                });
+    ...(current || {}),
 
+    ...(res || {}),
+
+    ...dto,
+
+    id:
+      recordId,
+
+
+    // Preserve old images when they
+    // were not changed.
+
+    frontImageDataUrl:
+
+      dto.frontImageDataUrl !== undefined
+
+        ? dto.frontImageDataUrl
+
+        : current?.frontImageDataUrl
+          ?? this.draft.frontImageDataUrl
+          ?? null,
+
+
+    backImageDataUrl:
+
+      dto.backImageDataUrl !== undefined
+
+        ? dto.backImageDataUrl
+
+        : current?.backImageDataUrl
+          ?? this.draft.backImageDataUrl
+          ?? null
+  });
 
               this.replaceInArrays(
                 updated
@@ -3022,4 +3052,213 @@ export class RecordListComponent
         '&#039;'
       );
   }
+  toggleExportMenu(
+  event: MouseEvent
+): void {
+
+  event.stopPropagation();
+
+  this.showExportMenu =
+    !this.showExportMenu;
+
+  this.cdr.markForCheck();
+}
+exportExcel(): void {
+
+  if (
+    this.exportingExcel
+  ) {
+    return;
+  }
+
+
+  this.exportingExcel =
+    true;
+
+  this.showExportMenu =
+    false;
+
+
+  const name =
+    this.nameTerm
+      ?.trim()
+    || undefined;
+
+
+  const idNumber =
+    this.formatNationalId(
+      this.idTerm
+    )
+    || undefined;
+
+
+  this.ocr
+    .exportExcel(
+      name,
+      idNumber
+    )
+    .subscribe({
+
+      next: blob => {
+
+        const url =
+          URL.createObjectURL(
+            blob
+          );
+
+
+        const link =
+          document.createElement(
+            'a'
+          );
+
+
+        link.href =
+          url;
+
+
+        const now =
+          new Date();
+
+
+        const stamp =
+          [
+            now.getFullYear(),
+
+            String(
+              now.getMonth() + 1
+            ).padStart(
+              2,
+              '0'
+            ),
+
+            String(
+              now.getDate()
+            ).padStart(
+              2,
+              '0'
+            )
+          ]
+          .join('');
+
+
+        link.download =
+          `OCR-Records-${stamp}.xlsx`;
+
+
+        document.body
+          .appendChild(
+            link
+          );
+
+
+        link.click();
+
+
+        document.body
+          .removeChild(
+            link
+          );
+
+
+        URL.revokeObjectURL(
+          url
+        );
+
+
+        this.successText =
+          'Excel exported successfully ✓';
+
+        this.showSuccess =
+          true;
+
+
+        setTimeout(
+          () => {
+
+            this.showSuccess =
+              false;
+
+            this.cdr
+              .markForCheck();
+          },
+          1200
+        );
+
+
+        this.exportingExcel =
+          false;
+
+        this.cdr
+          .markForCheck();
+      },
+
+
+      error: err => {
+
+        console.error(
+          'EXPORT EXCEL ERROR:',
+          err
+        );
+
+
+        this.exportingExcel =
+          false;
+
+
+        this.showError =
+          true;
+
+
+        this.errorText =
+          'Excel export failed.';
+
+
+        this.cdr
+          .markForCheck();
+      }
+    });
+}
+@HostListener(
+  'document:click'
+)
+closeMenus(): void {
+
+  let changed =
+    false;
+
+
+  if (
+    this.openPrintMenuId
+    !== null
+  ) {
+
+    this.openPrintMenuId =
+      null;
+
+    changed =
+      true;
+  }
+
+
+  if (
+    this.showExportMenu
+  ) {
+
+    this.showExportMenu =
+      false;
+
+    changed =
+      true;
+  }
+
+
+  if (
+    changed
+  ) {
+
+    this.cdr
+      .markForCheck();
+  }
+}
 }

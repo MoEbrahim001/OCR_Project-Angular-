@@ -418,17 +418,13 @@ svg {
    ========================================================= */
 
 .content-area {
-  width:
-    calc(100% - 26px);
-
+  width: calc(100% - 26px);
   max-width: 1820px;
-
-  margin:
-    0 auto;
+  margin: 0 auto;
 
   padding:
-    24px 0
-    46px;
+    42px 0
+    20px;
 }
 
 
@@ -474,7 +470,7 @@ svg {
    ========================================================= */
 
 .search-bar {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 
   padding: 14px;
 
@@ -783,9 +779,10 @@ svg {
 .table-wrap {
   width: 100%;
 
+  flex: 1 1 auto;
+
   overflow: visible;
 }
-
 
 /* =========================================================
    TABLE
@@ -2614,4 +2611,173 @@ summary:focus-visible {
     "Segoe UI Emoji",
     "Apple Color Emoji",
     sans-serif;
+}
+.records-panel {
+  width: 100%;
+
+  min-height:
+    calc(100vh - 300px);
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: visible;
+
+  border:
+    1px solid
+    rgba(221, 229, 244, 0.95);
+
+  border-radius: 18px;
+
+  background:
+    rgba(255, 255, 255, 0.92);
+
+  box-shadow:
+    0 14px 32px
+    rgba(45, 59, 105, 0.055);
+}
+.sidebar-export {
+  width: 100%;
+
+  display: flex;
+  justify-content: center;
+
+  position: relative;
+}
+
+
+.sidebar-export-menu {
+  width: 180px;
+
+  position: absolute;
+
+  left: calc(100% + 10px);
+  bottom: 0;
+
+  z-index: 6000;
+
+  padding: 7px;
+
+  border:
+    1px solid
+    #e0e6f2;
+
+  border-radius: 12px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.99
+    );
+
+  box-shadow:
+    0 16px 38px
+    rgba(
+      39,
+      49,
+      88,
+      0.18
+    );
+}
+
+
+.export-menu-title {
+  padding:
+    7px 9px;
+
+  color:
+    #9aa6be;
+
+  font-size:
+    9px;
+
+  font-weight:
+    900;
+
+  text-transform:
+    uppercase;
+}
+
+
+.export-option {
+  width: 100%;
+
+  min-height: 42px;
+
+  padding:
+    7px 8px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  border: 0;
+
+  border-radius: 8px;
+
+  background:
+    transparent;
+
+  color:
+    #40506d;
+
+  font-size:
+    11px;
+
+  font-weight:
+    750;
+
+  cursor: pointer;
+}
+
+
+.export-option:hover:not(:disabled) {
+  background:
+    #f0f4ff;
+
+  color:
+    var(--primary);
+}
+
+
+.export-option:disabled {
+  opacity: 0.42;
+
+  cursor:
+    not-allowed;
+}
+
+
+.export-file-icon {
+  min-width: 38px;
+
+  height: 26px;
+
+  padding:
+    0 5px;
+
+  display:
+    inline-grid;
+
+  place-items:
+    center;
+
+  border-radius:
+    6px;
+
+  background:
+    #eef3ff;
+
+  color:
+    var(--primary);
+
+  font-size:
+    8px;
+
+  font-weight:
+    900;
 }

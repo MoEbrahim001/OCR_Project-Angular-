@@ -2128,17 +2128,32 @@ const payload: RecordValue = {
   expiryDate:
     this.back.expiryDate ?? undefined,
 
-  frontImageDataUrl:
-    this.frontPreview,
 
-  backImageDataUrl:
-    this.backPreview,
+  // =========================================
+  // CREATE:
+  // Send images.
+  //
+  // EDIT:
+  // Send image ONLY if user replaced it.
+  // =========================================
 
-  frontFile:
-    this.frontFile,
+  ...(
+    !this.isEdit || this.frontFile
+      ? {
+          frontImageDataUrl:
+            this.frontPreview
+        }
+      : {}
+  ),
 
-  backFile:
-    this.backFile
+  ...(
+    !this.isEdit || this.backFile
+      ? {
+          backImageDataUrl:
+            this.backPreview
+        }
+      : {}
+  )
 };
 
 

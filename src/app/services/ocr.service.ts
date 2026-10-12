@@ -360,4 +360,47 @@ export class OcrService {
         + id
       );
   }
+  exportExcel(
+  name?: string,
+  idNumber?: string
+) {
+
+  let params =
+    new HttpParams();
+
+
+  if (
+    name?.trim()
+  ) {
+
+    params =
+      params.set(
+        'name',
+        name.trim()
+      );
+  }
+
+
+  if (
+    idNumber?.trim()
+  ) {
+
+    params =
+      params.set(
+        'idNumber',
+        idNumber.trim()
+      );
+  }
+
+
+  return this.http.get(
+
+    environment.records.exportExcel,
+
+    {
+      params,
+      responseType: 'blob'
+    }
+  );
+}
 }

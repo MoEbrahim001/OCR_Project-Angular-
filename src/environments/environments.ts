@@ -7,7 +7,9 @@ export const environment = {
     edit:   'http://localhost:5100/api/Records/',
     delete: 'http://localhost:5100/api/Records/',
     getbyid:'http://localhost:5100/api/Records/',
-    search: 'http://localhost:5100/api/Records/Search'
+    search: 'http://localhost:5100/api/Records/Search',
+    exportExcel:
+  'http://localhost:5100/api/Records/export/excel',
   },
 
   /*
