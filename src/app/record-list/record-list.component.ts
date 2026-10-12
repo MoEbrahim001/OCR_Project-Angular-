@@ -165,8 +165,17 @@ openPrintMenuId: number | null = null;
     return {
       id: r.id,
       name: r.name ?? '',
-      idNumber: r.idNumber ?? r.nationalId ?? '',
-      address: r.address ?? '',
+idNumber:
+  this
+    .toEnglishDigits(
+      String(
+        r.idNumber
+        ?? r.nationalId
+        ?? ''
+      )
+    )
+    .replace(/\D/g, ''),
+        address: r.address ?? '',
       dateOfBirth: dob,
       age: (typeof r.age === 'number' && r.age > 0) ? r.age : this.calcAge(dob),
       religion: r.religion ?? undefined,
@@ -247,8 +256,13 @@ backImageDataUrl:
   private toDto(rec: any): CreateUpdateRecordDto {
     return {
       name: (rec.name ?? '').trim(),
-      idNumber: (rec.idNumber ?? '').trim(),
-      dateOfBirth: rec.dateOfBirth ? String(rec.dateOfBirth) : null,
+idNumber:
+  this
+    .toEnglishDigits(
+      String(rec.idNumber ?? '')
+    )
+    .replace(/\D/g, ''),
+          dateOfBirth: rec.dateOfBirth ? String(rec.dateOfBirth) : null,
       address: rec.address ?? null,
       gender: rec.gender ?? null,
       profession: rec.occupation ?? null,
@@ -550,20 +564,64 @@ onSearchClick() {
 }
 
 private toEnglishDigits(s: string): string {
+
   const map: Record<string, string> = {
-    '٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9',
-    '۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9'
+
+    '٠':'0',
+    '١':'1',
+    '٢':'2',
+    '٣':'3',
+    '٤':'4',
+    '٥':'5',
+    '٦':'6',
+    '٧':'7',
+    '٨':'8',
+    '٩':'9',
+
+    '۰':'0',
+    '۱':'1',
+    '۲':'2',
+    '۳':'3',
+    '۴':'4',
+    '۵':'5',
+    '۶':'6',
+    '۷':'7',
+    '۸':'8',
+    '۹':'9'
+
   };
-  return (s ?? '').replace(/[٠-٩۰-۹]/g, d => map[d] ?? d);
+
+  return (s ?? '')
+    .replace(
+      /[٠-٩۰-۹]/g,
+      d => map[d] ?? d
+    );
+
+}
+formatNationalId(
+  value: string | null | undefined
+): string {
+
+  return this
+    .toEnglishDigits(
+      String(value ?? '')
+    )
+    .replace(/\D/g, '');
+
 }
 private toArabicDigits(s: string): string {
   const a = '٠١٢٣٤٥٦٧٨٩';
   return (s ?? '').replace(/\d/g, d => a[+d]);
 }
 onIdTermChanged(value: string) {
-  const ascii = this.toEnglishDigits(value).replace(/\D/g, '');
-  this.idTerm = this.toArabicDigits(ascii);
+
+  this.idTerm =
+    this
+      .toEnglishDigits(value)
+      .replace(/\D/g, '');
+
   this.cdr.markForCheck();
+
 }
   clearSearch() {
     this.nameTerm = '';

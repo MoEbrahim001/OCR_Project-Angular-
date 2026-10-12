@@ -1,38 +1,173 @@
-<div class="everything-container">
+<div class="ocr-shell">
 
-  <div class="content-container">
+  <!-- ===================================================== -->
+  <!-- SIDEBAR -->
+  <!-- ===================================================== -->
 
-    <!-- ================================================== -->
-    <!-- HEADER -->
-    <!-- ================================================== -->
+  <aside class="app-sidebar">
 
-    <section class="header">
+    <div
+      class="sidebar-brand"
+      [attr.title]="'APP.OCR_MANAGEMENT' | translate"
+    >
+      <div class="brand-mark">OCR</div>
+    </div>
 
-      <div class="header-row">
+    <nav
+      class="sidebar-nav"
+      [attr.aria-label]="'NAV.MAIN' | translate"
+    >
 
-        <h2>
-          {{ 'TITLE' | translate }}
-        </h2>
+      <button
+        type="button"
+        class="nav-item active"
+        [attr.title]="'NAV.RECORDS' | translate"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm3 4h8M8 12h8M8 16h5" />
+        </svg>
+
+        <span>{{ 'NAV.RECORDS' | translate }}</span>
+      </button>
+
+
+      <button
+        type="button"
+        class="nav-item"
+        [attr.title]="'RECORDS_PAGE.NEW_RECORD' | translate"
+        (click)="openForm()"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+
+        <span>{{ 'NAV.NEW' | translate }}</span>
+      </button>
+
+
+      <button
+        type="button"
+        class="nav-item"
+        [attr.title]="'NAV.UPLOAD' | translate"
+        (click)="openForm()"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 16V4m0 0L8 8m4-4 4 4M5 14v5h14v-5" />
+        </svg>
+
+        <span>{{ 'NAV.UPLOAD' | translate }}</span>
+      </button>
+
+
+      <button
+        type="button"
+        class="nav-item"
+        [attr.title]="'NAV.SETTINGS' | translate"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm8 4 2-1-2-4-2 .7a8 8 0 0 0-2-1.2L15.7 4h-4L11 6.5a8 8 0 0 0-2 1.2L7 7l-2 4 2 1a8 8 0 0 0 0 2l-2 1 2 4 2-.7a8 8 0 0 0 2 1.2l.7 2.5h4l.7-2.5a8 8 0 0 0 2-1.2l2 .7 2-4-2-1a8 8 0 0 0 0-2Z" />
+        </svg>
+
+        <span>{{ 'NAV.SETTINGS' | translate }}</span>
+      </button>
+
+    </nav>
+
+  </aside>
+
+
+  <!-- ===================================================== -->
+  <!-- MAIN -->
+  <!-- ===================================================== -->
+
+  <div class="app-main">
+
+    <!-- TOP BAR -->
+
+    <header class="topbar">
+
+      <div class="topbar-brand">
+        <div>
+          <h1>{{ 'APP.NAME' | translate }}</h1>
+
+          <p>
+            {{ 'APP.SUBTITLE' | translate }}
+          </p>
+        </div>
+      </div>
+
+
+      <div class="topbar-actions">
 
         <button
           type="button"
-          class="lang-btn"
-          [class.active]="currentLang === 'en'"
+          class="language-btn"
           (click)="switchLang()"
+          [attr.title]="
+            currentLang === 'en'
+              ? ('LANGUAGE.SWITCH_TO_AR' | translate)
+              : ('LANGUAGE.SWITCH_TO_EN' | translate)
+          "
         >
-          {{ currentLang === 'en' ? 'En' : 'ع' }}
+
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0c2.2-2.4 3.3-5.4 3.3-9S14.2 5.4 12 3m0 18c-2.2-2.4-3.3-5.4-3.3-9S9.8 5.4 12 3M3.5 9h17M3.5 15h17" />
+          </svg>
+
+          <span>
+            {{ currentLang === 'en' ? 'العربية' : 'English' }}
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="new-record-btn"
+          (click)="openForm()"
+        >
+          <span class="plus">＋</span>
+
+          {{ 'RECORDS_PAGE.NEW_RECORD' | translate }}
         </button>
 
       </div>
 
+    </header>
 
-      <!-- ================================================== -->
+
+    <!-- =================================================== -->
+    <!-- CONTENT -->
+    <!-- =================================================== -->
+
+    <main class="content-area">
+
+      <section class="page-heading">
+        <div>
+
+          <h2>
+            {{ 'RECORDS_PAGE.TITLE' | translate }}
+          </h2>
+
+          <p>
+            {{ 'RECORDS_PAGE.SUBTITLE' | translate }}
+          </p>
+
+        </div>
+      </section>
+
+
       <!-- SEARCH -->
-      <!-- ================================================== -->
 
-      <div class="tools">
+      <section class="search-bar">
 
-        <div class="search-group">
+        <div class="search-control name-search">
+
+          <span class="search-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" />
+            </svg>
+          </span>
 
           <input
             type="text"
@@ -43,481 +178,630 @@
             [placeholder]="'SEARCH_NAME' | translate"
           />
 
-
-          <input
-            type="text"
-            [(ngModel)]="idTerm"
-            (ngModelChange)="onIdTermChanged($event)"
-            inputmode="numeric"
-            dir="auto"
-            [placeholder]="'SEARCH_ID' | translate"
-          />
-
-
-          <button
-            class="primary"
-            (click)="onSearchClick()"
-          >
-            {{ 'SEARCH' | translate }}
-          </button>
-
-
-          <button
-            class="secondary"
-            (click)="clearSearch()"
-          >
-            {{ 'CLEAR' | translate }}
-          </button>
-
         </div>
 
-      </div>
 
-    </section>
-
-
-    <!-- ================================================== -->
-    <!-- TABLE -->
-    <!-- ================================================== -->
-
-    <section class="table-container">
-
-      <div class="table-card">
-
-        <table class="records-table">
-
-          <thead>
-
-            <tr>
-
-              <th>
-                {{ 'TABLE.INDEX' | translate }}
-              </th>
-
-              <th>
-                {{ 'TABLE.NAME' | translate }}
-              </th>
-
-              <th>
-                {{ 'TABLE.NID' | translate }}
-              </th>
-
-              <th>
-                {{ 'TABLE.ADDRESS' | translate }}
-              </th>
-
-              <th>
-                {{ 'TABLE.DOB' | translate }}
-              </th>
-
-              <th>
-                {{ 'TABLE.AGE' | translate }}
-              </th>
-
-              <th>
-                {{ 'TABLE.RELIGION' | translate }}
-              </th>
-
-              <th>
-                {{ 'TABLE.GENDER' | translate }}
-              </th>
-
-              <th>
-                {{ 'TABLE.OCCUPATION' | translate }}
-              </th>
-
-              <th>
-                {{ 'TABLE.MARITAL' | translate }}
-              </th>
-
-              <th>
-                {{ 'TABLE.HUSBANDNAME' | translate }}
-              </th>
-
-
-              <!-- NEW -->
-
-              <th class="image-col">
-                Front Image
-              </th>
-
-              <th class="image-col">
-                Back Image
-              </th>
-
-
-              <th class="actions-col">
-                {{ 'TABLE.ACTIONS' | translate }}
-              </th>
-
-            </tr>
-
-          </thead>
-
-
-          <tbody>
-
-            <tr
-              *ngFor="
-                let r of filteredRecords;
-                let i = index
-              "
-            >
-
-              <td>
-                {{
-                  (
-                    (pageNumber - 1)
-                    * pageSize
-                    + i
-                    + 1
-                  )
-                  | arabicDigits
-                }}
-              </td>
-
-
-              <td>
-                {{ r.name }}
-              </td>
-
-
-              <td>
-                {{ r.idNumber | arabicDigits }}
-              </td>
-
-
-              <td>
-                {{ r.address }}
-              </td>
-
-
-              <td>
-                {{
-                  r.dateOfBirth
-                  | date:'yyyy-MM-dd'
-                  | arabicDigits
-                }}
-              </td>
-
-
-              <td>
-                {{ r.age | arabicDigits }}
-              </td>
-
-
-              <td>
-                {{ r.religion }}
-              </td>
-
-
-              <td>
-                {{ r.gender }}
-              </td>
-
-
-              <td>
-                {{ r.occupation }}
-              </td>
-
-
-              <td>
-                {{ r.maritalStatus }}
-              </td>
-
-
-              <td>
-                {{ r.husbandName }}
-              </td>
-
-
-              <!-- ================================================== -->
-              <!-- FRONT IMAGE -->
-              <!-- ================================================== -->
-
-              <td class="image-col">
-
-                <button
-                  type="button"
-                  class="view-image-btn"
-                  [disabled]="!getFrontImage(r)"
-                  (click)="viewRecordImage('front', r)"
-                >
-                  👁 View
-                </button>
-
-              </td>
-
-
-              <!-- ================================================== -->
-              <!-- BACK IMAGE -->
-              <!-- ================================================== -->
-
-              <td class="image-col">
-
-                <button
-                  type="button"
-                  class="view-image-btn"
-                  [disabled]="!getBackImage(r)"
-                  (click)="viewRecordImage('back', r)"
-                >
-                  👁 View
-                </button>
-
-              </td>
-
-
-              <!-- ================================================== -->
-              <!-- ACTIONS -->
-              <!-- ================================================== -->
-
-              <td class="actions-col">
-
-                <div class="row-actions">
-
-
-                  <!-- EDIT -->
-
-                  <button
-                    type="button"
-                    class="icon-btn edit"
-                    title="Edit"
-                    (click)="startEdit(i)"
-                  >
-
-                    <img
-                      src="assets/images/edit.png"
-                      alt="edit"
-                    />
-
-                  </button>
-
-
-                  <!-- DELETE -->
-
-                  <button
-                    type="button"
-                    class="icon-btn danger"
-                    title="Delete"
-                    (click)="askDelete(i)"
-                  >
-
-                    <img
-                      src="assets/images/delete.png"
-                      alt="delete"
-                    />
-
-                  </button>
-
-
-                  <!-- PRINT -->
-
-                  <div
-                    class="print-wrapper"
-                    (click)="$event.stopPropagation()"
-                  >
-
-                    <button
-                      type="button"
-                      class="icon-btn print-btn"
-                      title="Print ID"
-                      (click)="togglePrintMenu($event, r)"
-                    >
-                      🖨️
-                    </button>
-
-
-                    <!-- PRINT DROPDOWN -->
-
-                    <div
-                      class="print-menu"
-                      *ngIf="openPrintMenuId === r.id"
-                    >
-
-                      <button
-                        type="button"
-                        (click)="printRecordImage(r, 'front')"
-                      >
-                        Print Front
-                      </button>
-
-
-                      <button
-                        type="button"
-                        (click)="printRecordImage(r, 'back')"
-                      >
-                        Print Back
-                      </button>
-
-
-                      <button
-                        type="button"
-                        class="print-both"
-                        (click)="printRecordImage(r, 'both')"
-                      >
-                        Print Both
-                      </button>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </td>
-
-            </tr>
-
-
-            <!-- EMPTY -->
-
-            <tr *ngIf="!filteredRecords.length">
-
-              <td
-                colspan="14"
-                class="empty"
-              >
-                {{ 'TABLE.EMPTY' | translate }}
-              </td>
-
-            </tr>
-
-          </tbody>
-
-        </table>
-
-      </div>
-
-
-      <!-- ================================================== -->
-      <!-- PAGINATION -->
-      <!-- ================================================== -->
-
-      <div
-        class="pager"
-        *ngIf="totalCount"
-      >
-
-        <button
-          (click)="goFirst()"
-          [disabled]="pageNumber === 1 || loading"
-        >
-          «
-        </button>
+        <div class="search-control id-search">
+
+          <span class="search-prefix">#</span>
+
+        <input
+  type="text"
+  [(ngModel)]="idTerm"
+  (ngModelChange)="onIdTermChanged($event)"
+  inputmode="numeric"
+  dir="ltr"
+  [placeholder]="'SEARCH_ID' | translate"
+/>
+        </div>
 
 
         <button
-          (click)="goPrev()"
-          [disabled]="pageNumber === 1 || loading"
-        >
-          ‹
-        </button>
-
-
-        <span>
-
-          {{ 'PAGE' | translate }}
-
-          <ng-container
-            *ngIf="
-              currentLang === 'ar';
-              else enPage
-            "
-          >
-
-            {{ pageNumber | arabicDigits }}
-
-            <ng-container *ngIf="totalPages">
-
-              /
-              {{ totalPages | arabicDigits }}
-
-            </ng-container>
-
-          </ng-container>
-
-
-          <ng-template #enPage>
-
-            {{ pageNumber }}
-
-            <ng-container *ngIf="totalPages">
-
-              /
-              {{ totalPages }}
-
-            </ng-container>
-
-          </ng-template>
-
-        </span>
-
-
-        <button
-          (click)="goNext()"
-          [disabled]="
-            (totalPages && pageNumber >= totalPages)
-            || loading
-          "
-        >
-          ›
-        </button>
-
-
-        <button
-          (click)="goLast()"
-          [disabled]="
-            (totalPages && pageNumber >= totalPages)
-            || loading
-          "
-        >
-          »
-        </button>
-
-
-        <span class="count">
-
-          ·
-          {{ totalCount }}
-          {{ 'ITEMS' | translate }}
-
-        </span>
-
-
-        <select
-          [(ngModel)]="pageSize"
-          (change)="loadPage(1)"
+          type="button"
+          class="search-btn"
+          (click)="onSearchClick()"
           [disabled]="loading"
         >
 
-          <option [ngValue]="5">
-            5
-          </option>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" />
+          </svg>
 
-          <option [ngValue]="10">
-            10
-          </option>
+          {{ 'SEARCH' | translate }}
 
-          <option [ngValue]="20">
-            20
-          </option>
+        </button>
 
-          <option [ngValue]="50">
-            50
-          </option>
 
-        </select>
+        <button
+          type="button"
+          class="clear-btn"
+          (click)="clearSearch()"
+          [disabled]="loading"
+        >
+          {{ 'CLEAR' | translate }}
+        </button>
+
+      </section>
+
+
+      <!-- =================================================== -->
+      <!-- RECORDS TABLE -->
+      <!-- =================================================== -->
+
+      <section class="records-panel">
+
+        <div class="records-panel-header">
+
+          <div>
+
+            <h3>
+              {{ 'RECORDS_PAGE.SECTION_TITLE' | translate }}
+            </h3>
+
+            <p>
+              {{ 'RECORDS_PAGE.SECTION_SUBTITLE' | translate }}
+            </p>
+
+          </div>
+
+
+          <div
+            class="loading-inline"
+            *ngIf="loading"
+          >
+
+            <span class="spinner"></span>
+
+            {{ 'RECORDS_PAGE.LOADING' | translate }}
+
+          </div>
+
+        </div>
+
+
+        <div class="table-wrap">
+
+          <table class="records-table">
+
+       <thead>
+
+  <tr>
+
+    <th [attr.title]="'TABLE.INDEX' | translate">
+      {{ 'TABLE.INDEX' | translate }}
+    </th>
+
+    <th [attr.title]="'TABLE.NAME' | translate">
+      {{ 'TABLE.NAME' | translate }}
+    </th>
+
+    <th [attr.title]="'TABLE.NID' | translate">
+      {{ 'TABLE.NID' | translate }}
+    </th>
+
+    <th [attr.title]="'TABLE.ADDRESS' | translate">
+      {{ 'TABLE.ADDRESS' | translate }}
+    </th>
+
+    <th [attr.title]="'TABLE.DOB' | translate">
+      {{ 'TABLE.DOB' | translate }}
+    </th>
+
+    <th [attr.title]="'TABLE.AGE' | translate">
+      {{ 'TABLE.AGE' | translate }}
+    </th>
+
+    <th [attr.title]="'TABLE.RELIGION' | translate">
+      {{ 'TABLE.RELIGION' | translate }}
+    </th>
+
+    <th [attr.title]="'TABLE.GENDER' | translate">
+      {{ 'TABLE.GENDER' | translate }}
+    </th>
+
+    <th [attr.title]="'TABLE.OCCUPATION' | translate">
+      {{ 'TABLE.OCCUPATION' | translate }}
+    </th>
+
+    <th [attr.title]="'TABLE.MARITAL' | translate">
+      {{ 'TABLE.MARITAL' | translate }}
+    </th>
+
+    <th [attr.title]="'TABLE.HUSBANDNAME' | translate">
+      {{ 'TABLE.HUSBANDNAME' | translate }}
+    </th>
+
+    <th
+      class="actions-col"
+      [attr.title]="'TABLE.ACTIONS' | translate"
+    >
+      {{ 'TABLE.ACTIONS' | translate }}
+    </th>
+
+  </tr>
+
+</thead>
+
+
+     <tbody>
+
+  <tr
+    *ngFor="
+      let r of filteredRecords;
+      let i = index;
+      trackBy: trackById
+    "
+  >
+
+    <!-- INDEX -->
+    <td
+      [attr.title]="
+        ((pageNumber - 1) * pageSize + i + 1).toString()
+      "
+    >
+      <span class="index-badge">
+        {{
+          ((pageNumber - 1) * pageSize + i + 1)
+            | arabicDigits
+        }}
+      </span>
+    </td>
+
+
+    <!-- NAME -->
+    <td [attr.title]="r.name || '—'">
+
+      <div class="name-cell">
+
+        <span class="name-avatar">
+          {{ r.name ? r.name.charAt(0) : '?' }}
+        </span>
+
+        <span>
+          {{ r.name || '—' }}
+        </span>
 
       </div>
 
-    </section>
+    </td>
+
+
+    <!-- NATIONAL ID -->
+    <td
+      [attr.title]="formatNationalId(r.idNumber)"
+      dir="ltr"
+    >
+
+      <span
+        class="national-id"
+        dir="ltr"
+      >
+        {{ formatNationalId(r.idNumber) }}
+      </span>
+
+    </td>
+
+
+    <!-- ADDRESS -->
+    <td [attr.title]="r.address || '—'">
+
+      <div class="address-cell">
+        {{ r.address || '—' }}
+      </div>
+
+    </td>
+
+
+    <!-- DATE OF BIRTH -->
+    <td
+      [attr.title]="
+        (r.dateOfBirth | date:'yyyy-MM-dd') || '—'
+      "
+    >
+
+      <span class="date-cell">
+        {{
+          r.dateOfBirth
+            | date:'yyyy-MM-dd'
+            | arabicDigits
+        }}
+      </span>
+
+    </td>
+
+
+    <!-- AGE -->
+    <td
+      [attr.title]="
+        r.age !== null && r.age !== undefined
+          ? r.age.toString()
+          : '—'
+      "
+    >
+
+      <span class="age-badge">
+        {{ r.age | arabicDigits }}
+      </span>
+
+    </td>
+
+
+    <!-- RELIGION -->
+    <td [attr.title]="r.religion || '—'">
+      {{ r.religion || '—' }}
+    </td>
+
+
+    <!-- GENDER -->
+    <td [attr.title]="r.gender || '—'">
+      {{ r.gender || '—' }}
+    </td>
+
+
+    <!-- OCCUPATION -->
+    <td [attr.title]="r.occupation || '—'">
+
+      <div class="occupation-cell">
+        {{ r.occupation || '—' }}
+      </div>
+
+    </td>
+
+
+    <!-- MARITAL STATUS -->
+    <td [attr.title]="r.maritalStatus || '—'">
+      {{ r.maritalStatus || '—' }}
+    </td>
+
+
+    <!-- HUSBAND NAME -->
+    <td [attr.title]="r.husbandName || '—'">
+      {{ r.husbandName || '—' }}
+    </td>
+
+
+    <!-- ACTIONS -->
+    <td
+      class="actions-col"
+      [attr.title]="'TABLE.ACTIONS' | translate"
+    >
+
+      <div class="row-actions">
+
+        <!-- IMAGES -->
+        <details
+          class="action-dropdown image-dropdown"
+        >
+
+          <summary
+            class="icon-btn image-action"
+            [attr.title]="'ACTIONS.VIEW_IMAGES' | translate"
+            [attr.aria-label]="'ACTIONS.VIEW_IMAGES' | translate"
+          >
+
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                d="M4 5h16v14H4V5Zm3 10 3.5-4 2.5 3 2-2 3 3M8.5 9h.01"
+              />
+            </svg>
+
+          </summary>
+
+
+          <div class="action-menu">
+
+            <div class="action-menu-title">
+              {{ 'ACTIONS.ID_IMAGES' | translate }}
+            </div>
+
+
+            <button
+              type="button"
+              [disabled]="!getFrontImage(r)"
+              (click)="viewRecordImage('front', r)"
+            >
+
+              <span class="menu-icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M4 5h16v14H4V5Zm3 10 3.5-4 2.5 3 2-2 3 3"
+                  />
+                </svg>
+              </span>
+
+              {{ 'ACTIONS.VIEW_FRONT' | translate }}
+
+            </button>
+
+
+            <button
+              type="button"
+              [disabled]="!getBackImage(r)"
+              (click)="viewRecordImage('back', r)"
+            >
+
+              <span class="menu-icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M4 5h16v14H4V5Zm3 10 3.5-4 2.5 3 2-2 3 3"
+                  />
+                </svg>
+              </span>
+
+              {{ 'ACTIONS.VIEW_BACK' | translate }}
+
+            </button>
+
+          </div>
+
+        </details>
+
+
+        <!-- EDIT -->
+        <button
+          type="button"
+          class="icon-btn edit"
+          [attr.title]="'ACTIONS.EDIT' | translate"
+          [attr.aria-label]="'ACTIONS.EDIT' | translate"
+          (click)="startEdit(i)"
+        >
+          <img
+            src="assets/images/edit.png"
+            alt=""
+          />
+        </button>
+
+
+        <!-- PRINT -->
+        <details
+          class="action-dropdown print-dropdown"
+        >
+
+     <summary
+  class="icon-btn print-action"
+  [attr.title]="'ACTIONS.PRINT' | translate"
+  [attr.aria-label]="'ACTIONS.PRINT' | translate"
+>
+  <span class="print-emoji" aria-hidden="true">
+    🖨️
+  </span>
+</summary>
+
+          <div class="action-menu print-menu-new">
+
+            <div class="action-menu-title">
+              {{ 'ACTIONS.PRINT_ID' | translate }}
+            </div>
+
+
+            <button
+              type="button"
+              [disabled]="!getFrontImage(r)"
+              (click)="printRecordImage(r, 'front')"
+            >
+              {{ 'ACTIONS.PRINT_FRONT' | translate }}
+            </button>
+
+
+            <button
+              type="button"
+              [disabled]="!getBackImage(r)"
+              (click)="printRecordImage(r, 'back')"
+            >
+              {{ 'ACTIONS.PRINT_BACK' | translate }}
+            </button>
+
+
+            <button
+              type="button"
+              class="menu-emphasis"
+              [disabled]="
+                !getFrontImage(r) &&
+                !getBackImage(r)
+              "
+              (click)="printRecordImage(r, 'both')"
+            >
+              {{ 'ACTIONS.PRINT_BOTH' | translate }}
+            </button>
+
+          </div>
+
+        </details>
+
+
+        <!-- DELETE -->
+        <button
+          type="button"
+          class="icon-btn danger"
+          [attr.title]="'ACTIONS.DELETE' | translate"
+          [attr.aria-label]="'ACTIONS.DELETE' | translate"
+          (click)="askDelete(i)"
+        >
+
+          <img
+            src="assets/images/delete.png"
+            alt=""
+          />
+
+        </button>
+
+      </div>
+
+    </td>
+
+  </tr>
+
+
+  <!-- EMPTY -->
+  <tr
+    *ngIf="
+      !filteredRecords.length &&
+      !loading
+    "
+  >
+
+    <td
+      colspan="12"
+      class="empty-cell"
+    >
+
+      <div class="empty-state">
+
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M5 4h14v16H5V4Zm3 4h8M8 12h8M8 16h5"
+            />
+          </svg>
+        </div>
+
+
+        <strong>
+          {{ 'TABLE.EMPTY' | translate }}
+        </strong>
+
+
+        <span>
+          {{ 'RECORDS_PAGE.EMPTY_HINT' | translate }}
+        </span>
+
+
+        <button
+          type="button"
+          (click)="openForm()"
+        >
+          ＋ {{ 'RECORDS_PAGE.NEW_RECORD' | translate }}
+        </button>
+
+      </div>
+
+    </td>
+
+  </tr>
+
+</tbody>
+
+          </table>
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- PAGINATION -->
+        <!-- ================================================= -->
+
+        <footer
+          class="table-footer"
+          *ngIf="totalCount"
+        >
+
+          <div class="page-size-control">
+
+            <span>
+              {{ 'PAGINATION.SHOW' | translate }}
+            </span>
+
+
+            <select
+              [(ngModel)]="pageSize"
+              (change)="loadPage(1)"
+              [disabled]="loading"
+            >
+
+              <option [ngValue]="5">5</option>
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="20">20</option>
+              <option [ngValue]="50">50</option>
+
+            </select>
+
+
+            <span>
+              {{ 'PAGINATION.OF' | translate }}
+              {{ totalCount }}
+              {{ 'PAGINATION.RECORDS' | translate }}
+            </span>
+
+          </div>
+
+
+          <div class="pager">
+
+            <button
+              type="button"
+              (click)="goFirst()"
+              [disabled]="pageNumber === 1 || loading"
+              [attr.title]="'PAGINATION.FIRST' | translate"
+            >
+              «
+            </button>
+
+
+            <button
+              type="button"
+              (click)="goPrev()"
+              [disabled]="pageNumber === 1 || loading"
+              [attr.title]="'PAGINATION.PREVIOUS' | translate"
+            >
+              ‹
+            </button>
+
+
+            <span class="page-number current">
+              {{ pageNumber }}
+            </span>
+
+
+            <span
+              class="page-of"
+              *ngIf="totalPages"
+            >
+              / {{ totalPages }}
+            </span>
+
+
+            <button
+              type="button"
+              (click)="goNext()"
+              [disabled]="
+                (totalPages && pageNumber >= totalPages)
+                || loading
+              "
+              [attr.title]="'PAGINATION.NEXT' | translate"
+            >
+              ›
+            </button>
+
+
+            <button
+              type="button"
+              (click)="goLast()"
+              [disabled]="
+                (totalPages && pageNumber >= totalPages)
+                || loading
+              "
+              [attr.title]="'PAGINATION.LAST' | translate"
+            >
+              »
+            </button>
+
+          </div>
+
+        </footer>
+
+      </section>
+
+    </main>
 
   </div>
 
 
-  <!-- ================================================== -->
-  <!-- ADD / EDIT FORM -->
-  <!-- ================================================== -->
+  <!-- ===================================================== -->
+  <!-- ADD / EDIT MODAL -->
+  <!-- ===================================================== -->
 
   <div
     class="modal"
@@ -528,15 +812,28 @@
 
       <div class="dialog-header">
 
-        <h3>
-          {{ 'DIALOG.TITLE' | translate }}
-        </h3>
+        <div>
+
+          <span class="dialog-kicker">
+            {{ 'DIALOG.KICKER' | translate }}
+          </span>
+
+          <h3>
+            {{
+              editingKey
+                ? ('DIALOG.EDIT_TITLE' | translate)
+                : ('DIALOG.NEW_TITLE' | translate)
+            }}
+          </h3>
+
+        </div>
 
 
         <button
           type="button"
           class="x"
           (click)="onCancel()"
+          [attr.aria-label]="'FORM.CANCEL' | translate"
         >
           ✕
         </button>
@@ -545,17 +842,11 @@
 
 
       <app-record-form
-
         [value]="draft"
-
         [isEdit]="!!editingKey"
-
         [existingIds]="existingIds"
-
         (save)="onSave($event)"
-
         (cancel)="onCancel()"
-
       >
       </app-record-form>
 
@@ -564,9 +855,9 @@
   </div>
 
 
-  <!-- ================================================== -->
+  <!-- ===================================================== -->
   <!-- IMAGE VIEWER -->
-  <!-- ================================================== -->
+  <!-- ===================================================== -->
 
   <div
     class="image-viewer-modal"
@@ -581,15 +872,24 @@
 
       <div class="image-viewer-header">
 
-        <h3>
-          {{ imageViewerTitle }}
-        </h3>
+        <div>
+
+          <span>
+            {{ 'IMAGE_VIEWER.TITLE' | translate }}
+          </span>
+
+          <h3>
+            {{ imageViewerTitle }}
+          </h3>
+
+        </div>
 
 
         <button
           type="button"
           class="image-viewer-close"
           (click)="closeImageViewer()"
+          [attr.title]="'IMAGE_VIEWER.CLOSE' | translate"
         >
           ✕
         </button>
@@ -612,16 +912,21 @@
   </div>
 
 
-  <!-- ================================================== -->
-  <!-- DELETE -->
-  <!-- ================================================== -->
+  <!-- ===================================================== -->
+  <!-- DELETE CONFIRMATION -->
+  <!-- ===================================================== -->
 
   <div
     class="mini-modal"
     *ngIf="showDeleteConfirm"
   >
 
-    <div class="mini-card">
+    <div class="mini-card delete-card">
+
+      <div class="mini-icon danger-mini">
+        !
+      </div>
+
 
       <h4>
         {{ 'DELETE_CONFIRM.TITLE' | translate }}
@@ -636,20 +941,26 @@
       <div class="confirm-actions">
 
         <button
-          class="primary"
-          (click)="confirmDelete()"
-          [disabled]="deleting"
-        >
-          {{ 'DELETE_CONFIRM.YES' | translate }}
-        </button>
-
-
-        <button
+          type="button"
           class="ghost"
           (click)="cancelDelete()"
           [disabled]="deleting"
         >
           {{ 'DELETE_CONFIRM.CANCEL' | translate }}
+        </button>
+
+
+        <button
+          type="button"
+          class="primary danger-primary"
+          (click)="confirmDelete()"
+          [disabled]="deleting"
+        >
+          {{
+            deleting
+              ? ('DELETE_CONFIRM.DELETING' | translate)
+              : ('DELETE_CONFIRM.YES' | translate)
+          }}
         </button>
 
       </div>
@@ -659,18 +970,26 @@
   </div>
 
 
-  <!-- ================================================== -->
+  <!-- ===================================================== -->
   <!-- TOASTS -->
-  <!-- ================================================== -->
+  <!-- ===================================================== -->
 
   <div
     class="toast error"
     *ngIf="showError"
   >
 
-    {{ errorText }}
+    <span class="toast-icon">
+      !
+    </span>
+
+    <span>
+      {{ errorText }}
+    </span>
+
 
     <button
+      type="button"
       class="x"
       (click)="closeError()"
     >
@@ -685,20 +1004,14 @@
     *ngIf="showSuccess"
   >
 
-    {{ successText }}
+    <span class="toast-icon">
+      ✓
+    </span>
+
+    <span>
+      {{ successText }}
+    </span>
 
   </div>
-
-
-  <!-- ================================================== -->
-  <!-- ADD BUTTON -->
-  <!-- ================================================== -->
-
-  <button
-    class="fab"
-    (click)="openForm()"
-  >
-    {{ 'ADD' | translate }}
-  </button>
 
 </div>

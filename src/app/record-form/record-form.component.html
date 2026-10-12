@@ -3,60 +3,124 @@
   (ngSubmit)="saveNow(false)"
 >
 
-  <!-- ====================================================== -->
-  <!-- HEADER -->
-  <!-- ====================================================== -->
+  <!-- ===================================================== -->
+  <!-- FORM INTRO -->
+  <!-- ===================================================== -->
 
-  <div class="wizard-header">
+  <section class="form-intro">
 
     <div>
 
+      <span class="form-kicker">
+        {{ 'FORM.INTRO_KICKER' | translate }}
+      </span>
+
+
       <h2>
-        {{ ('FORM.TITLE' | translate) || 'ID Record' }}
+        {{
+          isEdit
+            ? ('FORM.EDIT_TITLE' | translate)
+            : ('FORM.NEW_TITLE' | translate)
+        }}
       </h2>
 
-      <p class="form-hint">
 
-        Choose an image from your computer
-        or capture the ID directly using a camera.
-
+      <p>
+        {{ 'FORM.INTRO_TEXT' | translate }}
       </p>
 
     </div>
 
-  </div>
+
+    <div class="ocr-chip">
+
+      <span class="ocr-chip-dot"></span>
+
+      {{ 'FORM.AUTO_FILL' | translate }}
+
+    </div>
+
+  </section>
 
 
-  <!-- ====================================================== -->
+  <!-- ===================================================== -->
   <!-- FRONT / BACK -->
-  <!-- ====================================================== -->
+  <!-- ===================================================== -->
 
   <div class="record-columns">
 
 
-    <!-- ==================================================== -->
-    <!-- FRONT -->
-    <!-- ==================================================== -->
+    <!-- =================================================== -->
+    <!-- FRONT SIDE -->
+    <!-- =================================================== -->
 
-    <section class="record-side">
+    <section class="record-side front-side">
 
-      <h3>
-        {{ ('FORM.STEP_FRONT' | translate) || 'Front Data' }}
-      </h3>
+      <div class="side-header">
+
+        <div class="side-icon">
+
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path d="M6 3h9l4 4v14H6V3Zm9 0v5h5M9 12h7M9 16h7" />
+          </svg>
+
+        </div>
 
 
-      <!-- ================= IMAGE SOURCE ================= -->
+        <div>
 
-      <div class="image-source-title">
-        Front ID Image
+          <span>
+            {{ 'FORM.FRONT_SIDE_LABEL' | translate }}
+          </span>
+
+          <h3>
+            {{ 'FORM.STEP_FRONT' | translate }}
+          </h3>
+
+        </div>
+
       </div>
 
 
-      <div class="image-actions">
+      <!-- ================================================ -->
+      <!-- FRONT IMAGE -->
+      <!-- ================================================ -->
 
-        <!-- UPLOAD -->
+      <div class="upload-block">
 
-        <label class="image-source-btn">
+        <div class="upload-heading">
+
+          <div>
+
+            <strong>
+              {{ 'FORM.FRONT_IMAGE' | translate }}
+            </strong>
+
+            <span>
+              {{ 'FORM.IMAGE_TYPES' | translate }}
+            </span>
+
+          </div>
+
+
+          <span
+            class="ready-badge"
+            *ngIf="frontPreview"
+          >
+            ✓
+            {{ 'FORM.READY' | translate }}
+          </span>
+
+        </div>
+
+
+        <label
+          class="upload-dropzone"
+          [class.has-preview]="frontPreview"
+        >
 
           <input
             type="file"
@@ -65,202 +129,351 @@
             (change)="onFrontFileSelected($event)"
           />
 
-          <span class="source-icon">
-            📁
-          </span>
 
-          <span>
-            Upload Image
-          </span>
+          <ng-container
+            *ngIf="
+              frontPreview;
+              else frontEmpty
+            "
+          >
+
+            <img
+              [src]="frontPreview"
+              class="image-preview"
+              [attr.alt]="'FORM.FRONT_IMAGE' | translate"
+            />
+
+
+            <div class="preview-hover">
+
+              <span>
+                {{ 'FORM.REPLACE_IMAGE' | translate }}
+              </span>
+
+            </div>
+
+          </ng-container>
+
+
+          <ng-template #frontEmpty>
+
+            <div class="empty-upload">
+
+              <div class="upload-illustration">
+
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="M4 5h16v14H4V5Zm3 10 3.5-4 2.5 3 2-2 3 3M8.5 9h.01" />
+                </svg>
+
+              </div>
+
+
+              <strong>
+                {{ 'FORM.UPLOAD_FRONT_IMAGE' | translate }}
+              </strong>
+
+
+              <span>
+                {{ 'FORM.BROWSE_HINT' | translate }}
+              </span>
+
+            </div>
+
+          </ng-template>
 
         </label>
 
 
-        <!-- CAMERA -->
+        <div class="source-actions">
 
-        <button
-          type="button"
-          class="image-source-btn camera-btn"
-          (click)="openCamera('front')"
-        >
+          <label class="source-btn upload-source">
 
-          <span class="source-icon">
-            📷
-          </span>
-
-          <span>
-            Take Photo
-          </span>
-
-        </button>
-
-      </div>
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/jpg"
+              hidden
+              (change)="onFrontFileSelected($event)"
+            />
 
 
-      <!-- ================= FRONT PREVIEW ================= -->
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M12 16V4m0 0L8 8m4-4 4 4M5 14v5h14v-5" />
+            </svg>
 
-      <div
-        class="image-preview-container"
-        *ngIf="frontPreview"
-      >
 
-        <div class="preview-label">
-          Front Image
+            {{ 'FORM.UPLOAD' | translate }}
+
+          </label>
+
+
+          <button
+            type="button"
+            class="source-btn camera-source"
+            (click)="openCamera('front')"
+          >
+
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M5 7h3l1.3-2h5.4L16 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm7 3a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" />
+            </svg>
+
+
+            {{ 'FORM.CAMERA' | translate }}
+
+          </button>
+
         </div>
 
 
-        <img
-          [src]="frontPreview"
-          class="image-preview"
-          alt="Front ID preview"
-        />
-
-      </div>
-
-
-      <!-- ================= FRONT LOADING ================= -->
-
-      <div
-        class="ocr-loading"
-        *ngIf="loadingFront"
-      >
-
-        Processing front ID with OCR...
-
-      </div>
-
-
-      <!-- ================= NAME ================= -->
-
-      <label class="field">
-
-        {{ 'FORM.NAME' | translate }}
-
-        <input
-          type="text"
-          id="name"
-          name="name"
-          [(ngModel)]="front.name"
-          dir="auto"
-          placeholder="Name"
-        />
-
-      </label>
-
-
-      <!-- ================= NATIONAL ID ================= -->
-
-      <label class="field">
-
-        {{ 'FORM.ID' | translate }}
-
-        <input
-          type="text"
-          id="nationalId"
-          name="nationalId"
-          [(ngModel)]="front.nationalId"
-          (ngModelChange)="onIdChanged()"
-          maxlength="14"
-          inputmode="numeric"
-          dir="auto"
-          placeholder="National ID"
-        />
-
-
-        <span
-          class="validation-error"
-          *ngIf="
-            front.nationalId &&
-            !validateIdNumber()
-          "
+        <div
+          class="ocr-loading"
+          *ngIf="loadingFront"
         >
 
-          ID number must be exactly 14 digits.
-
-        </span>
-
-      </label>
+          <span class="spinner"></span>
 
 
-      <!-- ================= ADDRESS ================= -->
+          <div>
 
-      <label class="field">
+            <strong>
+              {{ 'FORM.READING_FRONT' | translate }}
+            </strong>
 
-        {{ 'FORM.ADDRESS' | translate }}
+            <span>
+              {{ 'FORM.FRONT_READING_HINT' | translate }}
+            </span>
 
-        <textarea
-          id="address"
-          name="address"
-          [(ngModel)]="front.address"
-          rows="3"
-          dir="auto"
-          placeholder="Address"
-        ></textarea>
+          </div>
 
-      </label>
+        </div>
 
-
-      <!-- ================= DOB / AGE ================= -->
-
-      <div class="row2">
-
-        <label class="field">
-
-          {{ 'FORM.DOB' | translate }}
-
-          <input
-            id="dob"
-            name="dob"
-            [type]="dobIsIso ? 'date' : 'text'"
-            [(ngModel)]="front.dob"
-            (change)="recalcAge()"
-          />
-
-        </label>
+      </div>
 
 
-        <label class="field age-box">
+      <!-- ================================================ -->
+      <!-- FRONT FIELDS -->
+      <!-- ================================================ -->
 
-          {{ 'FORM.AGE' | translate }}
+      <div class="fields-section">
 
-          <input
-            type="number"
-            id="age"
-            name="age"
-            [(ngModel)]="front.age"
-            readonly
-          />
+        <div class="fields-title">
 
-        </label>
+          <span>
+            {{ 'FORM.EXTRACTED_INFORMATION' | translate }}
+          </span>
+
+          <small>
+            {{ 'FORM.EDIT_OCR_HINT' | translate }}
+          </small>
+
+        </div>
+
+
+        <div class="field-grid">
+
+          <!-- NAME -->
+
+          <label class="field field-full">
+
+            <span>
+              {{ 'FORM.NAME' | translate }}
+            </span>
+
+
+            <input
+              type="text"
+              id="name"
+              name="name"
+              [(ngModel)]="front.name"
+              dir="auto"
+              [placeholder]="'FORM.PLACEHOLDERS.NAME' | translate"
+            />
+
+          </label>
+
+
+          <!-- NATIONAL ID -->
+
+          <label class="field field-full">
+
+            <span>
+              {{ 'FORM.ID' | translate }}
+            </span>
+
+
+            <input
+              type="text"
+              id="nationalId"
+              name="nationalId"
+              [(ngModel)]="front.nationalId"
+              (ngModelChange)="onIdChanged()"
+              maxlength="14"
+              inputmode="numeric"
+              dir="auto"
+              [placeholder]="'FORM.PLACEHOLDERS.ID' | translate"
+            />
+
+
+            <small
+              class="validation-error"
+              *ngIf="
+                front.nationalId &&
+                !validateIdNumber()
+              "
+            >
+              {{ 'FORM.ID_VALIDATION' | translate }}
+            </small>
+
+          </label>
+
+
+          <!-- DOB -->
+
+          <label class="field">
+
+            <span>
+              {{ 'FORM.DOB' | translate }}
+            </span>
+
+
+            <input
+              id="dob"
+              name="dob"
+              [type]="dobIsIso ? 'date' : 'text'"
+              [(ngModel)]="front.dob"
+              (change)="recalcAge()"
+              [placeholder]="'FORM.PLACEHOLDERS.DOB' | translate"
+            />
+
+          </label>
+
+
+          <!-- AGE -->
+
+          <label class="field">
+
+            <span>
+              {{ 'FORM.AGE' | translate }}
+            </span>
+
+
+            <input
+              type="number"
+              id="age"
+              name="age"
+              [(ngModel)]="front.age"
+              readonly
+            />
+
+          </label>
+
+
+          <!-- ADDRESS -->
+
+          <label class="field field-full">
+
+            <span>
+              {{ 'FORM.ADDRESS' | translate }}
+            </span>
+
+
+            <textarea
+              id="address"
+              name="address"
+              [(ngModel)]="front.address"
+              rows="3"
+              dir="auto"
+              [placeholder]="'FORM.PLACEHOLDERS.ADDRESS' | translate"
+            ></textarea>
+
+          </label>
+
+        </div>
 
       </div>
 
     </section>
 
 
-    <!-- ==================================================== -->
-    <!-- BACK -->
-    <!-- ==================================================== -->
+    <!-- =================================================== -->
+    <!-- BACK SIDE -->
+    <!-- =================================================== -->
 
-    <section class="record-side">
+    <section class="record-side back-side">
 
-      <h3>
-        {{ ('FORM.STEP_BACK' | translate) || 'Back Data' }}
-      </h3>
+      <div class="side-header">
+
+        <div class="side-icon">
+
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path d="M6 3h9l4 4v14H6V3Zm9 0v5h5M9 12h7M9 16h7" />
+          </svg>
+
+        </div>
 
 
-      <!-- ================= IMAGE SOURCE ================= -->
+        <div>
 
-      <div class="image-source-title">
-        Back ID Image
+          <span>
+            {{ 'FORM.BACK_SIDE_LABEL' | translate }}
+          </span>
+
+          <h3>
+            {{ 'FORM.STEP_BACK' | translate }}
+          </h3>
+
+        </div>
+
       </div>
 
 
-      <div class="image-actions">
+      <!-- ================================================ -->
+      <!-- BACK IMAGE -->
+      <!-- ================================================ -->
 
-        <!-- UPLOAD -->
+      <div class="upload-block">
 
-        <label class="image-source-btn">
+        <div class="upload-heading">
+
+          <div>
+
+            <strong>
+              {{ 'FORM.BACK_IMAGE' | translate }}
+            </strong>
+
+            <span>
+              {{ 'FORM.IMAGE_TYPES' | translate }}
+            </span>
+
+          </div>
+
+
+          <span
+            class="ready-badge"
+            *ngIf="backPreview"
+          >
+            ✓
+            {{ 'FORM.READY' | translate }}
+          </span>
+
+        </div>
+
+
+        <label
+          class="upload-dropzone"
+          [class.has-preview]="backPreview"
+        >
 
           <input
             type="file"
@@ -269,211 +482,353 @@
             (change)="onBackFileSelected($event)"
           />
 
-          <span class="source-icon">
-            📁
-          </span>
 
-          <span>
-            Upload Image
-          </span>
+          <ng-container
+            *ngIf="
+              backPreview;
+              else backEmpty
+            "
+          >
+
+            <img
+              [src]="backPreview"
+              class="image-preview"
+              [attr.alt]="'FORM.BACK_IMAGE' | translate"
+            />
+
+
+            <div class="preview-hover">
+
+              <span>
+                {{ 'FORM.REPLACE_IMAGE' | translate }}
+              </span>
+
+            </div>
+
+          </ng-container>
+
+
+          <ng-template #backEmpty>
+
+            <div class="empty-upload">
+
+              <div class="upload-illustration">
+
+                <svg
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="M4 5h16v14H4V5Zm3 10 3.5-4 2.5 3 2-2 3 3M8.5 9h.01" />
+                </svg>
+
+              </div>
+
+
+              <strong>
+                {{ 'FORM.UPLOAD_BACK_IMAGE' | translate }}
+              </strong>
+
+
+              <span>
+                {{ 'FORM.BROWSE_HINT' | translate }}
+              </span>
+
+            </div>
+
+          </ng-template>
 
         </label>
 
 
-        <!-- CAMERA -->
+        <div class="source-actions">
 
-        <button
-          type="button"
-          class="image-source-btn camera-btn"
-          (click)="openCamera('back')"
-        >
+          <label class="source-btn upload-source">
 
-          <span class="source-icon">
-            📷
-          </span>
-
-          <span>
-            Take Photo
-          </span>
-
-        </button>
-
-      </div>
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/jpg"
+              hidden
+              (change)="onBackFileSelected($event)"
+            />
 
 
-      <!-- ================= BACK PREVIEW ================= -->
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M12 16V4m0 0L8 8m4-4 4 4M5 14v5h14v-5" />
+            </svg>
 
-      <div
-        class="image-preview-container"
-        *ngIf="backPreview"
-      >
 
-        <div class="preview-label">
-          Back Image
+            {{ 'FORM.UPLOAD' | translate }}
+
+          </label>
+
+
+          <button
+            type="button"
+            class="source-btn camera-source"
+            (click)="openCamera('back')"
+          >
+
+            <svg
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M5 7h3l1.3-2h5.4L16 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm7 3a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" />
+            </svg>
+
+
+            {{ 'FORM.CAMERA' | translate }}
+
+          </button>
+
         </div>
 
 
-        <img
-          [src]="backPreview"
-          class="image-preview"
-          alt="Back ID preview"
-        />
+        <div
+          class="ocr-loading"
+          *ngIf="loadingBack"
+        >
+
+          <span class="spinner"></span>
+
+
+          <div>
+
+            <strong>
+              {{ 'FORM.READING_BACK' | translate }}
+            </strong>
+
+            <span>
+              {{ 'FORM.BACK_READING_HINT' | translate }}
+            </span>
+
+          </div>
+
+        </div>
 
       </div>
 
 
-      <!-- ================= BACK LOADING ================= -->
+      <!-- ================================================ -->
+      <!-- BACK FIELDS -->
+      <!-- ================================================ -->
 
-      <div
-        class="ocr-loading"
-        *ngIf="loadingBack"
-      >
+      <div class="fields-section">
 
-        Processing back ID with OCR...
+        <div class="fields-title">
+
+          <span>
+            {{ 'FORM.EXTRACTED_INFORMATION' | translate }}
+          </span>
+
+          <small>
+            {{ 'FORM.EDIT_OCR_HINT' | translate }}
+          </small>
+
+        </div>
+
+
+        <div class="field-grid">
+
+
+          <!-- OCCUPATION -->
+
+          <label class="field field-full">
+
+            <span>
+              {{ 'FORM.OCCUPATION' | translate }}
+            </span>
+
+
+            <input
+              type="text"
+              id="occupation"
+              name="occupation"
+              [(ngModel)]="back.occupation"
+              (blur)="onOccupationBlur()"
+              dir="auto"
+              [placeholder]="'FORM.PLACEHOLDERS.OCCUPATION' | translate"
+            />
+
+          </label>
+
+
+          <!-- GENDER -->
+
+          <label class="field">
+
+            <span>
+              {{ 'FORM.GENDER' | translate }}
+            </span>
+
+
+            <input
+              type="text"
+              id="gender"
+              name="gender"
+              [(ngModel)]="back.gender"
+              dir="auto"
+              [placeholder]="'FORM.PLACEHOLDERS.GENDER' | translate"
+            />
+
+          </label>
+
+
+          <!-- RELIGION -->
+
+          <label class="field">
+
+            <span>
+              {{ 'FORM.RELIGION' | translate }}
+            </span>
+
+
+            <input
+              type="text"
+              id="religion"
+              name="religion"
+              [(ngModel)]="back.religion"
+              dir="auto"
+              [placeholder]="'FORM.PLACEHOLDERS.RELIGION' | translate"
+            />
+
+          </label>
+
+
+          <!-- MARITAL STATUS -->
+
+          <label class="field">
+
+            <span>
+              {{ 'FORM.MARITAL' | translate }}
+            </span>
+
+
+            <input
+              type="text"
+              id="maritalStatus"
+              name="maritalStatus"
+              [(ngModel)]="back.maritalStatus"
+              dir="auto"
+              [placeholder]="'FORM.PLACEHOLDERS.MARITAL_STATUS' | translate"
+            />
+
+          </label>
+
+
+          <!-- EXPIRY -->
+
+          <label class="field">
+
+            <span>
+              {{ 'FORM.EXPIRY' | translate }}
+            </span>
+
+
+            <input
+              type="date"
+              id="expiryDate"
+              name="expiryDate"
+              [(ngModel)]="back.expiryDate"
+            />
+
+          </label>
+
+
+          <!-- HUSBAND -->
+
+          <label class="field field-full">
+
+            <span>
+              {{ 'FORM.HUSBANDNAME' | translate }}
+            </span>
+
+
+            <input
+              type="text"
+              id="husbandName"
+              name="husbandName"
+              [(ngModel)]="back.husbandName"
+              dir="auto"
+              [placeholder]="'FORM.PLACEHOLDERS.HUSBAND_NAME' | translate"
+            />
+
+          </label>
+
+        </div>
 
       </div>
-
-
-      <!-- ================= OCCUPATION / GENDER ================= -->
-
-      <div class="row2">
-
-        <label class="field">
-
-          {{ 'FORM.OCCUPATION' | translate }}
-
-          <input
-            type="text"
-            id="occupation"
-            name="occupation"
-            [(ngModel)]="back.occupation"
-            (blur)="onOccupationBlur()"
-            dir="auto"
-            placeholder="Occupation"
-          />
-
-        </label>
-
-
-        <label class="field">
-
-          {{ 'FORM.GENDER' | translate }}
-
-          <input
-            type="text"
-            id="gender"
-            name="gender"
-            [(ngModel)]="back.gender"
-            dir="auto"
-            placeholder="Gender"
-          />
-
-        </label>
-
-      </div>
-
-
-      <!-- ================= RELIGION / MARITAL ================= -->
-
-      <div class="row2">
-
-        <label class="field">
-
-          {{ 'FORM.RELIGION' | translate }}
-
-          <input
-            type="text"
-            id="religion"
-            name="religion"
-            [(ngModel)]="back.religion"
-            dir="auto"
-            placeholder="Religion"
-          />
-
-        </label>
-
-
-        <label class="field">
-
-          {{ 'FORM.MARITAL' | translate }}
-
-          <input
-            type="text"
-            id="maritalStatus"
-            name="maritalStatus"
-            [(ngModel)]="back.maritalStatus"
-            dir="auto"
-            placeholder="Marital Status"
-          />
-
-        </label>
-
-      </div>
-
-
-      <!-- ================= HUSBAND ================= -->
-
-      <label class="field">
-
-        {{ 'FORM.HUSBANDNAME' | translate }}
-
-        <input
-          type="text"
-          id="husbandName"
-          name="husbandName"
-          [(ngModel)]="back.husbandName"
-          dir="auto"
-          placeholder="Husband Name"
-        />
-
-      </label>
-
-
-      <!-- ================= EXPIRY ================= -->
-
-      <label class="field">
-
-        {{ 'FORM.EXPIRY' | translate }}
-
-        <input
-          type="date"
-          id="expiryDate"
-          name="expiryDate"
-          [(ngModel)]="back.expiryDate"
-        />
-
-      </label>
 
     </section>
 
   </div>
 
 
-  <!-- ====================================================== -->
-  <!-- SAVE -->
-  <!-- ====================================================== -->
+  <!-- ===================================================== -->
+  <!-- FOOTER -->
+  <!-- ===================================================== -->
 
-  <div class="actions">
+  <footer class="form-actions">
 
-    <button
-      type="submit"
-      class="primary"
-      [disabled]="loadingFront || loadingBack"
-    >
+    <div class="review-note">
 
-      {{ 'FORM.SAVE' | translate }}
+      <span>✓</span>
 
-    </button>
+      {{ 'FORM.REVIEW_BEFORE_SAVE' | translate }}
 
-  </div>
+    </div>
+
+
+    <div class="action-buttons">
+
+      <button
+        type="button"
+        class="cancel-btn"
+        (click)="onCancel()"
+      >
+        {{ 'FORM.CANCEL' | translate }}
+      </button>
+
+
+      <button
+        type="submit"
+        class="save-btn"
+        [disabled]="loadingFront || loadingBack"
+      >
+
+        <span
+          class="button-spinner"
+          *ngIf="loadingFront || loadingBack"
+        ></span>
+
+
+        <span
+          *ngIf="!loadingFront && !loadingBack"
+        >
+          ✓
+        </span>
+
+
+        {{
+          loadingFront || loadingBack
+            ? ('FORM.PROCESSING' | translate)
+            : ('FORM.SAVE' | translate)
+        }}
+
+      </button>
+
+    </div>
+
+  </footer>
 
 </form>
 
 
-
-<!-- ======================================================== -->
-<!-- CAMERA WINDOW -->
-<!-- ======================================================== -->
+<!-- ======================================================= -->
+<!-- CAMERA -->
+<!-- ======================================================= -->
 
 <div
   class="camera-modal"
@@ -482,30 +837,43 @@
 
   <div class="camera-dialog">
 
-
-    <!-- ================= CAMERA HEADER ================= -->
-
     <div class="camera-header">
 
-      <div>
+      <div class="camera-title">
 
-        <h3>
+        <div class="camera-title-icon">
 
-          {{
-            cameraTarget === 'front'
-              ? 'Capture Front ID'
-              : 'Capture Back ID'
-          }}
+          <svg
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path d="M5 7h3l1.3-2h5.4L16 7h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm7 3a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" />
+          </svg>
 
-        </h3>
+        </div>
 
 
-        <p>
+        <div>
 
-          Choose your laptop integrated camera
-          or an external webcam.
+          <span>
+            {{ 'CAMERA.LIVE_CAPTURE' | translate }}
+          </span>
 
-        </p>
+
+          <h3>
+            {{
+              cameraTarget === 'front'
+                ? ('CAMERA.CAPTURE_FRONT' | translate)
+                : ('CAMERA.CAPTURE_BACK' | translate)
+            }}
+          </h3>
+
+
+          <p>
+            {{ 'CAMERA.HELP' | translate }}
+          </p>
+
+        </div>
 
       </div>
 
@@ -514,6 +882,7 @@
         type="button"
         class="camera-close"
         (click)="closeCamera()"
+        [attr.aria-label]="'IMAGE_VIEWER.CLOSE' | translate"
       >
         ✕
       </button>
@@ -521,14 +890,12 @@
     </div>
 
 
-    <!-- ================= CAMERA SELECTOR ================= -->
+    <!-- CAMERA SOURCE -->
 
     <div class="camera-selector">
 
       <label for="cameraDevice">
-
-        Camera Source
-
+        {{ 'CAMERA.SOURCE' | translate }}
       </label>
 
 
@@ -547,14 +914,7 @@
           "
           [value]="camera.deviceId"
         >
-
-          {{
-            cameraDisplayName(
-              camera,
-              i
-            )
-          }}
-
+          {{ cameraDisplayName(camera, i) }}
         </option>
 
       </select>
@@ -562,33 +922,31 @@
     </div>
 
 
-    <!-- ================= CAMERA LOADING ================= -->
+    <!-- CAMERA LOADING -->
 
     <div
       class="camera-loading"
       *ngIf="cameraLoading"
     >
 
-      <span class="camera-spinner"></span>
+      <span class="spinner"></span>
 
-      Starting camera...
+      {{ 'CAMERA.STARTING' | translate }}
 
     </div>
 
 
-    <!-- ================= CAMERA ERROR ================= -->
+    <!-- CAMERA ERROR -->
 
     <div
       class="camera-error"
       *ngIf="cameraError"
     >
-
       {{ cameraError }}
-
     </div>
 
 
-    <!-- ================= LIVE VIDEO ================= -->
+    <!-- CAMERA PREVIEW -->
 
     <div class="camera-preview">
 
@@ -600,13 +958,26 @@
       ></video>
 
 
-      <!-- ID GUIDE -->
+      <div class="camera-shade"></div>
+
 
       <div class="id-camera-guide">
 
+        <span class="guide-corner top-left"></span>
+        <span class="guide-corner top-right"></span>
+        <span class="guide-corner bottom-left"></span>
+        <span class="guide-corner bottom-right"></span>
+
+        <span class="scan-line"></span>
+
+
         <div class="guide-label">
 
-          Position the ID card inside this frame
+          {{
+            cameraTarget === 'front'
+              ? ('CAMERA.ALIGN_FRONT' | translate)
+              : ('CAMERA.ALIGN_BACK' | translate)
+          }}
 
         </div>
 
@@ -615,7 +986,7 @@
     </div>
 
 
-    <!-- ================= CAMERA FOOTER ================= -->
+    <!-- CAMERA FOOTER -->
 
     <div class="camera-footer">
 
@@ -624,9 +995,7 @@
         class="camera-cancel"
         (click)="closeCamera()"
       >
-
-        Cancel
-
+        {{ 'CAMERA.CANCEL' | translate }}
       </button>
 
 
@@ -637,11 +1006,9 @@
         (click)="capturePhoto()"
       >
 
-        <span>
-          📷
-        </span>
+        <span class="capture-dot"></span>
 
-        Capture Photo
+        {{ 'CAMERA.CAPTURE' | translate }}
 
       </button>
 
@@ -652,10 +1019,9 @@
 </div>
 
 
-
-<!-- ======================================================== -->
-<!-- ERROR MODAL -->
-<!-- ======================================================== -->
+<!-- ======================================================= -->
+<!-- ERROR -->
+<!-- ======================================================= -->
 
 <div
   class="mini-modal"
@@ -663,6 +1029,11 @@
 >
 
   <div class="mini-card">
+
+    <div class="mini-icon error-icon">
+      !
+    </div>
+
 
     <h4>
       {{ 'ERROR.TITLE' | translate }}
@@ -676,12 +1047,10 @@
 
     <button
       type="button"
-      class="primary"
+      class="mini-primary"
       (click)="closeError()"
     >
-
       {{ 'ERROR.OK' | translate }}
-
     </button>
 
   </div>
@@ -689,10 +1058,9 @@
 </div>
 
 
-
-<!-- ======================================================== -->
+<!-- ======================================================= -->
 <!-- CONFIRM SAVE -->
-<!-- ======================================================== -->
+<!-- ======================================================= -->
 
 <div
   class="mini-modal"
@@ -700,6 +1068,11 @@
 >
 
   <div class="mini-card">
+
+    <div class="mini-icon confirm-icon">
+      ✓
+    </div>
+
 
     <h4>
       {{ 'CONFIRM.TITLE' | translate }}
@@ -715,23 +1088,19 @@
 
       <button
         type="button"
-        class="primary"
-        (click)="confirmSave()"
+        class="mini-secondary"
+        (click)="cancelSave()"
       >
-
-        {{ 'CONFIRM.YES' | translate }}
-
+        {{ 'CONFIRM.NO' | translate }}
       </button>
 
 
       <button
         type="button"
-        class="ghost"
-        (click)="cancelSave()"
+        class="mini-primary"
+        (click)="confirmSave()"
       >
-
-        {{ 'CONFIRM.NO' | translate }}
-
+        {{ 'CONFIRM.YES' | translate }}
       </button>
 
     </div>

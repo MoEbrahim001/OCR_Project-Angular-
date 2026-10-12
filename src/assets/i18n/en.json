@@ -1,13 +1,43 @@
 {
   "TITLE": "OCR Records",
+
+  "APP": {
+    "NAME": "DocMind OCR",
+    "SUBTITLE": "Document Management System",
+    "OCR_MANAGEMENT": "OCR Management"
+  },
+
+  "LANGUAGE": {
+    "SWITCH_TO_AR": "Switch to Arabic",
+    "SWITCH_TO_EN": "Switch to English"
+  },
+
+  "NAV": {
+    "MAIN": "Main navigation",
+    "RECORDS": "Records",
+    "NEW": "New",
+    "UPLOAD": "Upload",
+    "SETTINGS": "Settings"
+  },
+
   "SEARCH": "Search",
   "SEARCH_NAME": "Search by name",
   "SEARCH_ID": "Search by ID",
   "CLEAR": "Clear",
-  "ADD":"ADD",
-  "PAGE": "Page", 
-  "ITEMS": "items" ,
+  "EXTRACT": "Extract",
+  "ADD": "Add",
+  "PAGE": "Page",
+  "ITEMS": "items",
 
+  "RECORDS_PAGE": {
+    "TITLE": "Document Records",
+    "SUBTITLE": "Manage and review information extracted from OCR processed documents.",
+    "SECTION_TITLE": "OCR Records",
+    "SECTION_SUBTITLE": "Extracted National ID data ready for review and management.",
+    "LOADING": "Loading...",
+    "EMPTY_HINT": "Try another search or add a new OCR record.",
+    "NEW_RECORD": "New OCR Record"
+  },
 
   "TABLE": {
     "INDEX": "#",
@@ -16,61 +46,166 @@
     "ADDRESS": "Address",
     "DOB": "Date of Birth",
     "AGE": "Age",
-    "EMPTY": "No records found",
-    "ACTIONS":"Actions",
-    "OCCUPATION":"Occupation",
-    "MARITAL":"Marital Status",
-    "HUSBANDNAME":"Husband Name",
-    "GENDER":"Gender",
-    "RELIGION":"Religion"
+    "RELIGION": "Religion",
+    "GENDER": "Gender",
+    "OCCUPATION": "Occupation",
+    "MARITAL": "Marital Status",
+    "HUSBANDNAME": "Husband Name",
+    "ACTIONS": "Actions",
+    "EMPTY": "No records found"
+  },
 
+  "ACTIONS": {
+    "ID_IMAGES": "ID Images",
+    "VIEW_IMAGES": "View ID images",
+    "VIEW_FRONT": "View Front",
+    "VIEW_BACK": "View Back",
+    "EDIT": "Edit",
+    "PRINT": "Print",
+    "PRINT_ID": "Print ID",
+    "PRINT_FRONT": "Print Front",
+    "PRINT_BACK": "Print Back",
+    "PRINT_BOTH": "Print Both",
+    "DELETE": "Delete"
   },
+
+  "PAGINATION": {
+    "SHOW": "Show",
+    "OF": "of",
+    "RECORDS": "records",
+    "FIRST": "First page",
+    "PREVIOUS": "Previous page",
+    "NEXT": "Next page",
+    "LAST": "Last page"
+  },
+
   "DIALOG": {
-    "TITLE": "New Record"
+    "KICKER": "OCR DOCUMENT",
+    "TITLE": "New Record",
+    "NEW_TITLE": "New OCR Record",
+    "EDIT_TITLE": "Edit OCR Record"
   },
+
+  "IMAGE_VIEWER": {
+    "TITLE": "OCR DOCUMENT IMAGE",
+    "CLOSE": "Close"
+  },
+
   "FORM": {
+    "INTRO_KICKER": "OCR ASSISTED DATA ENTRY",
+    "NEW_TITLE": "New OCR Record",
+    "EDIT_TITLE": "Edit OCR Record",
+    "INTRO_TEXT": "Upload or capture both sides of the document. OCR will extract the available data so you can review it before saving.",
+    "AUTO_FILL": "Auto-fill via OCR",
+
+    "STEP_FRONT": "Front Side",
+    "STEP_BACK": "Back Side",
+    "FRONT_SIDE_LABEL": "FRONT SIDE",
+    "BACK_SIDE_LABEL": "BACK SIDE",
+
+    "FRONT_IMAGE": "Front ID Image",
+    "BACK_IMAGE": "Back ID Image",
+    "IMAGE_TYPES": "JPG, JPEG or PNG",
+
+    "READY": "Ready",
+    "REPLACE_IMAGE": "Replace image",
+
+    "UPLOAD_FRONT_IMAGE": "Upload Front Image",
+    "UPLOAD_BACK_IMAGE": "Upload Back Image",
+    "BROWSE_HINT": "Click here to browse your computer",
+
+    "UPLOAD": "Upload",
+    "CAMERA": "Camera",
+
+    "READING_FRONT": "Reading front side...",
+    "READING_BACK": "Reading back side...",
+    "FRONT_READING_HINT": "Extracting name, National ID, address and date of birth.",
+    "BACK_READING_HINT": "Extracting occupation, gender, religion and card details.",
+
+    "EXTRACTED_INFORMATION": "Extracted Information",
+    "EDIT_OCR_HINT": "You can edit OCR results before saving.",
+
     "NAME": "Name",
     "ID": "ID Number",
     "ADDRESS": "Address",
     "DOB": "Date of Birth",
     "AGE": "Age",
-    "SAVE": "Save",
-    "CANCEL": "Cancel",
-    "UPLOAD_LABEL": "Extract data from image",
-    "UPLOAD_HINT": "Click to upload",
-    "STEP_FRONT": "Front Side",
-    "STEP_BACK": "Back Side",
-    "UPLOAD_LABEL_FRONT": "Upload Front Side",
-    "UPLOAD_LABEL_BACK": "Upload Back Side",
-    "UPLOAD_HINT_FRONT": "Click to upload front ID image",
-    "UPLOAD_HINT_BACK": "Click to upload back ID image",
-    "NEXT": "Next",
-    "BACK": "Back",
-    "SAVE_BOTH": "Save Record",
-    "SAVE_FRONT_ONLY": "Save (Front only)",
+
     "OCCUPATION": "Occupation",
     "GENDER": "Gender",
     "RELIGION": "Religion",
+
+    "MARITAL_STATUS": "Marital Status",
     "MARITAL": "Marital Status",
+
     "EXPIRY_DATE": "Expiry Date",
-    "EXTRACT": "Extract",
+    "EXPIRY": "Expiry Date",
+
+    "HUSBANDNAME": "Husband Name",
+
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "NEXT": "Next",
+
+    "REVIEW_BEFORE_SAVE": "Review extracted data before saving.",
+    "PROCESSING": "Processing OCR...",
+
+    "ID_VALIDATION": "ID number must be exactly 14 digits.",
+
+    "UPLOAD_LABEL": "Extract data from image",
+    "UPLOAD_LABEL_FRONT": "Upload Front Side",
+    "UPLOAD_LABEL_BACK": "Upload Back Side",
+
+    "UPLOAD_HINT": "Click to upload",
+    "UPLOAD_HINT_FRONT": "Click to upload front ID image",
+    "UPLOAD_HINT_BACK": "Click to upload back ID image",
+
     "MODE_MANUAL": "Type manually",
     "MODE_UPLOAD": "Upload & OCR",
+
     "APPLY_FILL_EMPTY": "Only fill empty fields",
     "EXTRACTING": "Extracting…",
-    "HUSBANDNAME": "Husband Name",
-    "EXPIRY": "Expiry Date",
+    "EXTRACT": "Extract",
+
     "PLACEHOLDERS": {
+      "NAME": "Full name",
+      "ID": "14-digit National ID",
+      "ADDRESS": "Address",
+      "DOB": "Date of birth",
       "OCCUPATION": "Enter occupation",
       "GENDER": "Enter gender",
       "RELIGION": "Enter religion",
       "MARITAL_STATUS": "Enter marital status",
       "EXPIRY_DATE": "Select expiry date",
-      "NAME": "Full name",
-      "ID": "14-digit NID",
-      "ADDRESS": "Address"
+      "HUSBAND_NAME": "Husband Name"
     }
   },
+
+  "CAMERA": {
+    "LIVE_CAPTURE": "LIVE CAPTURE",
+    "CAPTURE_FRONT": "Capture Front ID",
+    "CAPTURE_BACK": "Capture Back ID",
+    "HELP": "Keep the document flat, sharp and completely inside the guide.",
+    "SOURCE": "Camera Source",
+    "STARTING": "Starting camera...",
+    "ALIGN_FRONT": "Align the FRONT side inside this frame",
+    "ALIGN_BACK": "Align the BACK side inside this frame",
+    "CANCEL": "Cancel",
+    "CAPTURE": "Capture ID"
+  },
+
+  "WIZARD": {
+    "NEXT": "Next",
+    "BACK": "Back",
+    "SAVE_BOTH": "Save Record",
+    "SAVE_FRONT_ONLY": "Save Front Only"
+  },
+
+  "ERROR": {
+    "TITLE": "Error",
+    "OK": "OK"
+  },
+
   "CONFIRM": {
     "SAVE_FRONT_ONLY": "Save only front data?",
     "SAVE_BOTH": "Save both sides?",
@@ -80,17 +215,11 @@
     "NO": "Cancel"
   },
 
-  "ERROR": {
-    "TITLE": "Error",
-    "OK": "OK"
-  },
-  
   "DELETE_CONFIRM": {
     "TITLE": "Confirm Delete",
     "MESSAGE": "Are you sure you want to delete this record?",
     "YES": "Yes, Delete",
-    "CANCEL": "Cancel"
+    "CANCEL": "Cancel",
+    "DELETING": "Deleting..."
   }
-
-
 }
