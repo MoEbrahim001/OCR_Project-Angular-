@@ -10,6 +10,8 @@ export const environment = {
     search: 'http://localhost:5100/api/Records/Search',
     exportExcel:
   'http://localhost:5100/api/Records/export/excel',
+  exportPdf:
+  'http://localhost:5100/api/Records/export/pdf',
   },
 
   /*

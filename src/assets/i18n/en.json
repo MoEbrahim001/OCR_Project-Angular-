@@ -2,8 +2,7 @@
   "TITLE": "OCR Records",
 
   "APP": {
-    "NAME": "DocMind OCR",
-    "SUBTITLE": "Document Management System",
+    "NAME": "National ID Registration",
     "OCR_MANAGEMENT": "OCR Management"
   },
 
@@ -32,8 +31,7 @@
   "RECORDS_PAGE": {
     "TITLE": "Document Records",
     "SUBTITLE": "Manage and review information extracted from OCR processed documents.",
-    "SECTION_TITLE": "OCR Records",
-    "SECTION_SUBTITLE": "Extracted National ID data ready for review and management.",
+"SECTION_TITLE": "National ID Data Registration",
     "LOADING": "Loading...",
     "EMPTY_HINT": "Try another search or add a new OCR record.",
     "NEW_RECORD": "New OCR Record"

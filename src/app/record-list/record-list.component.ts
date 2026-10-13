@@ -253,8 +253,11 @@ exportingExcel = false;
 
   private sub?:
     Subscription;
+showDetailsModal = false;
 
-
+selectedDetailsRecord:
+  RecordModel | null = null;
+exportingPdf = false;
   // =========================================================
   // CONSTRUCTOR
   // =========================================================
@@ -3065,157 +3068,78 @@ const updated =
 }
 exportExcel(): void {
 
-  if (
-    this.exportingExcel
-  ) {
+  if (this.exportingExcel) {
     return;
   }
 
+  const ids =
+    Array.from(
+      this.selectedRecordIds
+    );
 
-  this.exportingExcel =
-    true;
+  if (ids.length === 0) {
 
-  this.showExportMenu =
-    false;
+    this.showError = true;
+    this.errorText =
+      'Please select at least one record.';
 
+    this.cdr.markForCheck();
 
-  const name =
-    this.nameTerm
-      ?.trim()
-    || undefined;
+    return;
+  }
 
-
-  const idNumber =
-    this.formatNationalId(
-      this.idTerm
-    )
-    || undefined;
-
+  this.exportingExcel = true;
+  this.showExportMenu = false;
 
   this.ocr
-    .exportExcel(
-      name,
-      idNumber
-    )
+    .exportSelectedExcel(ids)
     .subscribe({
 
       next: blob => {
 
         const url =
-          URL.createObjectURL(
-            blob
-          );
-
+          URL.createObjectURL(blob);
 
         const link =
-          document.createElement(
-            'a'
-          );
+          document.createElement('a');
 
-
-        link.href =
-          url;
-
-
-        const now =
-          new Date();
-
-
-        const stamp =
-          [
-            now.getFullYear(),
-
-            String(
-              now.getMonth() + 1
-            ).padStart(
-              2,
-              '0'
-            ),
-
-            String(
-              now.getDate()
-            ).padStart(
-              2,
-              '0'
-            )
-          ]
-          .join('');
-
+        link.href = url;
 
         link.download =
-          `OCR-Records-${stamp}.xlsx`;
-
+          'National-ID-Selected.xlsx';
 
         document.body
-          .appendChild(
-            link
-          );
-
+          .appendChild(link);
 
         link.click();
 
-
         document.body
-          .removeChild(
-            link
-          );
+          .removeChild(link);
 
+        URL.revokeObjectURL(url);
 
-        URL.revokeObjectURL(
-          url
-        );
-
+        this.exportingExcel = false;
 
         this.successText =
-          'Excel exported successfully ✓';
+          `${ids.length} record(s) exported ✓`;
 
-        this.showSuccess =
-          true;
+        this.showSuccess = true;
 
-
-        setTimeout(
-          () => {
-
-            this.showSuccess =
-              false;
-
-            this.cdr
-              .markForCheck();
-          },
-          1200
-        );
-
-
-        this.exportingExcel =
-          false;
-
-        this.cdr
-          .markForCheck();
+        this.cdr.markForCheck();
       },
-
 
       error: err => {
 
-        console.error(
-          'EXPORT EXCEL ERROR:',
-          err
-        );
+        console.error(err);
 
+        this.exportingExcel = false;
 
-        this.exportingExcel =
-          false;
-
-
-        this.showError =
-          true;
-
+        this.showError = true;
 
         this.errorText =
           'Excel export failed.';
 
-
-        this.cdr
-          .markForCheck();
+        this.cdr.markForCheck();
       }
     });
 }
@@ -3260,5 +3184,273 @@ closeMenus(): void {
     this.cdr
       .markForCheck();
   }
+}
+exportPdf(): void {
+
+  if (this.exportingPdf) {
+    return;
+  }
+
+  const ids =
+    Array.from(
+      this.selectedRecordIds
+    );
+
+  if (ids.length === 0) {
+
+    this.showError = true;
+
+    this.errorText =
+      'Please select at least one record.';
+
+    this.cdr.markForCheck();
+
+    return;
+  }
+
+  this.exportingPdf = true;
+  this.showExportMenu = false;
+
+  this.ocr
+    .exportSelectedPdf(ids)
+    .subscribe({
+
+      next: blob => {
+
+        const url =
+          URL.createObjectURL(blob);
+
+        const link =
+          document.createElement('a');
+
+        link.href = url;
+
+        link.download =
+          'National-ID-Selected.pdf';
+
+        document.body
+          .appendChild(link);
+
+        link.click();
+
+        document.body
+          .removeChild(link);
+
+        URL.revokeObjectURL(url);
+
+        this.exportingPdf = false;
+
+        this.successText =
+          `${ids.length} record(s) exported ✓`;
+
+        this.showSuccess = true;
+
+        this.cdr.markForCheck();
+      },
+
+      error: err => {
+
+        console.error(err);
+
+        this.exportingPdf = false;
+
+        this.showError = true;
+
+        this.errorText =
+          'PDF export failed.';
+
+        this.cdr.markForCheck();
+      }
+    });
+}
+// =========================================================
+// ROW SELECTION
+// =========================================================
+
+selectedRecordIds =
+  new Set<number>();
+
+
+get selectedCount(): number {
+
+  return this
+    .selectedRecordIds
+    .size;
+}
+
+
+isRecordSelected(
+  record: RecordModel
+): boolean {
+
+  return this
+    .selectedRecordIds
+    .has(record.id);
+}
+
+
+toggleRecordSelection(
+  record: RecordModel,
+  checked: boolean
+): void {
+
+  if (!record.id) {
+    return;
+  }
+
+
+  if (checked) {
+
+    this.selectedRecordIds
+      .add(record.id);
+  }
+
+  else {
+
+    this.selectedRecordIds
+      .delete(record.id);
+  }
+
+
+  this.cdr
+    .markForCheck();
+}
+
+
+get areAllCurrentPageSelected(): boolean {
+
+  if (
+    !this.filteredRecords.length
+  ) {
+
+    return false;
+  }
+
+
+  return this.filteredRecords
+    .every(
+      r =>
+        !!r.id
+        &&
+        this.selectedRecordIds
+          .has(r.id)
+    );
+}
+
+
+get isSomeCurrentPageSelected(): boolean {
+
+  const selectedOnPage =
+    this.filteredRecords
+      .filter(
+        r =>
+          !!r.id
+          &&
+          this.selectedRecordIds
+            .has(r.id)
+      )
+      .length;
+
+
+  return (
+    selectedOnPage > 0
+    &&
+    selectedOnPage
+      < this.filteredRecords.length
+  );
+}
+
+
+toggleCurrentPageSelection(
+  checked: boolean
+): void {
+
+  this.filteredRecords
+    .forEach(record => {
+
+      if (!record.id) {
+        return;
+      }
+
+
+      if (checked) {
+
+        this.selectedRecordIds
+          .add(record.id);
+      }
+
+      else {
+
+        this.selectedRecordIds
+          .delete(record.id);
+      }
+    });
+
+
+  this.cdr
+    .markForCheck();
+}
+
+
+clearSelection(): void {
+
+  this.selectedRecordIds
+    .clear();
+
+
+  this.cdr
+    .markForCheck();
+}
+openRecordDetails(
+  record: RecordModel
+): void {
+
+  if (!record?.id) {
+    return;
+  }
+
+  this.ocr
+    .getRecordById(record.id)
+    .subscribe({
+
+      next: (res: any) => {
+
+        this.selectedDetailsRecord =
+          this.mapItem(res);
+
+        this.showDetailsModal =
+          true;
+
+        this.cdr.markForCheck();
+      },
+
+      error: err => {
+
+        console.error(
+          'LOAD DETAILS ERROR:',
+          err
+        );
+
+        this.showError =
+          true;
+
+        this.errorText =
+          'Could not load record details.';
+
+        this.cdr.markForCheck();
+      }
+    });
+}
+
+
+closeRecordDetails(): void {
+
+  this.showDetailsModal =
+    false;
+
+  this.selectedDetailsRecord =
+    null;
+
+  this.cdr.markForCheck();
 }
 }

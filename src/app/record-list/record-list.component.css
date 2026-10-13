@@ -2781,3 +2781,259 @@ summary:focus-visible {
   font-weight:
     900;
 }
+.company-logo-mark {
+  background: #ffffff !important;
+  padding: 4px;
+  overflow: hidden;
+}
+
+.company-sidebar-logo {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+/* =========================================================
+   COMPACT MAIN TABLE
+   Checkbox | # | National ID | Name | Gender | DOB | Actions
+   Append this block at the END of record-list.component.css
+   ========================================================= */
+
+.records-table {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+}
+
+.records-table th:nth-child(1),
+.records-table td:nth-child(1) {
+  width: 4%;
+  text-align: center;
+}
+
+.records-table th:nth-child(2),
+.records-table td:nth-child(2) {
+  width: 6%;
+  text-align: center;
+}
+
+.records-table th:nth-child(3),
+.records-table td:nth-child(3) {
+  width: 19%;
+  text-align: center;
+}
+
+.records-table th:nth-child(4),
+.records-table td:nth-child(4) {
+  width: 25%;
+}
+
+.records-table th:nth-child(5),
+.records-table td:nth-child(5) {
+  width: 10%;
+  text-align: center;
+}
+
+.records-table th:nth-child(6),
+.records-table td:nth-child(6) {
+  width: 14%;
+  text-align: center;
+}
+
+.records-table th:nth-child(7),
+.records-table td:nth-child(7) {
+  width: 22%;
+  text-align: center;
+  overflow: visible;
+}
+
+.select-col input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.details-action:hover {
+  border-color: #b9c8ff;
+  background: #eef3ff;
+  color: var(--primary);
+}
+
+/* =========================================================
+   RECORD DETAILS MODAL
+   ========================================================= */
+
+.record-details-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 4300;
+
+  padding: 20px;
+
+  display: grid;
+  place-items: center;
+
+  background: rgba(15, 23, 42, 0.62);
+  backdrop-filter: blur(7px);
+}
+
+.record-details-card {
+  width: min(760px, 94vw);
+  max-height: 88vh;
+  overflow: hidden;
+
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 18px;
+
+  background: #fff;
+
+  box-shadow:
+    0 30px 80px
+    rgba(23, 33, 63, 0.28);
+}
+
+.record-details-header {
+  min-height: 72px;
+
+  padding: 15px 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  border-bottom: 1px solid #e8edf7;
+
+  background:
+    linear-gradient(
+      90deg,
+      #ffffff,
+      #f7f9ff 72%,
+      #f4f1ff
+    );
+}
+
+.details-kicker {
+  display: block;
+  margin-bottom: 3px;
+
+  color: var(--primary);
+
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+.record-details-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 850;
+}
+
+.record-details-close {
+  width: 36px;
+  height: 36px;
+
+  display: grid;
+  place-items: center;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: #f0f3f8;
+  color: #6c7790;
+
+  cursor: pointer;
+}
+
+.record-details-close:hover {
+  background: #ffe8ea;
+  color: var(--danger);
+}
+
+.record-details-grid {
+  max-height: calc(88vh - 72px);
+  overflow-y: auto;
+
+  padding: 18px;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.detail-item {
+  min-width: 0;
+
+  padding: 13px 14px;
+
+  border: 1px solid #e6ebf5;
+  border-radius: 12px;
+
+  background: #f9fbff;
+}
+
+.detail-item.detail-wide {
+  grid-column: 1 / -1;
+}
+
+.detail-item > span {
+  display: block;
+  margin-bottom: 6px;
+
+  color: #8793ad;
+
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.35px;
+}
+
+.detail-item > strong {
+  display: block;
+
+  color: #24314f;
+
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.55;
+
+  overflow-wrap: anywhere;
+  unicode-bidi: plaintext;
+}
+
+.detail-national-id {
+  direction: ltr;
+  unicode-bidi: isolate;
+
+  color: #2948b8 !important;
+
+  font-family:
+    Consolas,
+    "SFMono-Regular",
+    monospace;
+
+  letter-spacing: 0.25px;
+}
+
+@media (max-width: 860px) {
+  .records-table {
+    min-width: 760px;
+  }
+}
+
+@media (max-width: 560px) {
+  .record-details-modal {
+    padding: 10px;
+  }
+
+  .record-details-grid {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .detail-item.detail-wide {
+    grid-column: auto;
+  }
+}

@@ -403,4 +403,83 @@ export class OcrService {
     }
   );
 }
+exportPdf(
+  name?: string,
+  idNumber?: string
+) {
+
+  let params =
+    new HttpParams();
+
+
+  if (
+    name?.trim()
+  ) {
+
+    params =
+      params.set(
+        'name',
+        name.trim()
+      );
+  }
+
+
+  if (
+    idNumber?.trim()
+  ) {
+
+    params =
+      params.set(
+        'idNumber',
+        idNumber.trim()
+      );
+  }
+
+
+  return this.http.get(
+
+    environment.records.exportPdf,
+
+    {
+      params,
+      responseType: 'blob'
+    }
+  );
+}
+exportSelectedExcel(
+  recordIds: number[]
+) {
+
+  return this.http.post(
+
+    `${environment.records.exportExcel}/selected`,
+
+    {
+      recordIds
+    },
+
+    {
+      responseType: 'blob'
+    }
+  );
+}
+
+
+exportSelectedPdf(
+  recordIds: number[]
+) {
+
+  return this.http.post(
+
+    `${environment.records.exportPdf}/selected`,
+
+    {
+      recordIds
+    },
+
+    {
+      responseType: 'blob'
+    }
+  );
+}
 }
