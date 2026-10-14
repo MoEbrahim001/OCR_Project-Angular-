@@ -3037,3 +3037,249 @@ summary:focus-visible {
     grid-column: auto;
   }
 }
+/* =========================================================
+   ADVANCED SEARCH
+   ========================================================= */
+
+.search-section {
+  margin-bottom: 14px;
+}
+
+
+.search-section .search-bar {
+  margin-bottom: 0;
+
+  grid-template-columns:
+    minmax(220px, 1.15fr)
+    minmax(200px, 0.9fr)
+    auto
+    auto
+    auto;
+}
+
+
+.more-filters-btn {
+  height: 47px;
+
+  padding:
+    0 15px;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 7px;
+
+  border:
+    1px solid
+    #dfe6f4;
+
+  border-radius:
+    11px;
+
+  background:
+    white;
+
+  color:
+    #596986;
+
+  font-size:
+    11px;
+
+  font-weight:
+    800;
+
+  cursor:
+    pointer;
+
+  white-space:
+    nowrap;
+}
+
+
+.more-filters-btn:hover {
+  border-color:
+    #bdc9ff;
+
+  background:
+    #f5f7ff;
+
+  color:
+    var(--primary);
+}
+
+
+.filter-arrow {
+  font-size:
+    8px;
+}
+
+
+/* ADVANCED PANEL */
+
+.advanced-search-panel {
+
+  margin-top:
+    10px;
+
+  padding:
+    15px;
+
+  border:
+    1px solid
+    rgba(221, 229, 244, 0.95);
+
+  border-radius:
+    15px;
+
+  background:
+    rgba(255, 255, 255, 0.9);
+
+  box-shadow:
+    0 8px 24px
+    rgba(45, 59, 105, 0.04);
+}
+
+
+.advanced-search-grid {
+
+  display:
+    grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap:
+    12px;
+}
+
+
+.advanced-field {
+
+  min-width:
+    0;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    6px;
+}
+
+
+.advanced-field label {
+
+  color:
+    #647493;
+
+  font-size:
+    10px;
+
+  font-weight:
+    800;
+}
+
+
+.advanced-field input {
+
+  width:
+    100%;
+
+  height:
+    42px;
+
+  padding:
+    0 11px;
+
+  border:
+    1px solid
+    #dfe6f4;
+
+  border-radius:
+    10px;
+
+  outline:
+    none;
+
+  background:
+    #fbfcff;
+
+  color:
+    var(--text);
+
+  font-size:
+    11px;
+}
+
+
+.advanced-field input:focus {
+
+  border-color:
+    #a9b9ff;
+
+  background:
+    white;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(79, 109, 245, 0.08);
+}
+
+
+/* TABLET */
+
+@media (max-width: 1150px) {
+
+  .search-section .search-bar {
+
+    grid-template-columns:
+      1fr
+      1fr;
+  }
+
+
+  .more-filters-btn,
+  .search-section .search-btn,
+  .search-section .clear-btn {
+
+    width:
+      100%;
+  }
+
+
+  .advanced-search-grid {
+
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+
+/* MOBILE */
+
+@media (max-width: 560px) {
+
+  .search-section .search-bar {
+
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .advanced-search-grid {
+
+    grid-template-columns:
+      1fr;
+  }
+}

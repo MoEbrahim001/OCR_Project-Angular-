@@ -55,6 +55,24 @@ type PageParams = {
 
   idNumber?: string;
 
+  address?: string;
+
+  gender?: string;
+
+  dateOfBirth?: string;
+
+  age?: number | null;
+
+  religion?: string;
+
+  profession?: string;
+
+  maritalStatus?: string;
+
+  husbandName?: string;
+
+  endDate?: string;
+
   isSearch?: boolean;
 };
 
@@ -94,9 +112,29 @@ export class RecordListComponent
 
   nameTerm = '';
 
-  idTerm = '';
+idTerm = '';
 
-  addressTerm = '';
+addressTerm = '';
+
+genderTerm = '';
+
+dateOfBirthTerm = '';
+
+ageTerm: number | null = null;
+
+religionTerm = '';
+
+occupationTerm = '';
+
+maritalStatusTerm = '';
+
+husbandNameTerm = '';
+
+expiryDateTerm = '';
+
+showAdvancedFilters = false;
+
+searchMode = false;
 
 showExportMenu = false;
 
@@ -325,22 +363,48 @@ exportingPdf = false;
             const call$ =
               p.isSearch
 
-                ? this.ocr
-                    .listRecordsSearch({
+               ? this.ocr
+    .listRecordsSearch({
 
-                      name:
-                        p.name ?? '',
+      name:
+        p.name,
 
-                      idNumber:
-                        p.idNumber ?? '',
+      idNumber:
+        p.idNumber,
 
-                      pageNumber:
-                        p.pageNumber,
+      address:
+        p.address,
 
-                      pageSize:
-                        p.pageSize
-                    })
+      gender:
+        p.gender,
 
+      dateOfBirth:
+        p.dateOfBirth,
+
+      age:
+        p.age,
+
+      religion:
+        p.religion,
+
+      profession:
+        p.profession,
+
+      maritalStatus:
+        p.maritalStatus,
+
+      husbandName:
+        p.husbandName,
+
+      endDate:
+        p.endDate,
+
+      pageNumber:
+        p.pageNumber,
+
+      pageSize:
+        p.pageSize
+    })
                 : this.ocr
                     .listRecords({
 
@@ -571,22 +635,34 @@ exportingPdf = false;
   // PAGINATION
   // =========================================================
 
-  loadPage(
-    page: number
-  ): void {
+ loadPage(
+  page: number
+): void {
 
-    this.pageParams$.next({
+  if (this.searchMode) {
 
-      pageNumber:
-        page,
+    this.pageParams$.next(
+      this.buildSearchParams(
+        page
+      )
+    );
 
-      pageSize:
-        this.pageSize,
-
-      isSearch:
-        false
-    });
+    return;
   }
+
+
+  this.pageParams$.next({
+
+    pageNumber:
+      page,
+
+    pageSize:
+      this.pageSize,
+
+    isSearch:
+      false
+  });
+}
 
 
   goFirst(): void {
@@ -1240,43 +1316,15 @@ const updated =
   // SEARCH
   // =========================================================
 
-  onSearchClick(): void {
+onSearchClick(): void {
 
-    const nameNorm =
-      this.normalizeArabic(
-        this.nameTerm
-      );
+  this.searchMode =
+    true;
 
-
-    const idAscii =
-      this
-        .toEnglishDigits(
-          this.idTerm
-        )
-        .replace(
-          /\D/g,
-          ''
-        );
-
-
-    this.pageParams$.next({
-
-      pageNumber:
-        1,
-
-      pageSize:
-        this.pageSize,
-
-      name:
-        nameNorm,
-
-      idNumber:
-        idAscii,
-
-      isSearch:
-        true
-    });
-  }
+  this.pageParams$.next(
+    this.buildSearchParams(1)
+  );
+}
 
 
   // =========================================================
@@ -1386,40 +1434,52 @@ const updated =
   // CLEAR SEARCH
   // =========================================================
 
-  clearSearch(): void {
+ clearSearch(): void {
 
-    this.nameTerm =
-      '';
+  this.nameTerm = '';
+
+  this.idTerm = '';
+
+  this.addressTerm = '';
+
+  this.genderTerm = '';
+
+  this.dateOfBirthTerm = '';
+
+  this.ageTerm = null;
+
+  this.religionTerm = '';
+
+  this.occupationTerm = '';
+
+  this.maritalStatusTerm = '';
+
+  this.husbandNameTerm = '';
+
+  this.expiryDateTerm = '';
+
+  this.searchMode =
+    false;
+
+  this.pageNumber =
+    1;
 
 
-    this.idTerm =
-      '';
+  this.pageParams$.next({
+
+    pageNumber:
+      1,
+
+    pageSize:
+      this.pageSize,
+
+    isSearch:
+      false
+  });
 
 
-    this.addressTerm =
-      '';
-
-
-    this.pageNumber =
-      1;
-
-
-    this.pageParams$.next({
-
-      pageNumber:
-        1,
-
-      pageSize:
-        this.pageSize,
-
-      isSearch:
-        false
-    });
-
-
-    this.cdr
-      .markForCheck();
-  }
+  this.cdr.markForCheck();
+}
 
 
   // =========================================================
@@ -3442,7 +3502,13 @@ openRecordDetails(
     });
 }
 
+toggleAdvancedFilters(): void {
 
+  this.showAdvancedFilters =
+    !this.showAdvancedFilters;
+
+  this.cdr.markForCheck();
+}
 closeRecordDetails(): void {
 
   this.showDetailsModal =
@@ -3452,5 +3518,63 @@ closeRecordDetails(): void {
     null;
 
   this.cdr.markForCheck();
+}
+private buildSearchParams(
+  page: number
+): PageParams {
+
+  return {
+
+    pageNumber:
+      page,
+
+    pageSize:
+      this.pageSize,
+
+    name:
+      this.normalizeArabic(
+        this.nameTerm
+      ),
+
+    idNumber:
+      this
+        .toEnglishDigits(
+          this.idTerm
+        )
+        .replace(
+          /\D/g,
+          ''
+        ),
+
+    address:
+      this.addressTerm.trim(),
+
+    gender:
+      this.genderTerm.trim(),
+
+    dateOfBirth:
+      this.dateOfBirthTerm,
+
+    age:
+      this.ageTerm,
+
+    religion:
+      this.religionTerm.trim(),
+
+    profession:
+      this.occupationTerm.trim(),
+
+    maritalStatus:
+      this.maritalStatusTerm.trim(),
+
+    husbandName:
+      this.husbandNameTerm.trim(),
+
+    endDate:
+      this.expiryDateTerm,
+
+    isSearch:
+      true
+  };
 }
 }

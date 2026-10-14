@@ -237,55 +237,156 @@ export class OcrService {
   // =====================================================
   // SEARCH
   // =====================================================
+listRecordsSearch(
+  params: {
+    name?: string;
+    idNumber?: string;
 
-  listRecordsSearch(
-    params: {
-      name?: string;
-      idNumber?: string;
-      pageNumber?: number;
-      pageSize?: number;
-    }
-  ) {
+    address?: string;
+    gender?: string;
+    dateOfBirth?: string;
 
-    const httpParams =
-      new HttpParams({
+    age?: number | null;
 
-        fromObject: {
+    religion?: string;
+    profession?: string;
+    maritalStatus?: string;
 
-          name:
-            params.name
-            ?? '',
+    husbandName?: string;
+    endDate?: string;
 
-          idNumber:
-            params.idNumber
-            ?? '',
+    pageNumber?: number;
+    pageSize?: number;
+  }
+) {
 
-          pageNumber:
-            String(
-              params.pageNumber
-              ?? 1
-            ),
+  let httpParams =
+    new HttpParams()
 
-          pageSize:
-            String(
-              params.pageSize
-              ?? 10
-            )
-        }
-      });
+      .set(
+        'pageNumber',
+        String(params.pageNumber ?? 1)
+      )
+
+      .set(
+        'pageSize',
+        String(params.pageSize ?? 10)
+      );
 
 
-    return this.http
-      .get<PagedResult<RecordModel>>(
-
-        environment.records.search,
-
-        {
-          params:
-            httpParams
-        }
+  if (params.name?.trim()) {
+    httpParams =
+      httpParams.set(
+        'name',
+        params.name.trim()
       );
   }
+
+
+  if (params.idNumber?.trim()) {
+    httpParams =
+      httpParams.set(
+        'idNumber',
+        params.idNumber.trim()
+      );
+  }
+
+
+  if (params.address?.trim()) {
+    httpParams =
+      httpParams.set(
+        'address',
+        params.address.trim()
+      );
+  }
+
+
+  if (params.gender?.trim()) {
+    httpParams =
+      httpParams.set(
+        'gender',
+        params.gender.trim()
+      );
+  }
+
+
+  if (params.dateOfBirth) {
+    httpParams =
+      httpParams.set(
+        'dateOfBirth',
+        params.dateOfBirth
+      );
+  }
+
+
+  if (
+    params.age !== null
+    &&
+    params.age !== undefined
+  ) {
+    httpParams =
+      httpParams.set(
+        'age',
+        String(params.age)
+      );
+  }
+
+
+  if (params.religion?.trim()) {
+    httpParams =
+      httpParams.set(
+        'religion',
+        params.religion.trim()
+      );
+  }
+
+
+  if (params.profession?.trim()) {
+    httpParams =
+      httpParams.set(
+        'profession',
+        params.profession.trim()
+      );
+  }
+
+
+  if (params.maritalStatus?.trim()) {
+    httpParams =
+      httpParams.set(
+        'maritalStatus',
+        params.maritalStatus.trim()
+      );
+  }
+
+
+  if (params.husbandName?.trim()) {
+    httpParams =
+      httpParams.set(
+        'husbandName',
+        params.husbandName.trim()
+      );
+  }
+
+
+  if (params.endDate) {
+    httpParams =
+      httpParams.set(
+        'endDate',
+        params.endDate
+      );
+  }
+
+
+  return this.http
+    .get<PagedResult<RecordModel>>(
+
+      environment.records.search,
+
+      {
+        params: httpParams
+      }
+    );
+}
 
 
   // =====================================================

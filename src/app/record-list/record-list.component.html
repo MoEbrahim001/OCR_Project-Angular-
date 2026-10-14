@@ -257,11 +257,7 @@
 
           <h1>{{ 'APP.NAME' | translate }}</h1>
 
-          <p>
-
-            {{ 'APP.SUBTITLE' | translate }}
-
-          </p>
+      
 
         </div>
 
@@ -333,99 +329,270 @@
 
       <!-- SEARCH -->
 
-      <section class="search-bar">
+    <section class="search-section">
 
-        <div class="search-control name-search">
+  <!-- MAIN SEARCH -->
+  <div class="search-bar">
 
-          <span class="search-icon">
+    <!-- NAME -->
+    <div class="search-control name-search">
 
-            <svg viewBox="0 0 24 24" aria-hidden="true">
+      <span class="search-icon">
 
-              <path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" />
-
-            </svg>
-
-          </span>
-
-          <input
-
-            type="text"
-
-            dir="rtl"
-
-            [ngModel]="nameTerm"
-
-            (ngModelChange)="onNameTermChanged($event)"
-
-            (keydown)="onNameKeyDown($event)"
-
-            [placeholder]="'SEARCH_NAME' | translate"
-
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z"
           />
+        </svg>
 
-        </div>
+      </span>
 
-        <div class="search-control id-search">
+      <input
+        type="text"
+        dir="rtl"
+        [ngModel]="nameTerm"
+        (ngModelChange)="onNameTermChanged($event)"
+        (keydown)="onNameKeyDown($event)"
+        [placeholder]="'SEARCH_NAME' | translate"
+      />
 
-          <span class="search-prefix">#</span>
+    </div>
+
+
+    <!-- NATIONAL ID -->
+    <div class="search-control id-search">
+
+      <span class="search-prefix">
+        #
+      </span>
+
+      <input
+        type="text"
+        [(ngModel)]="idTerm"
+        (ngModelChange)="onIdTermChanged($event)"
+        inputmode="numeric"
+        dir="ltr"
+        [placeholder]="'SEARCH_ID' | translate"
+      />
+
+    </div>
+
+
+    <!-- MORE FILTERS -->
+    <button
+      type="button"
+      class="more-filters-btn"
+      (click)="toggleAdvancedFilters()"
+    >
+
+      <span>
+        {{ showAdvancedFilters ? 'Hide Filters' : 'More Filters' }}
+      </span>
+
+      <span class="filter-arrow">
+        {{ showAdvancedFilters ? '▲' : '▼' }}
+      </span>
+
+    </button>
+
+
+    <!-- SEARCH -->
+    <button
+      type="button"
+      class="search-btn"
+      (click)="onSearchClick()"
+      [disabled]="loading"
+    >
+
+      <svg
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z"
+        />
+      </svg>
+
+      {{ 'SEARCH' | translate }}
+
+    </button>
+
+
+    <!-- CLEAR -->
+    <button
+      type="button"
+      class="clear-btn"
+      (click)="clearSearch()"
+      [disabled]="loading"
+    >
+
+      {{ 'CLEAR' | translate }}
+
+    </button>
+
+  </div>
+
+
+  <!-- ADVANCED FILTERS -->
+  <div
+    class="advanced-search-panel"
+    *ngIf="showAdvancedFilters"
+  >
+
+    <div class="advanced-search-grid">
+
+
+      <!-- ADDRESS -->
+      <div class="advanced-field">
+
+        <label>
+          Address
+        </label>
 
         <input
+          type="text"
+          [(ngModel)]="addressTerm"
+          placeholder="Search by address"
+        />
 
-  type="text"
+      </div>
 
-  [(ngModel)]="idTerm"
 
-  (ngModelChange)="onIdTermChanged($event)"
+      <!-- GENDER -->
+      <div class="advanced-field">
 
-  inputmode="numeric"
+        <label>
+          Gender
+        </label>
 
-  dir="ltr"
+        <input
+          type="text"
+          [(ngModel)]="genderTerm"
+          placeholder="Gender"
+        />
 
-  [placeholder]="'SEARCH_ID' | translate"
+      </div>
 
-/>
 
-        </div>
+      <!-- DATE OF BIRTH -->
+      <div class="advanced-field">
 
-        <button
+        <label>
+          Date of Birth
+        </label>
 
-          type="button"
+        <input
+          type="date"
+          [(ngModel)]="dateOfBirthTerm"
+        />
 
-          class="search-btn"
+      </div>
 
-          (click)="onSearchClick()"
 
-          [disabled]="loading"
+      <!-- AGE -->
+      <div class="advanced-field">
 
-        >
+        <label>
+          Age
+        </label>
 
-          <svg viewBox="0 0 24 24" aria-hidden="true">
+        <input
+          type="number"
+          min="0"
+          max="120"
+          [(ngModel)]="ageTerm"
+          placeholder="Age"
+        />
 
-            <path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" />
+      </div>
 
-          </svg>
 
-          {{ 'SEARCH' | translate }}
+      <!-- RELIGION -->
+      <div class="advanced-field">
 
-        </button>
+        <label>
+          Religion
+        </label>
 
-        <button
+        <input
+          type="text"
+          [(ngModel)]="religionTerm"
+          placeholder="Religion"
+        />
 
-          type="button"
+      </div>
 
-          class="clear-btn"
 
-          (click)="clearSearch()"
+      <!-- OCCUPATION -->
+      <div class="advanced-field">
 
-          [disabled]="loading"
+        <label>
+          Occupation
+        </label>
 
-        >
+        <input
+          type="text"
+          [(ngModel)]="occupationTerm"
+          placeholder="Occupation"
+        />
 
-          {{ 'CLEAR' | translate }}
+      </div>
 
-        </button>
 
-      </section>
+      <!-- MARITAL STATUS -->
+      <div class="advanced-field">
+
+        <label>
+          Marital Status
+        </label>
+
+        <input
+          type="text"
+          [(ngModel)]="maritalStatusTerm"
+          placeholder="Marital Status"
+        />
+
+      </div>
+
+
+      <!-- HUSBAND NAME -->
+      <div class="advanced-field">
+
+        <label>
+          Husband Name
+        </label>
+
+        <input
+          type="text"
+          [(ngModel)]="husbandNameTerm"
+          placeholder="Husband Name"
+        />
+
+      </div>
+
+
+      <!-- EXPIRY -->
+      <div class="advanced-field">
+
+        <label>
+          Expiry Date
+        </label>
+
+        <input
+          type="date"
+          [(ngModel)]="expiryDateTerm"
+        />
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
 
       <!-- =================================================== -->
 
@@ -445,12 +612,7 @@
 
             </h3>
 
-            <p>
-
-              {{ 'RECORDS_PAGE.SECTION_SUBTITLE' | translate }}
-
-            </p>
-
+         
           </div>
 
           <div

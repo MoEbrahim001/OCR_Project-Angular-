@@ -31,7 +31,7 @@
   "RECORDS_PAGE": {
     "TITLE": "Document Records",
     "SUBTITLE": "Manage and review information extracted from OCR processed documents.",
-"SECTION_TITLE": "National ID Data Registration",
+"SECTION_TITLE": "National ID Records",
     "LOADING": "Loading...",
     "EMPTY_HINT": "Try another search or add a new OCR record.",
     "NEW_RECORD": "New OCR Record"
