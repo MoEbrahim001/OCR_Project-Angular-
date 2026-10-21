@@ -16,7 +16,9 @@
     "RECORDS": "Records",
     "NEW": "New",
     "UPLOAD": "Upload",
-    "SETTINGS": "Settings"
+    "SETTINGS": "Settings",
+        "EXPORT": "Export"
+
   },
 
   "SEARCH": "Search",
@@ -219,5 +221,19 @@
     "YES": "Yes, Delete",
     "CANCEL": "Cancel",
     "DELETING": "Deleting..."
-  }
+  },
+  
+
+  "EXPORT": {
+    "SELECTED_RECORDS": "Export selected records",
+    "EXPORTING": "Exporting...",
+    "EXCEL": "Excel",
+    "PDF": "PDF"
+  },
+  "VIEW": {
+  "TABLE": "Table",
+  "CARDS": "Cards"
+}
+
+ 
 }

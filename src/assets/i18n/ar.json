@@ -17,7 +17,9 @@
     "RECORDS": "السجلات",
     "NEW": "جديد",
     "UPLOAD": "رفع",
-    "SETTINGS": "الإعدادات"
+    "SETTINGS": "الإعدادات",
+        "EXPORT": "تصدير"
+
   },
 
   "SEARCH": "بحث",
@@ -221,5 +223,16 @@
     "YES": "نعم، احذف",
     "CANCEL": "إلغاء",
     "DELETING": "جارٍ الحذف..."
-  }
+  },
+    "EXPORT": {
+    "SELECTED_RECORDS": "تصدير السجلات المحددة",
+    "EXPORTING": "جاري التصدير...",
+    "EXCEL": "Excel",
+    "PDF": "PDF"
+  },
+  "VIEW": {
+  "TABLE": "جدول",
+  "CARDS": "بطاقات"
+}
+
 }

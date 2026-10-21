@@ -139,6 +139,17 @@ searchMode = false;
 showExportMenu = false;
 
 exportingExcel = false;
+// =========================================================
+// SPLASH SCREEN
+// =========================================================
+
+showSplash = true;
+
+splashLeaving = false;
+
+private splashTimer?: ReturnType<typeof setTimeout>;
+
+private splashRemoveTimer?: ReturnType<typeof setTimeout>;
   // =========================================================
   // IMAGE MARKER
   // =========================================================
@@ -261,10 +272,22 @@ exportingExcel = false;
 
 
   // =========================================================
-  // PRINT MENU
+  // ACTION MENUS
   // =========================================================
 
-  openPrintMenuId:
+  openActionMenu:
+    {
+      recordId: number;
+      type: 'images' | 'print';
+    }
+    | null
+    = null;
+
+  loadingDetailsId:
+    number | null
+    = null;
+
+  loadingEditId:
     number | null
     = null;
 
@@ -341,7 +364,45 @@ exportingPdf = false;
   // =========================================================
 
   ngOnInit(): void {
+    const savedViewMode =
+  localStorage.getItem(
+    'records-view-mode'
+  );
 
+if (
+  savedViewMode === 'table'
+  ||
+  savedViewMode === 'cards'
+) {
+
+  this.viewMode =
+    savedViewMode;
+}
+this.splashTimer =
+  setTimeout(
+    () => {
+
+      this.splashLeaving =
+        true;
+
+      this.cdr.markForCheck();
+
+
+      this.splashRemoveTimer =
+        setTimeout(
+          () => {
+
+            this.showSplash =
+              false;
+
+            this.cdr.markForCheck();
+          },
+          450
+        );
+
+    },
+    1800
+  );
     this.sub =
       this.pageParams$
 
@@ -506,10 +567,26 @@ exportingPdf = false;
   // DESTROY
   // =========================================================
 
-  ngOnDestroy(): void {
+ngOnDestroy(): void {
 
-    this.sub?.unsubscribe();
+  this.sub?.unsubscribe();
+
+
+  if (this.splashTimer) {
+
+    clearTimeout(
+      this.splashTimer
+    );
   }
+
+
+  if (this.splashRemoveTimer) {
+
+    clearTimeout(
+      this.splashRemoveTimer
+    );
+  }
+}
 
 
   // =========================================================
@@ -1567,10 +1644,18 @@ onSearchClick(): void {
       !row
       ||
       !row.id
+      ||
+      this.loadingEditId === row.id
     ) {
 
       return;
     }
+
+
+    this.closeActionMenus();
+
+    this.loadingEditId =
+      row.id;
 
 
     /*
@@ -1613,6 +1698,10 @@ onSearchClick(): void {
               true;
 
 
+            this.loadingEditId =
+              null;
+
+
             this.cdr
               .markForCheck();
           },
@@ -1620,6 +1709,10 @@ onSearchClick(): void {
 
         error:
           err => {
+
+            this.loadingEditId =
+              null;
+
 
             console.error(
               err
@@ -2564,8 +2657,7 @@ onSearchClick(): void {
       true;
 
 
-    this.openPrintMenuId =
-      null;
+    this.closeActionMenus();
 
 
     this.cdr
@@ -2593,31 +2685,37 @@ onSearchClick(): void {
 
 
   // =========================================================
-  // PRINT DROPDOWN
+  // ACTION DROPDOWN
   // =========================================================
 
-  togglePrintMenu(
-
-    event:
-      MouseEvent,
-
-    record:
-      RecordModel
-
+  toggleActionMenu(
+    event: MouseEvent,
+    record: RecordModel,
+    type: 'images' | 'print'
   ): void {
 
-    event
-      .stopPropagation();
+    event.stopPropagation();
 
 
-    this.openPrintMenuId =
-
-      this.openPrintMenuId
+    const isSame =
+      this.openActionMenu?.recordId
         === record.id
+      &&
+      this.openActionMenu?.type
+        === type;
+
+
+    this.openActionMenu =
+      isSame
 
         ? null
 
-        : record.id;
+        : {
+            recordId:
+              record.id,
+
+            type
+          };
 
 
     this.cdr
@@ -2625,24 +2723,34 @@ onSearchClick(): void {
   }
 
 
-  @HostListener(
-    'document:click'
-  )
+  isActionMenuOpen(
+    record: RecordModel,
+    type: 'images' | 'print'
+  ): boolean {
 
-  closePrintMenu(): void {
+    return (
+      this.openActionMenu?.recordId
+        === record.id
+      &&
+      this.openActionMenu?.type
+        === type
+    );
+  }
 
-    if (
-      this.openPrintMenuId
-      !== null
-    ) {
 
-      this.openPrintMenuId =
-        null;
+  closeActionMenus(): void {
 
-
-      this.cdr
-        .markForCheck();
+    if (!this.openActionMenu) {
+      return;
     }
+
+
+    this.openActionMenu =
+      null;
+
+
+    this.cdr
+      .markForCheck();
   }
 
 
@@ -2674,8 +2782,7 @@ onSearchClick(): void {
       );
 
 
-    this.openPrintMenuId =
-      null;
+    this.closeActionMenus();
 
 
     if (
@@ -3204,25 +3311,27 @@ exportExcel(): void {
     });
 }
 @HostListener(
-  'document:click'
+  'document:click',
+  ['$event']
 )
-closeMenus(): void {
+closeMenus(
+  event: MouseEvent
+): void {
 
-  let changed =
-    false;
+  const target =
+    event.target as HTMLElement | null;
 
 
   if (
-    this.openPrintMenuId
-    !== null
+    target?.closest(
+      '.action-dropdown'
+    )
   ) {
-
-    this.openPrintMenuId =
-      null;
-
-    changed =
-      true;
+    return;
   }
+
+
+  this.closeActionMenus();
 
 
   if (
@@ -3232,19 +3341,11 @@ closeMenus(): void {
     this.showExportMenu =
       false;
 
-    changed =
-      true;
-  }
-
-
-  if (
-    changed
-  ) {
-
     this.cdr
       .markForCheck();
   }
 }
+
 exportPdf(): void {
 
   if (this.exportingPdf) {
@@ -3465,12 +3566,25 @@ openRecordDetails(
   record: RecordModel
 ): void {
 
-  if (!record?.id) {
+  if (
+    !record?.id
+    ||
+    this.loadingDetailsId === record.id
+  ) {
     return;
   }
 
+
+  this.closeActionMenus();
+
+  this.loadingDetailsId =
+    record.id;
+
+
   this.ocr
-    .getRecordById(record.id)
+    .getRecordById(
+      record.id
+    )
     .subscribe({
 
       next: (res: any) => {
@@ -3481,10 +3595,16 @@ openRecordDetails(
         this.showDetailsModal =
           true;
 
+        this.loadingDetailsId =
+          null;
+
         this.cdr.markForCheck();
       },
 
       error: err => {
+
+        this.loadingDetailsId =
+          null;
 
         console.error(
           'LOAD DETAILS ERROR:',
@@ -3576,5 +3696,31 @@ private buildSearchParams(
     isSearch:
       true
   };
+}
+viewMode:
+  'table' | 'cards'
+  = 'table';
+
+
+setViewMode(
+  mode: 'table' | 'cards'
+): void {
+
+  this.viewMode =
+    mode;
+
+  if (
+    typeof window !== 'undefined'
+  ) {
+
+    localStorage.setItem(
+      'records-view-mode',
+      mode
+    );
+  }
+
+  this.closeActionMenus();
+
+  this.cdr.markForCheck();
 }
 }

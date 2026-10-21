@@ -2651,7 +2651,12 @@ summary:focus-visible {
 
   position: absolute;
 
-  left: calc(100% + 10px);
+  /* Automatically:
+     English -> opens to the right
+     Arabic  -> opens to the left
+  */
+  inset-inline-start: calc(100% + 10px);
+
   bottom: 0;
 
   z-index: 6000;
@@ -3281,5 +3286,1559 @@ summary:focus-visible {
 
     grid-template-columns:
       1fr;
+  }
+}
+/* =========================================================
+   APP SPLASH SCREEN
+   ========================================================= */
+
+.app-splash {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 99999;
+
+  display: grid;
+
+  place-items: center;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 50% 38%,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(248, 250, 255, 0.98) 43%,
+      rgba(237, 243, 255, 0.98) 100%
+    );
+
+  opacity: 1;
+
+  transition:
+    opacity 0.45s ease,
+    visibility 0.45s ease;
+}
+
+
+.app-splash-leaving {
+  opacity: 0;
+
+  visibility: hidden;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   BACKGROUND
+   ========================================================= */
+
+.app-splash::before {
+  content: "";
+
+  position: absolute;
+
+  width: 520px;
+  height: 520px;
+
+  top: -310px;
+  left: -220px;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(111, 151, 255, 0.23),
+      rgba(152, 169, 255, 0.06)
+    );
+
+  transform:
+    rotate(-14deg);
+}
+
+
+.app-splash::after {
+  content: "";
+
+  position: absolute;
+
+  width: 520px;
+  height: 520px;
+
+  right: -270px;
+  bottom: -330px;
+
+  border-radius: 45%;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(137, 161, 255, 0.16),
+      rgba(113, 136, 255, 0.05)
+    );
+
+  transform:
+    rotate(28deg);
+}
+
+
+.splash-orb {
+  position: absolute;
+
+  border-radius: 50%;
+
+  pointer-events: none;
+}
+
+
+.splash-orb-one {
+  width: 280px;
+  height: 280px;
+
+  top: 8%;
+  right: 8%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(92, 124, 246, 0.08),
+      transparent 70%
+    );
+}
+
+
+.splash-orb-two {
+  width: 350px;
+  height: 350px;
+
+  bottom: 2%;
+  left: 12%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(139, 92, 246, 0.07),
+      transparent 70%
+    );
+}
+
+
+/* =========================================================
+   WAVES
+   ========================================================= */
+
+.splash-wave {
+  position: absolute;
+
+  left: -10%;
+
+  width: 120%;
+
+  height: 180px;
+
+  border-radius: 50%;
+
+  border:
+    1px solid
+    rgba(98, 127, 242, 0.13);
+
+  pointer-events: none;
+}
+
+
+.splash-wave-one {
+  bottom: 4%;
+
+  transform:
+    rotate(4deg);
+}
+
+
+.splash-wave-two {
+  bottom: -3%;
+
+  transform:
+    rotate(-3deg);
+
+  opacity: 0.65;
+}
+
+
+/* =========================================================
+   MAIN CARD
+   ========================================================= */
+
+.splash-card {
+  width:
+    min(
+      700px,
+      calc(100vw - 40px)
+    );
+
+  min-height: 610px;
+
+  position: relative;
+
+  z-index: 10;
+
+  padding:
+    44px 56px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.85);
+
+  border-radius: 28px;
+
+  background:
+    rgba(255, 255, 255, 0.78);
+
+  backdrop-filter:
+    blur(18px);
+
+  box-shadow:
+    0 28px 80px
+    rgba(56, 75, 132, 0.12);
+
+  text-align: center;
+
+  animation:
+    splashCardIn
+    0.7s
+    cubic-bezier(
+      0.22,
+      1,
+      0.36,
+      1
+    )
+    both;
+}
+
+
+@keyframes splashCardIn {
+
+  from {
+
+    opacity: 0;
+
+    transform:
+      translateY(20px)
+      scale(0.98);
+  }
+
+  to {
+
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.splash-logo-wrap {
+  width: 145px;
+  height: 145px;
+
+  margin-bottom: 32px;
+
+  padding: 9px;
+
+  display: grid;
+
+  place-items: center;
+
+  border-radius: 34px;
+
+  background: white;
+
+  box-shadow:
+    0 12px 32px
+    rgba(57, 78, 145, 0.10);
+}
+
+
+.splash-logo {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+
+  object-fit: contain;
+
+  border-radius: 25px;
+}
+
+
+/* =========================================================
+   TEXT
+   ========================================================= */
+
+.splash-title {
+  margin: 0;
+
+  color: #142143;
+
+  font-size:
+    clamp(
+      34px,
+      3.2vw,
+      50px
+    );
+
+  font-weight: 900;
+
+  letter-spacing:
+    -1.5px;
+
+  line-height: 1.1;
+}
+
+
+.splash-title-ar {
+  margin:
+    18px 0
+    0;
+
+  color: #7081aa;
+
+  font-size:
+    clamp(
+      21px,
+      2vw,
+      29px
+    );
+
+  font-weight: 750;
+
+  line-height: 1.4;
+}
+
+
+.splash-divider {
+  width: 170px;
+
+  margin:
+    24px 0
+    20px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 14px;
+}
+
+
+.splash-divider span {
+  width: 54px;
+  height: 2px;
+
+  border-radius: 999px;
+
+  background: #e5eaf6;
+}
+
+
+.splash-divider strong {
+  width: 58px;
+  height: 4px;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #4f6df5,
+      #6f6df7
+    );
+
+  box-shadow:
+    0 2px 8px
+    rgba(79, 109, 245, 0.25);
+}
+
+
+.splash-quote {
+  margin: 0;
+
+  color: #7180a1;
+
+  font-size:
+    clamp(
+      14px,
+      1.35vw,
+      18px
+    );
+
+  font-style: italic;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   LOADER
+   ========================================================= */
+
+.splash-loader {
+  width: 70px;
+  height: 70px;
+
+  margin-top: 38px;
+
+  position: relative;
+
+  border-radius: 50%;
+
+  background:
+    conic-gradient(
+      from 0deg,
+      #4f6df5,
+      #6680f8,
+      #eef2ff 68%,
+      #eef2ff
+    );
+
+  animation:
+    splashSpin
+    0.95s
+    linear
+    infinite;
+}
+
+
+.splash-loader::before {
+  content: "";
+
+  position: absolute;
+
+  inset: 8px;
+
+  border-radius: inherit;
+
+  background:
+    rgba(255, 255, 255, 0.98);
+}
+
+
+.splash-loader span {
+  position: absolute;
+
+  inset: 0;
+
+  border-radius: inherit;
+}
+
+
+@keyframes splashSpin {
+
+  to {
+
+    transform:
+      rotate(360deg);
+  }
+}
+
+
+.splash-loading-text {
+  margin:
+    15px 0
+    0;
+
+  color: #7d8ead;
+
+  font-size: 15px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.1px;
+}
+
+
+/* =========================================================
+   LEFT DOCUMENT
+   ========================================================= */
+
+.splash-document-decoration {
+  width: 210px;
+  height: 210px;
+
+  position: absolute;
+
+  z-index: 2;
+
+  left: 7%;
+  top: 37%;
+
+  display: grid;
+
+  place-items: center;
+
+  opacity: 0.30;
+
+  transform:
+    translateY(-50%);
+}
+
+
+.splash-document-icon {
+  width: 88px;
+  height: 88px;
+
+  color: #6481ee;
+
+  stroke-width: 1.3;
+}
+
+
+.scan-corner {
+  width: 42px;
+  height: 42px;
+
+  position: absolute;
+
+  border-color:
+    rgba(
+      86,
+      121,
+      241,
+      0.7
+    );
+
+  border-style: solid;
+}
+
+
+.scan-tl {
+  top: 0;
+  left: 0;
+
+  border-width:
+    4px 0 0 4px;
+
+  border-radius:
+    12px 0 0 0;
+}
+
+
+.scan-tr {
+  top: 0;
+  right: 0;
+
+  border-width:
+    4px 4px 0 0;
+
+  border-radius:
+    0 12px 0 0;
+}
+
+
+.scan-bl {
+  bottom: 0;
+  left: 0;
+
+  border-width:
+    0 0 4px 4px;
+
+  border-radius:
+    0 0 0 12px;
+}
+
+
+.scan-br {
+  right: 0;
+  bottom: 0;
+
+  border-width:
+    0 4px 4px 0;
+
+  border-radius:
+    0 0 12px 0;
+}
+
+
+.scan-line {
+  width: 120%;
+
+  height: 2px;
+
+  position: absolute;
+
+  left: -10%;
+  top: 50%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #4cc9ff,
+      transparent
+    );
+
+  box-shadow:
+    0 0 15px
+    rgba(76, 201, 255, 0.6);
+
+  animation:
+    scanMove
+    2.3s
+    ease-in-out
+    infinite;
+}
+
+
+@keyframes scanMove {
+
+  0%,
+  100% {
+
+    transform:
+      translateY(-70px);
+  }
+
+  50% {
+
+    transform:
+      translateY(70px);
+  }
+}
+
+
+/* =========================================================
+   RIGHT ID DECORATION
+   ========================================================= */
+
+.splash-id-decoration {
+  width: 310px;
+  height: 175px;
+
+  padding: 27px;
+
+  position: absolute;
+
+  z-index: 2;
+
+  right: 3%;
+  top: 36%;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 22px;
+
+  border:
+    1px solid
+    rgba(118, 144, 235, 0.12);
+
+  border-radius: 24px;
+
+  background:
+    rgba(255, 255, 255, 0.28);
+
+  opacity: 0.28;
+
+  transform:
+    rotate(-11deg);
+}
+
+
+.fake-person {
+  width: 76px;
+  height: 102px;
+
+  flex:
+    0 0 76px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border-radius: 16px;
+
+  background:
+    rgba(111, 137, 224, 0.10);
+}
+
+
+.fake-head {
+  width: 34px;
+  height: 34px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(92, 116, 200, 0.38);
+}
+
+
+.fake-body {
+  width: 52px;
+  height: 34px;
+
+  margin-top: 5px;
+
+  border-radius:
+    30px 30px 10px 10px;
+
+  background:
+    rgba(92, 116, 200, 0.30);
+}
+
+
+.fake-id-content {
+  flex: 1;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+
+.fake-id-content span {
+  height: 11px;
+
+  display: block;
+
+  border-radius:
+    999px;
+
+  background:
+    rgba(83, 108, 197, 0.22);
+}
+
+
+.fake-id-content span:nth-child(2) {
+  width: 78%;
+}
+
+
+.fake-id-content span:nth-child(3) {
+  width: 58%;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1050px) {
+
+  .splash-document-decoration,
+  .splash-id-decoration {
+
+    opacity:
+      0.12;
+  }
+
+
+  .splash-document-decoration {
+
+    left:
+      -40px;
+  }
+
+
+  .splash-id-decoration {
+
+    right:
+      -90px;
+  }
+}
+
+
+@media (max-width: 700px) {
+
+  .splash-card {
+
+    min-height:
+      500px;
+
+    padding:
+      35px 24px;
+
+    border-radius:
+      22px;
+  }
+
+
+  .splash-logo-wrap {
+
+    width:
+      115px;
+
+    height:
+      115px;
+
+    margin-bottom:
+      25px;
+  }
+
+
+  .splash-document-decoration,
+  .splash-id-decoration {
+
+    display:
+      none;
+  }
+
+
+  .splash-loader {
+
+    width:
+      58px;
+
+    height:
+      58px;
+
+    margin-top:
+      30px;
+  }
+}
+/* =========================================================
+   CENTER ALL TABLE VALUES
+   ========================================================= */
+
+.records-table thead th,
+.records-table tbody td {
+  text-align: center !important;
+  vertical-align: middle;
+}
+
+
+/* NAME COLUMN */
+
+.name-cell {
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+.name-cell > span:last-child {
+  text-align: center !important;
+}
+
+
+/* NATIONAL ID */
+
+.national-id {
+  text-align: center !important;
+}
+
+
+/* DATE */
+
+.date-cell {
+  text-align: center !important;
+}
+
+
+/* CHECKBOX */
+
+.select-col {
+  text-align: center !important;
+}
+
+
+/* ACTIONS */
+
+.row-actions {
+  justify-content: center !important;
+}
+/* =========================================================
+   BIGGER TABLE TYPOGRAPHY
+   ========================================================= */
+
+.records-table thead th {
+  font-size: 11px !important;
+}
+
+.records-table tbody td {
+  font-size: 13px !important;
+}
+
+
+/* NAME */
+
+.name-cell > span:last-child {
+  font-size: 13px !important;
+  font-weight: 750;
+}
+
+
+/* NATIONAL ID */
+
+.national-id {
+  font-size: 12.5px !important;
+}
+
+
+/* DATE */
+
+.date-cell {
+  font-size: 12.5px !important;
+}
+
+
+/* INDEX NUMBER */
+
+.index-badge {
+  font-size: 10.5px !important;
+}
+
+
+/* ACTION ICONS */
+
+.icon-btn {
+  width: 35px;
+  height: 35px;
+  flex-basis: 35px;
+}
+:host-context([dir="rtl"]) .sidebar-export-menu {
+  direction: rtl;
+  text-align: right;
+}
+
+:host-context([dir="ltr"]) .sidebar-export-menu {
+  direction: ltr;
+  text-align: left;
+}
+/* =========================================================
+   TABLE / CARD VIEW SWITCH
+   ========================================================= */
+
+.records-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+
+.view-switch {
+  padding: 4px;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 3px;
+
+  border: 1px solid #dfe6f3;
+
+  border-radius: 11px;
+
+  background: #f5f7fc;
+}
+
+
+.view-switch-btn {
+  height: 34px;
+
+  padding:
+    0 11px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+
+  border: 0;
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #74819c;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+
+.view-switch-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+
+.view-switch-btn.active {
+  background: #ffffff;
+
+  color: var(--primary);
+
+  box-shadow:
+    0 3px 9px
+    rgba(
+      56,
+      72,
+      130,
+      0.10
+    );
+}
+
+
+/* =========================================================
+   NATIONAL ID CARD GRID
+   ========================================================= */
+
+.records-card-grid {
+  padding: 20px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(280px, 1fr)
+    );
+
+  gap: 18px;
+}
+
+
+/* =========================================================
+   NATIONAL ID CARD
+   ========================================================= */
+
+.national-record-card {
+  min-width: 0;
+
+  position: relative;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    #dfe6f4;
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff 0%,
+      #fbfcff 58%,
+      #f2f5ff 100%
+    );
+
+  box-shadow:
+    0 12px 30px
+    rgba(
+      45,
+      59,
+      105,
+      0.08
+    );
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+
+.national-record-card::before {
+  content: "";
+
+  width: 150px;
+  height: 150px;
+
+  position: absolute;
+
+  top: -80px;
+  right: -60px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(
+        79,
+        109,
+        245,
+        0.12
+      ),
+      transparent 70%
+    );
+
+  pointer-events: none;
+}
+
+
+.national-record-card:hover {
+  transform:
+    translateY(-3px);
+
+  border-color:
+    #cbd5ff;
+
+  box-shadow:
+    0 18px 40px
+    rgba(
+      45,
+      59,
+      105,
+      0.13
+    );
+}
+
+
+/* =========================================================
+   CARD TOP
+   ========================================================= */
+
+.record-card-top {
+  min-height: 56px;
+
+  padding:
+    12px 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  border-bottom:
+    1px solid
+    #e8edf7;
+
+  background:
+    rgba(
+      248,
+      250,
+      255,
+      0.76
+    );
+}
+
+
+.record-card-brand {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+}
+
+
+.record-card-emblem {
+  width: 35px;
+  height: 35px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #edf2ff,
+      #e4e9ff
+    );
+
+  color:
+    var(--primary);
+}
+
+
+.record-card-emblem svg {
+  width: 17px;
+  height: 17px;
+}
+
+
+.record-card-brand span {
+  display: block;
+
+  color: #9aa6bd;
+
+  font-size: 7px;
+  font-weight: 900;
+
+  letter-spacing:
+    0.7px;
+
+  text-transform:
+    uppercase;
+}
+
+
+.record-card-brand strong {
+  display: block;
+
+  margin-top: 2px;
+
+  color: #34415d;
+
+  font-size: 11px;
+  font-weight: 850;
+}
+
+
+.record-card-checkbox {
+  width: 16px;
+  height: 16px;
+
+  accent-color:
+    var(--primary);
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   CARD PERSON
+   ========================================================= */
+
+.record-card-main {
+  padding:
+    17px 15px;
+
+  display: grid;
+
+  grid-template-columns:
+    62px
+    minmax(0, 1fr);
+
+  align-items: center;
+
+  gap: 14px;
+}
+
+
+.record-card-avatar {
+  width: 62px;
+  height: 70px;
+
+  display: grid;
+  place-items: center;
+
+  border:
+    1px solid
+    #dbe3f4;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #edf2ff,
+      #e8ecff
+    );
+
+  color:
+    var(--primary);
+
+  font-size: 23px;
+  font-weight: 900;
+}
+
+
+.record-card-person {
+  min-width: 0;
+}
+
+
+.record-card-label {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: #97a3bb;
+
+  font-size: 7px;
+  font-weight: 900;
+
+  letter-spacing:
+    0.55px;
+
+  text-transform:
+    uppercase;
+}
+
+
+.record-card-person h4 {
+  margin:
+    0 0 12px;
+
+  overflow: hidden;
+
+  color: #23304c;
+
+  font-size: 14px;
+  font-weight: 850;
+
+  line-height: 1.35;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+
+.record-card-id {
+  color: #2948b8;
+
+  font-family:
+    Consolas,
+    "SFMono-Regular",
+    monospace;
+
+  font-size: 12px;
+  font-weight: 850;
+
+  letter-spacing:
+    0.35px;
+
+  direction: ltr;
+
+  unicode-bidi:
+    isolate;
+}
+
+
+/* =========================================================
+   DETAILS
+   ========================================================= */
+
+.record-card-details {
+  margin:
+    0 15px;
+
+  padding:
+    12px 0;
+
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    1fr;
+
+  gap: 10px;
+
+  border-top:
+    1px dashed
+    #dfe5f0;
+
+  border-bottom:
+    1px dashed
+    #dfe5f0;
+}
+
+
+.record-card-details > div {
+  min-width: 0;
+}
+
+
+.record-card-details span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #9aa6bd;
+
+  font-size: 7px;
+  font-weight: 850;
+
+  text-transform:
+    uppercase;
+}
+
+
+.record-card-details strong {
+  color: #46546f;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   CARD INDEX
+   ========================================================= */
+
+.record-card-number {
+  position: absolute;
+
+  right: 15px;
+  bottom: 17px;
+
+  color:
+    rgba(
+      79,
+      109,
+      245,
+      0.15
+    );
+
+  font-size: 30px;
+  font-weight: 900;
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   CARD ACTIONS
+   ========================================================= */
+
+.record-card-actions {
+  min-height: 58px;
+
+  padding:
+    11px 15px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+}
+
+
+.card-action-btn {
+  width: 35px;
+  height: 35px;
+
+  display: grid;
+  place-items: center;
+
+  border:
+    1px solid
+    #dfe6f3;
+
+  border-radius: 9px;
+
+  background: white;
+
+  color: #647493;
+
+  cursor: pointer;
+}
+
+
+.card-action-btn:hover:not(:disabled) {
+  border-color:
+    #bcc9ff;
+
+  background:
+    #eef3ff;
+
+  color:
+    var(--primary);
+}
+
+
+.card-action-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+
+.card-action-btn img {
+  width: 15px;
+  height: 15px;
+
+  object-fit:
+    contain;
+
+  pointer-events:
+    none;
+}
+
+
+.card-action-btn.danger:hover {
+  border-color:
+    #ffc9cf;
+
+  background:
+    var(--danger-soft);
+}
+
+
+.card-action-btn:disabled {
+  opacity: 0.45;
+
+  cursor:
+    not-allowed;
+}
+
+
+/* =========================================================
+   RESPONSIVE CARD VIEW
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+  .records-card-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(260px, 1fr)
+      );
+  }
+}
+
+
+@media (max-width: 700px) {
+
+  .records-panel-header {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+  }
+
+
+  .records-header-actions {
+    width: 100%;
+
+    justify-content:
+      space-between;
+  }
+
+
+  .records-card-grid {
+    padding: 12px;
+
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .view-switch-btn span {
+    display: none;
   }
 }

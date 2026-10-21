@@ -1,3 +1,160 @@
+<!-- ===================================================== -->
+<!-- SPLASH SCREEN -->
+<!-- ===================================================== -->
+
+<div
+  class="app-splash"
+  *ngIf="showSplash"
+  [class.app-splash-leaving]="splashLeaving"
+  role="status"
+  aria-label="Preparing National ID Registration"
+>
+
+  <!-- BACKGROUND DECORATION -->
+
+  <div class="splash-orb splash-orb-one"></div>
+
+  <div class="splash-orb splash-orb-two"></div>
+
+  <div class="splash-wave splash-wave-one"></div>
+
+  <div class="splash-wave splash-wave-two"></div>
+
+
+  <!-- LEFT DOCUMENT -->
+
+  <div
+    class="splash-document-decoration"
+    aria-hidden="true"
+  >
+
+    <div class="scan-corner scan-tl"></div>
+    <div class="scan-corner scan-tr"></div>
+    <div class="scan-corner scan-bl"></div>
+    <div class="scan-corner scan-br"></div>
+
+    <svg
+      viewBox="0 0 24 24"
+      class="splash-document-icon"
+    >
+      <path
+        d="M6 3h8l4 4v14H6V3Z"
+      />
+
+      <path
+        d="M14 3v5h5"
+      />
+
+      <path
+        d="M9 12h6M9 16h6"
+      />
+    </svg>
+
+    <div class="scan-line"></div>
+
+  </div>
+
+
+  <!-- RIGHT ID CARD -->
+
+  <div
+    class="splash-id-decoration"
+    aria-hidden="true"
+  >
+
+    <div class="fake-person">
+
+      <div class="fake-head"></div>
+
+      <div class="fake-body"></div>
+
+    </div>
+
+    <div class="fake-id-content">
+
+      <span></span>
+
+      <span></span>
+
+      <span></span>
+
+    </div>
+
+  </div>
+
+
+  <!-- MAIN CARD -->
+
+  <div class="splash-card">
+
+    <div class="splash-logo-wrap">
+
+      <img
+        src="assets/images/almostakbal-logo.jfif"
+        alt="Almostakbal Technology"
+        class="splash-logo"
+      />
+
+    </div>
+
+
+    <h1 class="splash-title">
+
+      National ID Registration
+
+    </h1>
+
+
+    <h2
+      class="splash-title-ar"
+      dir="rtl"
+    >
+
+      نظام إدارة بيانات الرقم القومي
+
+    </h2>
+
+
+    <div
+      class="splash-divider"
+      aria-hidden="true"
+    >
+
+      <span></span>
+
+      <strong></strong>
+
+      <span></span>
+
+    </div>
+
+
+    <p class="splash-quote">
+
+      “Turning identity data into organized, accessible records.”
+
+    </p>
+
+
+    <div
+      class="splash-loader"
+      aria-hidden="true"
+    >
+
+      <span></span>
+
+    </div>
+
+
+    <p class="splash-loading-text">
+
+      Preparing workspace...
+
+    </p>
+
+  </div>
+
+</div>
 <div class="ocr-shell">
 
   <!-- ===================================================== -->
@@ -112,41 +269,27 @@
 
 >
 
-  <button
+<button
+  type="button"
+  class="nav-item"
+  [attr.title]="'NAV.EXPORT' | translate"
+  (click)="toggleExportMenu($event)"
+>
 
-    type="button"
-
-    class="nav-item"
-
-    title="Export"
-
-    (click)="toggleExportMenu($event)"
-
+  <svg
+    viewBox="0 0 24 24"
+    aria-hidden="true"
   >
+    <path
+      d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3"
+    />
+  </svg>
 
-    <svg
+  <span>
+    {{ 'NAV.EXPORT' | translate }}
+  </span>
 
-      viewBox="0 0 24 24"
-
-      aria-hidden="true"
-
-    >
-
-      <path
-
-        d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3"
-
-      />
-
-    </svg>
-
-    <span>
-
-      Export
-
-    </span>
-
-  </button>
+</button>
 
   <div
 
@@ -156,12 +299,15 @@
 
   >
 
-    <div class="export-menu-title">
-      Export selected records
-      <span *ngIf="selectedCount > 0">
-        ({{ selectedCount }})
-      </span>
-    </div>
+   <div class="export-menu-title">
+
+  {{ 'EXPORT.SELECTED_RECORDS' | translate }}
+
+  <span *ngIf="selectedCount > 0">
+    ({{ selectedCount }})
+  </span>
+
+</div>
 
     <button
 
@@ -183,15 +329,11 @@
 
       <span>
 
-        {{
-
-          exportingExcel
-
-            ? 'Exporting...'
-
-            : 'Excel'
-
-        }}
+       {{
+  exportingExcel
+    ? ('EXPORT.EXPORTING' | translate)
+    : ('EXPORT.EXCEL' | translate)
+}}
 
       </span>
 
@@ -217,15 +359,11 @@
 
   <span>
 
-    {{
-
-      exportingPdf
-
-        ? 'Exporting...'
-
-        : 'PDF'
-
-    }}
+  {{
+  exportingPdf
+    ? ('EXPORT.EXPORTING' | translate)
+    : ('EXPORT.PDF' | translate)
+}}
 
   </span>
 
@@ -485,8 +623,11 @@
         </label>
 
         <input
-          type="date"
+          type="text"
           [(ngModel)]="dateOfBirthTerm"
+            placeholder="YYYY-MM-DD"
+  inputmode="numeric"
+  autocomplete="off"
         />
 
       </div>
@@ -582,8 +723,11 @@
         </label>
 
         <input
-          type="date"
+          type="text"
           [(ngModel)]="expiryDateTerm"
+          placeholder="YYYY-MM-DD"
+          inputmode="numeric"
+          autocomplete="off"
         />
 
       </div>
@@ -601,38 +745,83 @@
       <!-- =================================================== -->
 
       <section class="records-panel">
+<div class="records-panel-header">
 
-        <div class="records-panel-header">
+  <div>
 
-          <div>
+    <h3>
+      {{ 'RECORDS_PAGE.SECTION_TITLE' | translate }}
+    </h3>
 
-            <h3>
+  </div>
 
-              {{ 'RECORDS_PAGE.SECTION_TITLE' | translate }}
 
-            </h3>
+  <div class="records-header-actions">
 
-         
-          </div>
+    <div class="view-switch">
 
-          <div
+      <button
+        type="button"
+        class="view-switch-btn"
+        [class.active]="viewMode === 'table'"
+        (click)="setViewMode('table')"
+        [attr.title]="'VIEW.TABLE' | translate"
+      >
 
-            class="loading-inline"
+        <svg viewBox="0 0 24 24">
+          <path d="M4 5h16M4 10h16M4 15h16M4 20h16" />
+        </svg>
 
-            *ngIf="loading"
+        <span>
+          {{ 'VIEW.TABLE' | translate }}
+        </span>
 
-          >
+      </button>
 
-            <span class="spinner"></span>
 
-            {{ 'RECORDS_PAGE.LOADING' | translate }}
+      <button
+        type="button"
+        class="view-switch-btn"
+        [class.active]="viewMode === 'cards'"
+        (click)="setViewMode('cards')"
+        [attr.title]="'VIEW.CARDS' | translate"
+      >
 
-          </div>
+        <svg viewBox="0 0 24 24">
+          <rect x="3" y="4" width="8" height="7" rx="1" />
+          <rect x="13" y="4" width="8" height="7" rx="1" />
+          <rect x="3" y="13" width="8" height="7" rx="1" />
+          <rect x="13" y="13" width="8" height="7" rx="1" />
+        </svg>
 
-        </div>
+        <span>
+          {{ 'VIEW.CARDS' | translate }}
+        </span>
 
-        <div class="table-wrap">
+      </button>
 
+    </div>
+
+
+    <div
+      class="loading-inline"
+      *ngIf="loading"
+    >
+
+      <span class="spinner"></span>
+
+      {{ 'RECORDS_PAGE.LOADING' | translate }}
+
+    </div>
+
+  </div>
+
+</div>
+
+<div
+  class="table-wrap"
+  *ngIf="viewMode === 'table'"
+>
           <table class="records-table">
 
        <thead>
@@ -733,6 +922,7 @@
           class="icon-btn details-action"
           title="View Details"
           aria-label="View Details"
+          [disabled]="loadingDetailsId === r.id"
           (click)="openRecordDetails(r)"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -742,18 +932,26 @@
         </button>
 
         <!-- IMAGES -->
-        <details class="action-dropdown image-dropdown">
-          <summary
+        <div
+          class="action-dropdown image-dropdown"
+          (click)="$event.stopPropagation()"
+        >
+          <button
+            type="button"
             class="icon-btn image-action"
             [attr.title]="'ACTIONS.VIEW_IMAGES' | translate"
             [attr.aria-label]="'ACTIONS.VIEW_IMAGES' | translate"
+            (click)="toggleActionMenu($event, r, 'images')"
           >
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M4 5h16v14H4V5Zm3 10 3.5-4 2.5 3 2-2 3 3M8.5 9h.01" />
             </svg>
-          </summary>
+          </button>
 
-          <div class="action-menu">
+          <div
+            class="action-menu"
+            *ngIf="isActionMenuOpen(r, 'images')"
+          >
             <div class="action-menu-title">
               {{ 'ACTIONS.ID_IMAGES' | translate }}
             </div>
@@ -761,30 +959,32 @@
             <button
               type="button"
               [disabled]="!hasFrontImage(r)"
-              (click)="viewRecordImage('front', r)"
+              (click)="closeActionMenus(); viewRecordImage('front', r)"
             >
               <span class="menu-icon">
                 <svg viewBox="0 0 24 24">
                   <path d="M4 5h16v14H4V5Zm3 10 3.5-4 2.5 3 2-2 3 3" />
                 </svg>
               </span>
+
               {{ 'ACTIONS.VIEW_FRONT' | translate }}
             </button>
 
             <button
               type="button"
               [disabled]="!hasBackImage(r)"
-              (click)="viewRecordImage('back', r)"
+              (click)="closeActionMenus(); viewRecordImage('back', r)"
             >
               <span class="menu-icon">
                 <svg viewBox="0 0 24 24">
                   <path d="M4 5h16v14H4V5Zm3 10 3.5-4 2.5 3 2-2 3 3" />
                 </svg>
               </span>
+
               {{ 'ACTIONS.VIEW_BACK' | translate }}
             </button>
           </div>
-        </details>
+        </div>
 
         <!-- EDIT -->
         <button
@@ -792,22 +992,31 @@
           class="icon-btn edit"
           [attr.title]="'ACTIONS.EDIT' | translate"
           [attr.aria-label]="'ACTIONS.EDIT' | translate"
+          [disabled]="loadingEditId === r.id"
           (click)="startEdit(i)"
         >
           <img src="assets/images/edit.png" alt="" />
         </button>
 
         <!-- PRINT -->
-        <details class="action-dropdown print-dropdown">
-          <summary
+        <div
+          class="action-dropdown print-dropdown"
+          (click)="$event.stopPropagation()"
+        >
+          <button
+            type="button"
             class="icon-btn print-action"
             [attr.title]="'ACTIONS.PRINT' | translate"
             [attr.aria-label]="'ACTIONS.PRINT' | translate"
+            (click)="toggleActionMenu($event, r, 'print')"
           >
             <span class="print-emoji" aria-hidden="true">🖨️</span>
-          </summary>
+          </button>
 
-          <div class="action-menu print-menu-new">
+          <div
+            class="action-menu print-menu-new"
+            *ngIf="isActionMenuOpen(r, 'print')"
+          >
             <div class="action-menu-title">
               {{ 'ACTIONS.PRINT_ID' | translate }}
             </div>
@@ -815,7 +1024,7 @@
             <button
               type="button"
               [disabled]="!hasFrontImage(r)"
-              (click)="printRecordImage(r, 'front')"
+              (click)="closeActionMenus(); printRecordImage(r, 'front')"
             >
               {{ 'ACTIONS.PRINT_FRONT' | translate }}
             </button>
@@ -823,7 +1032,7 @@
             <button
               type="button"
               [disabled]="!hasBackImage(r)"
-              (click)="printRecordImage(r, 'back')"
+              (click)="closeActionMenus(); printRecordImage(r, 'back')"
             >
               {{ 'ACTIONS.PRINT_BACK' | translate }}
             </button>
@@ -832,12 +1041,12 @@
               type="button"
               class="menu-emphasis"
               [disabled]="!hasFrontImage(r) && !hasBackImage(r)"
-              (click)="printRecordImage(r, 'both')"
+              (click)="closeActionMenus(); printRecordImage(r, 'both')"
             >
               {{ 'ACTIONS.PRINT_BOTH' | translate }}
             </button>
           </div>
-        </details>
+        </div>
 
         <!-- DELETE -->
         <button
@@ -877,6 +1086,225 @@
           </table>
 
         </div>
+        <!-- ===================================================== -->
+<!-- CARD VIEW -->
+<!-- ===================================================== -->
+
+<div
+  class="records-card-grid"
+  *ngIf="viewMode === 'cards'"
+>
+
+  <article
+    class="national-record-card"
+    *ngFor="
+      let r of filteredRecords;
+      let i = index;
+      trackBy: trackById
+    "
+  >
+
+    <!-- TOP -->
+    <div class="record-card-top">
+
+      <div class="record-card-brand">
+
+        <div class="record-card-emblem">
+
+          <svg viewBox="0 0 24 24">
+            <path d="M5 4h14v16H5V4Zm3 4h8M8 12h8M8 16h5" />
+          </svg>
+
+        </div>
+
+        <div>
+          <span>
+            {{ 'TABLE.NID' | translate }}
+          </span>
+
+          <strong>
+            National ID
+          </strong>
+        </div>
+
+      </div>
+
+
+      <input
+        type="checkbox"
+        class="record-card-checkbox"
+        [checked]="isRecordSelected(r)"
+        (change)="
+          toggleRecordSelection(
+            r,
+            $any($event.target).checked
+          )
+        "
+      />
+
+    </div>
+
+
+    <!-- ID CONTENT -->
+    <div class="record-card-main">
+
+      <div class="record-card-avatar">
+
+        {{
+          r.name
+            ? r.name.charAt(0)
+            : '?'
+        }}
+
+      </div>
+
+
+      <div class="record-card-person">
+
+        <span class="record-card-label">
+          {{ 'TABLE.NAME' | translate }}
+        </span>
+
+        <h4>
+          {{ r.name || '—' }}
+        </h4>
+
+
+        <span class="record-card-label">
+          {{ 'TABLE.NID' | translate }}
+        </span>
+
+        <div
+          class="record-card-id"
+          dir="ltr"
+        >
+          {{ formatNationalId(r.idNumber) }}
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- DETAILS -->
+    <div class="record-card-details">
+
+      <div>
+
+        <span>
+          {{ 'TABLE.GENDER' | translate }}
+        </span>
+
+        <strong>
+          {{ r.gender || '—' }}
+        </strong>
+
+      </div>
+
+
+      <div>
+
+        <span>
+          {{ 'TABLE.DOB' | translate }}
+        </span>
+
+        <strong dir="ltr">
+          {{
+            r.dateOfBirth
+              | date:'yyyy-MM-dd'
+              | arabicDigits
+          }}
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- CARD NUMBER -->
+    <div class="record-card-number">
+
+      {{
+        (
+          (pageNumber - 1)
+          * pageSize
+          + i
+          + 1
+        )
+        | arabicDigits
+      }}
+
+    </div>
+
+
+    <!-- ACTIONS -->
+    <div class="record-card-actions">
+
+      <button
+        type="button"
+        class="card-action-btn"
+        [disabled]="loadingDetailsId === r.id"
+        (click)="openRecordDetails(r)"
+        [attr.title]="'ACTIONS.VIEW_DETAILS' | translate"
+      >
+
+        <svg viewBox="0 0 24 24">
+          <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+
+      </button>
+
+
+      <button
+        type="button"
+        class="card-action-btn"
+        [disabled]="loadingEditId === r.id"
+        (click)="startEdit(i)"
+        [attr.title]="'ACTIONS.EDIT' | translate"
+      >
+
+        <img
+          src="assets/images/edit.png"
+          alt=""
+        />
+
+      </button>
+
+
+      <button
+        type="button"
+        class="card-action-btn danger"
+        (click)="askDelete(i)"
+        [attr.title]="'ACTIONS.DELETE' | translate"
+      >
+
+        <img
+          src="assets/images/delete.png"
+          alt=""
+        />
+
+      </button>
+
+    </div>
+
+  </article>
+
+
+  <div
+    class="cards-empty-state"
+    *ngIf="
+      !filteredRecords.length
+      &&
+      !loading
+    "
+  >
+
+    {{ 'TABLE.EMPTY' | translate }}
+
+  </div>
+
+</div>
 
         <!-- ================================================= -->
 
