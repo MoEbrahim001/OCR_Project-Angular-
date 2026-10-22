@@ -1,16 +1,22 @@
 export const environment = {
   production: true,
 
-  // Adjust to your real production API base if different
-  apiBaseUrl: 'http://localhost:6001/api',
+  apiBaseUrl: '/api',
 
   ocr: {
-    front:  'http://localhost:6001/api/Ocr/extract/front',
-    back:   'http://localhost:6001/api/Ocr/extract/back',     
+    front: '/api/Ocr/extract/front',
+    back: '/api/Ocr/extract/back'
   },
-  records: {
-    list:   'http://localhost:6001/api/Records',
-    import: 'http://localhost:6001/api/Records/import'
-  }
 
+  records: {
+    list: '/api/Records',
+    create: '/api/Records',
+    edit: '/api/Records/',
+    delete: '/api/Records/',
+    getbyid: '/api/Records/',
+    search: '/api/Records/Search',
+    exportExcel: '/api/Records/export/excel',
+    exportPdf: '/api/Records/export/pdf',
+    import: '/api/Records/import'
+  }
 };

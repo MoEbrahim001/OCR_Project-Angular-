@@ -2,35 +2,19 @@ export const environment = {
   production: false,
 
   records: {
-    list:   'http://localhost:5100/api/Records',
-    create: 'http://localhost:5100/api/Records',
-    edit:   'http://localhost:5100/api/Records/',
-    delete: 'http://localhost:5100/api/Records/',
-    getbyid:'http://localhost:5100/api/Records/',
-    search: 'http://localhost:5100/api/Records/Search',
-    exportExcel:
-  'http://localhost:5100/api/Records/export/excel',
-  exportPdf:
-  'http://localhost:5100/api/Records/export/pdf',
+    list: '/api/Records',
+    create: '/api/Records',
+    edit: '/api/Records/',
+    delete: '/api/Records/',
+    getbyid: '/api/Records/',
+    search: '/api/Records/Search',
+    exportExcel: '/api/Records/export/excel',
+    exportPdf: '/api/Records/export/pdf'
   },
 
-  /*
-   * Legacy direct-Angular OCR endpoints.
-   *
-   * The updated RecordFormComponent no longer calls these endpoints.
-   * OCR now flows:
-   *
-   * Gradio (localhost:8000)
-   *   -> /ocr-results
-   *   -> Chrome Extension
-   *   -> Angular form
-   *
-   * Keep this block for now so any other existing service/file that still
-   * references environment.ocr does not break at compile time.
-   */
   ocr: {
-    front:  'http://localhost:5100/api/Ocr/extract/front',
-    back:   'http://localhost:5100/api/Ocr/extract/back',
-    import: 'http://localhost:5100/api/Ocr/import'
+    front: '/api/Ocr/extract/front',
+    back: '/api/Ocr/extract/back',
+    import: '/api/Ocr/import'
   }
 };
