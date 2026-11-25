@@ -155,315 +155,7 @@
   </div>
 
 </div>
-<div class="ocr-shell">
-
-  <!-- ===================================================== -->
-
-  <!-- SIDEBAR -->
-
-  <!-- ===================================================== -->
-
-  <aside class="app-sidebar">
-
-  <div
-
-  class="sidebar-brand"
-
-  [attr.title]="'APP.OCR_MANAGEMENT' | translate"
-
->
-
-  <div class="brand-mark company-logo-mark">
-
-    <img
-
-      src="assets/images/almostakbal-logo.jfif"
-
-      alt="Almostakbal Technology"
-
-      class="company-sidebar-logo"
-
-    />
-
-  </div>
-
-</div>
-
-    <nav
-
-      class="sidebar-nav"
-
-      [attr.aria-label]="'NAV.MAIN' | translate"
-
-    >
-
-      <button
-
-        type="button"
-
-        class="nav-item active"
-
-        [attr.title]="'NAV.RECORDS' | translate"
-
-      >
-
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-
-          <path d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm3 4h8M8 12h8M8 16h5" />
-
-        </svg>
-
-        <span>{{ 'NAV.RECORDS' | translate }}</span>
-
-      </button>
-
-      <button
-
-        type="button"
-
-        class="nav-item"
-
-        [attr.title]="'RECORDS_PAGE.NEW_RECORD' | translate"
-
-        (click)="openForm()"
-
-      >
-
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-
-          <path d="M12 5v14M5 12h14" />
-
-        </svg>
-
-        <span>{{ 'NAV.NEW' | translate }}</span>
-
-      </button>
-
-      <button
-
-        type="button"
-
-        class="nav-item"
-
-        [attr.title]="'NAV.UPLOAD' | translate"
-
-        (click)="openForm()"
-
-      >
-
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-
-          <path d="M12 16V4m0 0L8 8m4-4 4 4M5 14v5h14v-5" />
-
-        </svg>
-
-        <span>{{ 'NAV.UPLOAD' | translate }}</span>
-
-      </button>
-
-   <div
-
-  class="sidebar-export"
-
-  (click)="$event.stopPropagation()"
-
->
-
-<button
-  type="button"
-  class="nav-item"
-  [attr.title]="'NAV.EXPORT' | translate"
-  (click)="toggleExportMenu($event)"
->
-
-  <svg
-    viewBox="0 0 24 24"
-    aria-hidden="true"
-  >
-    <path
-      d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3"
-    />
-  </svg>
-
-  <span>
-    {{ 'NAV.EXPORT' | translate }}
-  </span>
-
-</button>
-
-  <div
-
-    class="sidebar-export-menu"
-
-    *ngIf="showExportMenu"
-
-  >
-
-   <div class="export-menu-title">
-
-  {{ 'EXPORT.SELECTED_RECORDS' | translate }}
-
-  <span *ngIf="selectedCount > 0">
-    ({{ selectedCount }})
-  </span>
-
-</div>
-
-    <button
-
-      type="button"
-
-      class="export-option"
-
-      (click)="exportExcel()"
-
-      [disabled]="exportingExcel || selectedCount === 0"
-
-    >
-
-      <span class="export-file-icon">
-
-        XLSX
-
-      </span>
-
-      <span>
-
-       {{
-  exportingExcel
-    ? ('EXPORT.EXPORTING' | translate)
-    : ('EXPORT.EXCEL' | translate)
-}}
-
-      </span>
-
-    </button>
-
-   <button
-
-  type="button"
-
-  class="export-option"
-
-  (click)="exportPdf()"
-
-  [disabled]="exportingPdf || selectedCount === 0"
-
->
-
-  <span class="export-file-icon">
-
-    PDF
-
-  </span>
-
-  <span>
-
-  {{
-  exportingPdf
-    ? ('EXPORT.EXPORTING' | translate)
-    : ('EXPORT.PDF' | translate)
-}}
-
-  </span>
-
-    </button>
-
-  </div>
-
-</div>
-
-    </nav>
-
-  </aside>
-
-  <!-- ===================================================== -->
-
-  <!-- MAIN -->
-
-  <!-- ===================================================== -->
-
-  <div class="app-main">
-
-    <!-- TOP BAR -->
-
-    <header class="topbar">
-
-      <div class="topbar-brand">
-
-        <div>
-
-          <h1>{{ 'APP.NAME' | translate }}</h1>
-
-      
-
-        </div>
-
-      </div>
-
-      <div class="topbar-actions">
-
-        <button
-
-          type="button"
-
-          class="language-btn"
-
-          (click)="switchLang()"
-
-          [attr.title]="
-
-            currentLang === 'en'
-
-              ? ('LANGUAGE.SWITCH_TO_AR' | translate)
-
-              : ('LANGUAGE.SWITCH_TO_EN' | translate)
-
-          "
-
-        >
-
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-
-            <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0c2.2-2.4 3.3-5.4 3.3-9S14.2 5.4 12 3m0 18c-2.2-2.4-3.3-5.4-3.3-9S9.8 5.4 12 3M3.5 9h17M3.5 15h17" />
-
-          </svg>
-
-          <span>
-
-            {{ currentLang === 'en' ? 'العربية' : 'English' }}
-
-          </span>
-
-        </button>
-
-        <button
-
-          type="button"
-
-          class="new-record-btn"
-
-          (click)="openForm()"
-
-        >
-
-          <span class="plus">＋</span>
-
-          {{ 'RECORDS_PAGE.NEW_RECORD' | translate }}
-
-        </button>
-
-      </div>
-
-    </header>
-
-    <!-- =================================================== -->
-
-    <!-- CONTENT -->
-
-    <!-- =================================================== -->
-
-    <main class="content-area">
+<main class="content-area">
 
       <!-- SEARCH -->
 
@@ -757,6 +449,101 @@
 
 
   <div class="records-header-actions">
+      <!-- EXPORT -->
+  <div
+    class="records-export"
+    (click)="$event.stopPropagation()"
+  >
+
+    <button
+      type="button"
+      class="export-main-btn"
+      (click)="toggleExportMenu($event)"
+    >
+
+      <svg viewBox="0 0 24 24">
+        <path
+          d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v3h14v-3"
+        />
+      </svg>
+
+      <span>
+        Export
+      </span>
+
+      <span *ngIf="selectedCount > 0">
+        ({{ selectedCount }})
+      </span>
+
+    </button>
+
+
+    <div
+      class="records-export-menu"
+      *ngIf="showExportMenu"
+    >
+
+      <div class="export-menu-title">
+        Selected Records
+
+        <span *ngIf="selectedCount > 0">
+          ({{ selectedCount }})
+        </span>
+      </div>
+
+
+      <button
+        type="button"
+        class="export-option"
+        (click)="exportExcel()"
+        [disabled]="
+          exportingExcel ||
+          selectedCount === 0
+        "
+      >
+
+        <span class="export-file-icon">
+          XLSX
+        </span>
+
+        <span>
+          {{
+            exportingExcel
+              ? 'Exporting...'
+              : 'Excel'
+          }}
+        </span>
+
+      </button>
+
+
+      <button
+        type="button"
+        class="export-option"
+        (click)="exportPdf()"
+        [disabled]="
+          exportingPdf ||
+          selectedCount === 0
+        "
+      >
+
+        <span class="export-file-icon">
+          PDF
+        </span>
+
+        <span>
+          {{
+            exportingPdf
+              ? 'Exporting...'
+              : 'PDF'
+          }}
+        </span>
+
+      </button>
+
+    </div>
+
+  </div>
 
     <div class="view-switch">
 
@@ -1464,7 +1251,7 @@
 
     </main>
 
-  </div>
+  
 
   <!-- ===================================================== -->
 
@@ -1865,5 +1652,3 @@
     </span>
 
   </div>
-
-</div>

@@ -18,5 +18,9 @@ export const environment = {
     exportExcel: '/api/Records/export/excel',
     exportPdf: '/api/Records/export/pdf',
     import: '/api/Records/import'
+  },
+
+  dashboard: {
+    stats: '/api/Dashboard/stats'
   }
 };

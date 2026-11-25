@@ -24,13 +24,16 @@ export interface FrontOcrResult {
 
   address?: string;
 
+  governorate?: string;
+
   dob?: string;
 
   age?: number;
 }
 
-
 export interface BackOcrResult {
+
+  nationalId?: string | null;
 
   occupation?: string;
 

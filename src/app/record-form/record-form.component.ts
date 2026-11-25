@@ -99,13 +99,14 @@ export class RecordFormComponent implements OnDestroy {
   // FRONT
   // =========================================================
 
-  front: {
-    name?: string;
-    nationalId?: string;
-    address?: string;
-    dob?: string;
-    age?: number;
-  } = {};
+ front: {
+  name?: string;
+  nationalId?: string;
+  address?: string;
+  governorate?: string;
+  dob?: string;
+  age?: number;
+} = {};
 
 
   // =========================================================
@@ -122,6 +123,8 @@ export class RecordFormComponent implements OnDestroy {
   frontFile: File | null = null;
 
   backFile: File | null = null;
+  private frontOcrId = '';
+  private backOcrId = '';
 
 
   frontPreview: string | null = null;
@@ -206,6 +209,8 @@ export class RecordFormComponent implements OnDestroy {
 
       address:
         this.value.address,
+      governorate:
+        this.value.governorate,
 
        dob:
     this.value.dateOfBirth ?? undefined,
@@ -345,11 +350,14 @@ export class RecordFormComponent implements OnDestroy {
   ): void {
 
     this.frontFile = file;
+    this.frontOcrId = '';
+    this.frontPreview = null;
 
 
     this.createPreview(
       file,
       preview => {
+        if (this.frontFile !== file) return;
 
         this.frontPreview =
           preview;
@@ -367,6 +375,7 @@ export class RecordFormComponent implements OnDestroy {
       .pipe(
 
         finalize(() => {
+          if (this.frontFile !== file) return;
 
           this.loadingFront =
             false;
@@ -378,6 +387,8 @@ export class RecordFormComponent implements OnDestroy {
       .subscribe({
 
         next: result => {
+          if (this.frontFile !== file) return;
+          this.frontOcrId = this.toEnglishDigits(result.nationalId ?? '').trim();
 
           const data: any =
             result;
@@ -448,6 +459,8 @@ export class RecordFormComponent implements OnDestroy {
             );
 
 
+          this.front.governorate = result.governorate ?? '';
+
           // -------------------------
           // DOB
           // -------------------------
@@ -509,6 +522,7 @@ export class RecordFormComponent implements OnDestroy {
 
 
         error: error => {
+          if (this.frontFile !== file) return;
 
           console.error(
             'Front OCR error:',
@@ -539,11 +553,14 @@ export class RecordFormComponent implements OnDestroy {
   ): void {
 
     this.backFile = file;
+    this.backOcrId = '';
+    this.backPreview = null;
 
 
     this.createPreview(
       file,
       preview => {
+        if (this.backFile !== file) return;
 
         this.backPreview =
           preview;
@@ -561,6 +578,7 @@ export class RecordFormComponent implements OnDestroy {
       .pipe(
 
         finalize(() => {
+          if (this.backFile !== file) return;
 
           this.loadingBack =
             false;
@@ -572,6 +590,8 @@ export class RecordFormComponent implements OnDestroy {
       .subscribe({
 
         next: result => {
+          if (this.backFile !== file) return;
+          this.backOcrId = this.toEnglishDigits(result.nationalId ?? '').trim();
 
           const data: any =
             result;
@@ -676,6 +696,7 @@ export class RecordFormComponent implements OnDestroy {
 
 
         error: error => {
+          if (this.backFile !== file) return;
 
           console.error(
             'Back OCR error:',
@@ -2062,24 +2083,40 @@ export class RecordFormComponent implements OnDestroy {
 
   this.showConfirm = false;
 
-
-  const idEnglish =
-    this
-      .toEnglishDigits(
-        this.front.nationalId ?? ''
-      )
-      .replace(/\D/g, '');
-
-
-  if (idEnglish.length !== 14) {
-
-    this.openError(
-      'ID number must be 14 digits.'
-    );
-
+  if (this.loadingFront || this.loadingBack) {
+    this.openError('Please wait until OCR processing is complete.');
     return;
   }
 
+  const idEnglish = this.toEnglishDigits(this.front.nationalId ?? '').trim();
+  const validId = /^[0-9]{14}$/;
+
+  if (!validId.test(idEnglish)) {
+    this.openError('ID number must be 14 digits.');
+    return;
+  }
+
+  if (!this.isEdit && Boolean(this.frontFile) !== Boolean(this.backFile)) {
+    this.openError('Scan both sides of the ID card before saving.');
+    return;
+  }
+
+  if ((this.frontFile && (!this.frontPreview || !validId.test(this.frontOcrId))) ||
+      (this.backFile && (!this.backPreview || !validId.test(this.backOcrId)))) {
+    this.openError('Could not read the national ID from an uploaded side. Scan it again.');
+    return;
+  }
+
+  if (this.frontFile && this.backFile && this.frontOcrId !== this.backOcrId) {
+    this.openError('The front and back national ID numbers do not match.');
+    return;
+  }
+
+  if ((this.frontFile && idEnglish !== this.frontOcrId) ||
+      (this.backFile && idEnglish !== this.backOcrId)) {
+    this.openError('The national ID in the form does not match the scanned card.');
+    return;
+  }
 
   if (this.back.occupation) {
 
@@ -2106,7 +2143,8 @@ const payload: RecordValue = {
 
   dateOfBirth:
     this.front.dob ?? null,
-
+  governorate:
+    this.front.governorate?.trim(),
   age:
     this.front.age ?? 0,
 

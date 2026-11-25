@@ -636,6 +636,9 @@ ngOnDestroy(): void {
           r.address
           ?? '',
 
+        governorate:
+          r.governorate,
+
 
         dateOfBirth:
           dob,
@@ -958,7 +961,7 @@ ngOnDestroy(): void {
 
 private toDto(
   rec: any
-): CreateUpdateRecordDto {
+): CreateUpdateRecordDto & { governorate?: string } {
 
   const dob =
     String(
@@ -971,7 +974,7 @@ private toDto(
     ).trim();
 
 
-  const dto: CreateUpdateRecordDto = {
+  const dto: CreateUpdateRecordDto & { governorate?: string } = {
 
     name:
       (rec.name ?? '').trim(),
@@ -992,6 +995,9 @@ private toDto(
 
     address:
       rec.address ?? null,
+
+    governorate:
+      rec.governorate?.trim() || undefined,
 
     gender:
       rec.gender ?? null,
@@ -1254,7 +1260,7 @@ const updated =
 
 
               this.errorText =
-                'Update failed';
+                err?.error?.message ?? 'Update failed';
 
 
               console.error(
@@ -1358,7 +1364,7 @@ const updated =
 
 
             this.errorText =
-              'Save failed';
+              err?.error?.message ?? 'Save failed';
 
 
             console.error(
@@ -2297,71 +2303,51 @@ onSearchClick(): void {
   // IMAGE HELPERS
   // =========================================================
 
-  private normalizeImageSource(
-    value?:
-      string | null
-  ): string | null {
+ private normalizeImageSource(
+  value?: string | null
+): string | null {
 
-    if (!value) {
-
-      return null;
-    }
-
-
-    const source =
-      value.trim();
-
-
-    if (
-      !source
-
-      ||
-
-      source
-        === this.imageExistsMarker
-    ) {
-
-      return null;
-    }
-
-
-    if (
-      source.startsWith(
-        'data:image/'
-      )
-
-      ||
-
-      source.startsWith(
-        'blob:'
-      )
-
-      ||
-
-      source.startsWith(
-        'http://'
-      )
-
-      ||
-
-      source.startsWith(
-        'https://'
-      )
-    ) {
-
-      return source;
-    }
-
-
-    return (
-
-      'data:image/jpeg;base64,'
-
-      +
-
-      source
-    );
+  if (!value) {
+    return null;
   }
+
+  const source = value.trim();
+
+  if (
+    !source ||
+    source === this.imageExistsMarker
+  ) {
+    return null;
+  }
+
+  // Already a valid browser source
+  if (
+    source.startsWith('data:image/') ||
+    source.startsWith('blob:') ||
+    source.startsWith('http://') ||
+    source.startsWith('https://')
+  ) {
+    return source;
+  }
+
+  // New filesystem storage:
+  // Front/2026/10/file.jpg
+  // Back/2026/10/file.jpg
+  const normalizedPath =
+    source
+      .replace(/\\/g, '/')
+      .replace(/^\/+/, '');
+
+  if (
+    normalizedPath.startsWith('Front/') ||
+    normalizedPath.startsWith('Back/')
+  ) {
+    return `${window.location.origin}/${normalizedPath}`;
+  }
+
+  // Legacy records that still contain raw Base64
+  return `data:image/jpeg;base64,${source}`;
+}
 
 
   hasFrontImage(

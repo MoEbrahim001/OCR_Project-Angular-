@@ -1,24 +1,38 @@
 export interface RecordModel {
-  id:number;
-   name: string;
+  id: number;
+
+  name: string;
+
   idNumber: string;
+
   address: string;
+
+  governorate?: string;
+
   dateOfBirth: string;
+
   age: number;
+
   imageDataUrl?: string | null;
 
-  // back (optional)
+  // back
   occupation?: string;
+
   gender?: string;
+
   religion?: string;
+
   maritalStatus?: string;
+
   husbandName?: string;
+
   expiryDate?: string;
 
-  // images (optional)
+  // images
   frontImageDataUrl?: string | null;
+
   backImageDataUrl?: string | null;
 
-  // display convenience (optional)
+  // display convenience
   marital?: string;
 }

@@ -1,0 +1,135 @@
+<div class="ocr-shell">
+
+  <aside class="app-sidebar">
+
+    <div class="sidebar-brand">
+
+      <div class="brand-mark company-logo-mark">
+
+        <img
+          src="assets/images/almostakbal-logo.jfif"
+          alt="Almostakbal Technology"
+          class="company-sidebar-logo"
+        />
+
+      </div>
+
+    </div>
+
+
+    <nav class="sidebar-nav">
+
+      <a
+        class="nav-item"
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{
+          exact: true
+        }"
+      >
+
+        <svg viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+        </svg>
+
+        <span>
+          Dashboard
+        </span>
+
+      </a>
+
+
+      <a
+        class="nav-item"
+        routerLink="/records"
+        routerLinkActive="active"
+      >
+
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M5 4h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm3 4h8M8 12h8M8 16h5"
+          />
+        </svg>
+
+        <span>
+          Records
+        </span>
+
+      </a>
+
+
+      <a
+        class="nav-item"
+        routerLink="/form"
+        routerLinkActive="active"
+      >
+
+        <svg viewBox="0 0 24 24">
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+
+        <span>
+          New
+        </span>
+
+      </a>
+
+    </nav>
+
+  </aside>
+
+
+  <div class="app-main">
+
+    <header class="topbar">
+
+      <div class="topbar-brand">
+
+        <h1>
+          National ID Registration
+        </h1>
+
+        <p>
+          Almostakbal Technology
+        </p>
+
+      </div>
+
+
+      <div class="topbar-actions">
+
+        <button
+          type="button"
+          class="language-btn"
+          (click)="switchLang()"
+        >
+
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0c2.2-2.4 3.3-5.4 3.3-9S14.2 5.4 12 3m0 18c-2.2-2.4-3.3-5.4-3.3-9S9.8 5.4 12 3M3.5 9h17M3.5 15h17"
+            />
+          </svg>
+
+          <span>
+            {{
+              currentLang === 'en'
+                ? 'العربية'
+                : 'English'
+            }}
+          </span>
+
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <router-outlet></router-outlet>
+
+  </div>
+
+</div>
